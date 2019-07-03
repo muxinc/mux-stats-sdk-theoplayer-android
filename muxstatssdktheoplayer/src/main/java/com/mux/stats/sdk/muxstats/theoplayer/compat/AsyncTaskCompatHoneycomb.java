@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.theoplayer.compat;
+package com.mux.stats.sdk.muxstats.theoplayer.compat;
 
 import android.os.AsyncTask;
 

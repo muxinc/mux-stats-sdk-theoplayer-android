@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.theoplayer;
+package com.mux.stats.sdk.muxstats.theoplayer;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -32,7 +32,7 @@ import com.theoplayer.android.api.source.TypedSource;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import static com.mux.stats.sdk.theoplayer.Util.secondsToMs;
+import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
 
 public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     public static final String TAG = "MuxStatsSDKTHEOplayer";
@@ -72,21 +72,21 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         // Setup listeners
 
         player.getPlayer().addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
-            player.getPlayer().requestVideoWidth((playerSourceWidth -> sourceWidth = playerSourceWidth));
-            player.getPlayer().requestVideoHeight((playerSourceHeight -> sourceHeight = playerSourceHeight));
+            player.getPlayer().requestVideoWidth((playerSourceWidth -> {
+                sourceWidth = playerSourceWidth;
+            }));
+
+            player.getPlayer().requestVideoHeight((playerSourceHeight -> {
+                sourceHeight = playerSourceHeight;
+            }));
             dispatch(new VideoChangeEvent(null));
         }));
 
-//        player.getPlayer().addEventListener(PlayerEventTypes.PROGRESS, (progressEvent ->{
-//            playbackPosition = progressEvent.getCurrentTime();
-//            dispatch(new TimeUpdateEvent(null));
-//        }));
-
         player.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE,
-                timeUpdateEvent -> {
-                    player.getPlayer().requestCurrentTime(time -> playbackPosition = time);
-                    dispatch(new TimeUpdateEvent(null));
-                });
+            timeUpdateEvent -> {
+                player.getPlayer().requestCurrentTime(time -> playbackPosition = time);
+                dispatch(new TimeUpdateEvent(null));
+            });
 
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> play()));
@@ -101,14 +101,14 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
             dispatch(new EndedEvent(null));
         }));
-        player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (readyStateChangeEvent -> {
-            switch (readyStateChangeEvent.getReadyState()){
-                case HAVE_METADATA:
-            }
-        }));
+//        player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (readyStateChangeEvent -> {
+//            switch (readyStateChangeEvent.getReadyState()){
+//                case HAVE_METADATA:
+//            }
+//        }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
-                internalError(new MuxErrorException(0, errorEvent.getError()))));
+            internalError(new MuxErrorException(0, errorEvent.getError()))));
     }
 
     // IPlayerListener
@@ -253,8 +253,6 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     }
 
     static class MuxDevice implements IDevice {
-        private static final String MUX_PLUGIN_NAME = "android-mux";
-        private static final String MUX_PLUGIN_VERSION = "0.4.5";
         private static final String PLAYER_SOFTWARE = "THEOplayer";
 
         private String deviceId;
@@ -322,18 +320,16 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginName() {
-            return MUX_PLUGIN_NAME;
+            return BuildConfig.MUX_PLUGIN_NAME;
         }
 
         @Override
         public String getPluginVersion() {
-            return MUX_PLUGIN_VERSION;
+            return BuildConfig.MUX_PLUGIN_VERSION;
         }
 
         @Override
-        public String getPlayerSoftware() {
-            return PLAYER_SOFTWARE;
-        }
+        public String getPlayerSoftware() { return PLAYER_SOFTWARE; }
 
         @Override
         public void outputLog(String tag, String msg) {

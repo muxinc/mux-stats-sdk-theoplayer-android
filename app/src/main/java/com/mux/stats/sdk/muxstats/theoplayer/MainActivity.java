@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.theoplayer;
+package com.mux.stats.sdk.muxstats.theoplayer;
 
 import android.graphics.Point;
 import android.os.Bundle;
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("supvhf1e417e5rmm26kh8lar1");
+        customerPlayerData.setEnvironmentKey("g48011fena4sr1k35jck5eokt");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Big Buck");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);

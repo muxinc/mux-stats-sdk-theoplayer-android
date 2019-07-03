@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.theoplayer;
+package com.mux.stats.sdk.muxstats.theoplayer;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
-import com.mux.stats.sdk.theoplayer.compat.AsyncTaskCompat;
+import com.mux.stats.sdk.muxstats.theoplayer.compat.AsyncTaskCompat;
 
 import org.json.JSONObject;
 

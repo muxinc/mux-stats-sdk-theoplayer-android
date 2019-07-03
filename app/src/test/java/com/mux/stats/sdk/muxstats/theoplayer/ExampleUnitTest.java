@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.theoplayer;
+package com.mux.stats.sdk.muxstats.theoplayer;
 
 import org.junit.Test;
 

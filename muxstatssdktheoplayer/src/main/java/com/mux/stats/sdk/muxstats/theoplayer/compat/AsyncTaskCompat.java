@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.theoplayer.compat;
+package com.mux.stats.sdk.muxstats.theoplayer.compat;
 
 import android.os.AsyncTask;
 import android.os.Build;
@@ -24,7 +24,7 @@ public class AsyncTaskCompat {
         }
         if (Build.VERSION.SDK_INT >= 11) {
             // From API 11 onwards, we need to manually select the THREAD_POOL_EXECUTOR
-            com.mux.stats.sdk.theoplayer.compat.AsyncTaskCompatHoneycomb.executeParallel(task, params);
+            com.mux.stats.sdk.muxstats.theoplayer.compat.AsyncTaskCompatHoneycomb.executeParallel(task, params);
         } else {
             // Before API 11, all tasks were run in parallel
             task.execute(params);
