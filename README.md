@@ -1,8 +1,11 @@
 # mux-stats-sdk-theoplayer-android
+This is the Mux Mux Data integration for THEOplayer's Android SDK v2.x, built on top of Mux's core Java library, providing Mux Data performance analytics for applications utilizing THEOplayer's Android SDK.
 
-This is the Mux Data integration for THEOplayer's Android SDK. This is
-a work in progress, and will be updated as soon as a formal release has been
-made.
+Releases
+Full builds are provided as releases within the repo as versions are released.
 
-In the meantime, the sample application in `/app` should give a basic
-idea of how to integrate.
+Developer Quick Start
+Open this project in Android Studio, and let Gradle run to configure the application. Run the demo application in the emulator to test out the functionality.
+
+Documentation
+See our [docs](https://docs.mux.com/docs/theoplayer-android-integration-guide) for more integration information.
