@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.demo.theoplayer;
+package com.mux.stats.sdk.muxstats.theoplayer.demo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.mux.stats.sdk.muxstats.theoplayer.theoplayer.test", appContext.getPackageName());
+        assertEquals("com.mux.stats.sdk.muxstats.theoplayer.theoplayer", appContext.getPackageName());
     }
 }
