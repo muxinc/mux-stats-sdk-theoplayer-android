@@ -32,7 +32,7 @@ import com.mux.stats.sdk.muxstats.IDevice;
 import com.mux.stats.sdk.muxstats.IPlayerListener;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.mux.stats.sdk.muxstats.MuxStats;
-import com.mux.stats.sdk.muxstats.demo.theoplayer.BuildConfig;
+import com.mux.stats.sdk.muxstats.theoplayer.BuildConfig;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.ads.Ads;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
