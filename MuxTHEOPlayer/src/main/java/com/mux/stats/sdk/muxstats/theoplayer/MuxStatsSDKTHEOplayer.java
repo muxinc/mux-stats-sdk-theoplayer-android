@@ -103,45 +103,34 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, playingEvent -> playing());
         player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, pauseEvent -> pause());
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKING, seekingEvent -> {
-            Log.v(TAG, "seeking");
+            dispatch(new TimeUpdateEvent(null));
             dispatch(new SeekingEvent(null));
         });
-        player.getPlayer().addEventListener(PlayerEventTypes.SEEKED, seekedEvent -> {
-            Log.v(TAG, "seeked");
-            dispatch(new SeekedEvent(null));
-        });
+        player.getPlayer().addEventListener(PlayerEventTypes.SEEKED, seekedEvent ->
+                dispatch(new SeekedEvent(null)));
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, endedEvent -> {
             if (inAdBreak) {
-                Log.v(TAG, "adended");
                 dispatch(new AdEndedEvent(null));
             } else {
-                Log.v(TAG, "ended");
                 dispatch(new EndedEvent(null));
             }
         });
 
-        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, errorEvent -> {
-            Log.v(TAG, "error");
-            internalError(new MuxErrorException(0, errorEvent.getError()));
-        });
-
+        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, errorEvent ->
+                internalError(new MuxErrorException(0, errorEvent.getError())));
         // And ad listeners
         Ads ads = player.getPlayer().getAds();
         ads.addEventListener(AdsEventTypes.AD_BREAK_BEGIN, adBreakBeginEvent -> {
-            Log.v(TAG, "Ad Break Begin");
             inAdBreak = true;
             dispatch(new PauseEvent(null));
             dispatch(new AdBreakStartEvent(null));
         });
         ads.addEventListener(AdsEventTypes.AD_BREAK_END, adBreakEndEvent -> {
-            Log.v(TAG, "Ad Break End");
             dispatch(new AdBreakEndEvent(null));
             inAdBreak = false;
         });
-        ads.addEventListener(AdsEventTypes.AD_END, adEndEvent -> {
-            Log.v(TAG, "Ad End");
-            dispatch(new AdEndedEvent(null));
-        });
+        ads.addEventListener(AdsEventTypes.AD_END, adEndEvent ->
+                dispatch(new AdEndedEvent(null)));
         ads.addEventListener(AdsEventTypes.AD_ERROR, adErrorEvent ->
                 dispatch(new AdErrorEvent(null)));
     }
