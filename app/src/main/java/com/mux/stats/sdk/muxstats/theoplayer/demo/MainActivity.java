@@ -1,5 +1,6 @@
-package com.mux.stats.sdk.muxstats.theoplayer;
+package com.mux.stats.sdk.muxstats.theoplayer.demo;
 
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,8 +8,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
+import com.mux.stats.sdk.muxstats.theoplayer.demo.R;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.EventListener;
 import com.theoplayer.android.api.event.player.PauseEvent;
@@ -85,14 +89,30 @@ public class MainActivity extends AppCompatActivity {
         });
 
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("g48011fena4sr1k35jck5eokt");
+        customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Big Buck");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);
+        muxStatsSDKTHEOplayer.enableMuxCoreDebug(true, false);
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStatsSDKTHEOplayer.setScreenSize(size.x, size.y);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (muxStatsSDKTHEOplayer == null) {
+            return;
+        }
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            muxStatsSDKTHEOplayer.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
+        }
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            muxStatsSDKTHEOplayer.orientationChange(MuxSDKViewOrientation.PORTRAIT);
+        }
     }
 
     @Override

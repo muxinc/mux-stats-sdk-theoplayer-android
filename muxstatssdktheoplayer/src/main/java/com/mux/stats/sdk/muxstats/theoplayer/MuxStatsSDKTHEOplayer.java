@@ -7,6 +7,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -32,6 +33,7 @@ import com.theoplayer.android.api.source.TypedSource;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
 
 public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
@@ -48,6 +50,8 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     protected String mimeType;
     protected int sourceWidth;
     protected int sourceHeight;
+    protected Integer sourceAdvertisedBitrate;
+    protected Float sourceAdvertisedFramerate;
     protected long sourceDuration;
     protected boolean playWhenReady;
 
@@ -118,6 +122,23 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         return secondsToMs(playbackPosition);
     }
 
+    @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutput(enable, verbose);
+    }
+
     @Override
     public String getMimeType() {
         List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
@@ -132,6 +153,16 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     @Override
     public Integer getSourceHeight() {
         return sourceHeight;
+    }
+
+    @Override
+    public Integer getSourceAdvertisedBitrate() {
+        return sourceAdvertisedBitrate;
+    }
+
+    @Override
+    public Float getSourceAdvertisedFramerate() {
+        return sourceAdvertisedFramerate;
     }
 
     @Override
@@ -173,8 +204,6 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
             super.dispatch(event);
         }
     }
-
-
 
     // Internal methods to change stats
     protected void buffering() {
@@ -220,6 +249,10 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
     public void programChange(CustomerVideoData customerVideoData) {
         muxStats.programChange(customerVideoData);
+    }
+
+    public void orientationChange(MuxSDKViewOrientation orientation) {
+        muxStats.orientationChange(orientation);
     }
 
     public void setPlayerView(THEOplayerView playerView) {
@@ -330,6 +363,11 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPlayerSoftware() { return PLAYER_SOFTWARE; }
+
+        @Override
+        public long getElapsedRealtime() {
+            return elapsedRealtime();
+        }
 
         @Override
         public void outputLog(String tag, String msg) {
