@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
+        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Big Buck");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);
