@@ -52,6 +52,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
     protected Float sourceAdvertisedFramerate;
+    protected AdsImaSDKListener imaListener;
     protected long sourceDuration;
     protected boolean playWhenReady;
 
@@ -105,14 +106,14 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
             dispatch(new EndedEvent(null));
         }));
-//        player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (readyStateChangeEvent -> {
-//            switch (readyStateChangeEvent.getReadyState()){
-//                case HAVE_METADATA:
-//            }
-//        }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
             internalError(new MuxErrorException(0, errorEvent.getError()))));
+    }
+
+    public void setAdsListener(AdsImaSDKListener listener) {
+        imaListener = listener;
+        imaListener.setTheoPlayerListener(this);
     }
 
     // IPlayerListener
