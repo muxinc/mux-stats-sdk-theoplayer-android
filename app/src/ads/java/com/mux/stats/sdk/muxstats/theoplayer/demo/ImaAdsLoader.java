@@ -108,32 +108,37 @@ public final class ImaAdsLoader
 
   public ImaAdsLoader(
           Context context,
-          THEOplayerView playerView,
-          String adTagUri) {
+          THEOplayerView playerView) {
     this.context = context;
     this.playerView = playerView;
-    this.adTagUri = adTagUri;
     imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
-    // TODO set this variables
-//    imaSdkSettings.setPlayerType("");
-//    imaSdkSettings.setPlayerVersion("");
-//    adDisplayContainer = ImaSdkFactory.createAdDisplayContainer(
-//            playerView,
-//            this
-//    );
     adDisplayContainer = ImaSdkFactory.getInstance().createAdDisplayContainer();
     adDisplayContainer.setPlayer(this);
     adDisplayContainer.setAdContainer(playerView);
+
+    initAdsLoader();
+    hookPlayerEvents();
+  }
+
+  public void setAdTagUri(String adTagUri) {
+    this.adTagUri = adTagUri;
+    isAdRequestsed = false;
+  }
+
+  void initAdsLoader() {
     adsLoader = ImaSdkFactory.getInstance().createAdsLoader(
             context,
             imaSdkSettings
-//            , adDisplayContainer
     );
-    // TODO maybe hook adDisplayContainer with adsLoader
     adsLoader.addAdErrorListener(/* adErrorListener= */ this);
     adsLoader.addAdsLoadedListener(/* adsLoadedListener= */ this);
+  }
 
-    hookPlayerEvents();
+  void releaseAdsLoader() {
+    if (adsManager != null) {
+      adsManager.destroy();
+      adsManager = null;
+    }
   }
 
   void hookPlayerEvents() {
@@ -227,8 +232,19 @@ public final class ImaAdsLoader
   }
 
   @Override
+  public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
+    Log.i(TAG, "onAdsManagerLoaded");
+    adsManager = adsManagerLoadedEvent.getAdsManager();
+
+    adsManager.addAdErrorListener(this);
+    adsManager.addAdEventListener(this);
+    adsManager.init();
+  }
+
+  @Override
   public void onAdError(AdErrorEvent adErrorEvent) {
     Log.e(TAG, "Ad Error: " + adErrorEvent.getError().getMessage());
+    isAdDisplayed = true;
     resumeContentAfterAdPlayback();
     for (AdErrorListener listener : adsErrorListeners) {
       listener.onAdError(adErrorEvent);
@@ -260,10 +276,6 @@ public final class ImaAdsLoader
         resumeContentAfterAdPlayback();
         break;
       case ALL_ADS_COMPLETED:
-        if (adsManager != null) {
-          adsManager.destroy();
-          adsManager = null;
-        }
         break;
       default:
         break;
@@ -273,18 +285,10 @@ public final class ImaAdsLoader
     }
   }
 
-  @Override
-  public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
-    Log.i(TAG, "onAdsManagerLoaded");
-    adsManager = adsManagerLoadedEvent.getAdsManager();
-
-    adsManager.addAdErrorListener(this);
-    adsManager.addAdEventListener(this);
-    adsManager.init();
-  }
-
   void pauseContentForAdPlayback() {
     // Save current playback position and reset the value
+    Log.i(TAG, "pauseContentForAdPlayback");
+    isAdDisplayed = true;
     consumerContentPosition = currentPlaybackTime;
     currentPlaybackTime = 0;
     consumerContent = playerView.getPlayer().getSource();
@@ -292,11 +296,17 @@ public final class ImaAdsLoader
   }
 
   void resumeContentAfterAdPlayback() {
-    currentPlaybackTime = consumerContentPosition;
-    // TODO maybe seek to consumerContentPosition
-    playerView.getPlayer().setSource(consumerContent);
-    playerView.getPlayer().play();
-    isAdDisplayed = false;
+    if (isAdDisplayed) {
+      Log.i(TAG, "resumeContentAfterAdPlayback");
+      currentPlaybackTime = consumerContentPosition;
+      // TODO maybe seek to consumerContentPosition
+      playerView.getPlayer().setSource(consumerContent);
+      playerView.getPlayer().setCurrentTime(consumerContentPosition);
+      playerView.getPlayer().play();
+      isAdDisplayed = false;
+    } else {
+      Log.i(TAG, "Why !!!!!!!!!!!!!1");
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +316,6 @@ public final class ImaAdsLoader
   @Override
   public void playAd() {
     Log.i(TAG, "playAd");
-    isAdDisplayed = true;
     playerView.getPlayer().play();
   }
 

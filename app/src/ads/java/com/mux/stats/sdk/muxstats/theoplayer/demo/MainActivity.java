@@ -4,9 +4,13 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.JsonReader;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -31,16 +35,22 @@ import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
+    static final String TAG = "MainActivity";
+
     THEOplayerView theoPlayerView;
     Button btnPlayPause;
     TextView txtPlayStatus, txtTimeUpdate;
-    RelativeLayout addContainer;
-    private ViewGroup adUiViewGroup;
+    ListView adTypeList;
     double currentPlaybackTime = -1;
+    HashMap<String, String> adsUriTagMap = new HashMap<>();
 
     MuxStatsSDKTHEOplayer muxStatsSDKTHEOplayer;
     private AdsImaSDKListener imaAdsListener;
@@ -52,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         theoPlayerView = findViewById(R.id.theoplayer);
+        adTypeList = findViewById(R.id.ad_type_selection);
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
 //        String preRollAdTagUriString = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpreonly&cmsid=496&vid=short_onecue&correlator=";
@@ -112,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
         customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
         CustomerVideoData customerVideoData = new CustomerVideoData();
-        customerVideoData.setVideoTitle("Big Buck");
+        customerVideoData.setVideoTitle("Dizzy");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);
         muxStatsSDKTHEOplayer.enableMuxCoreDebug(true, false);
 
@@ -120,17 +131,64 @@ public class MainActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStatsSDKTHEOplayer.setScreenSize(size.x, size.y);
 
-
-        createAdsLoader(preRollAdTagUriString);
-//        setupAdsMediaSource(preRollAdTagUriString);
+        createAdsLoader();
+        initAdTypeList();
     }
 
-    void createAdsLoader(String adsTagUri) {
+    void initAdTypeList() {
+        JsonReader reader;
+        try {
+            InputStream in = getAssets().open("media.json");
+            reader = new JsonReader(new InputStreamReader(in, java.nio.charset.Charset.forName("UTF-8")));
+            reader.beginArray();
+            while (reader.hasNext()) {
+                reader.beginObject();
+                String name = null;
+                String adTagUri = null;
+                while (reader.hasNext()) {
+                    String attributeName = reader.nextName();
+                    String attributeValue = reader.nextString();
+                    if (attributeName.equalsIgnoreCase("name")) {
+                        name = attributeValue;
+                    }
+                    if (attributeName.equalsIgnoreCase("ad_tag_uri")) {
+                        adTagUri = attributeValue;
+                    }
+                }
+                if (name != null && adTagUri != null) {
+                    adsUriTagMap.put(name, adTagUri);
+                }
+                reader.endObject();
+            }
+            reader.close();
+            String[] values = adsUriTagMap.keySet().toArray(new String[0]);
+            adTypeList.setAdapter(new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1,
+                    values));
+            adTypeList.setOnItemClickListener((parent, view, position, id) -> {
+                // Reset player playback
+                theoPlayerView.getPlayer().stop();
+                String selectedAdType = (String)adTypeList.getAdapter().getItem(position);
+                String adTagUri = adsUriTagMap.get(selectedAdType);
+                imaLoader.setAdTagUri(adTagUri);
+            });
+            adTypeList.performItemClick(
+                    adTypeList.findViewWithTag(
+                            adTypeList.getAdapter().
+                                    getItem(0)),
+                    0,
+                    adTypeList.getAdapter().getItemId(0));
+            adTypeList.setSelection(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    void createAdsLoader() {
         imaAdsListener = new AdsImaSDKListener();
-        imaLoader = new ImaAdsLoader(this, theoPlayerView, adsTagUri);
-//        loader.addAdsEventListener(imaAdsListener);
-//        loader.addAdErrorListener(imaAdsListener);
+        imaLoader = new ImaAdsLoader(this, theoPlayerView);
         muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
+//        imaLoader.setAdTagUri("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=" );
     }
 
     @Override

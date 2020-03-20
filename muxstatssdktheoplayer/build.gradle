@@ -26,10 +26,16 @@ android {
     flavorDimensions 'api'
 
     productFlavors {
-        no_ads {
+        minapi16 {
             dimension 'api'
         }
-        ads {
+        minapi21 {
+            dimension 'api'
+        }
+        minapi16ads {
+            dimension 'api'
+        }
+        minapi21ads {
             dimension 'api'
         }
     }
@@ -42,10 +48,12 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api files('libs/MuxCore.jar')
-    implementation(name: 'theoplayer', ext: 'aar')
-    adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    adsImplementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
-//    implementation 'com.android.support:appcompat-v7:28.0.0'
+    minapi16Api files('libs/theoplayer-android-mux20190503-2.67.0-minapi16-release.aar')
+    minapi16adsApi files('libs/theoplayer-android-mux20190503-2.67.0-minapi16-release.aar')
+    minapi21Api files('libs/theoplayer-android-mux20190503-2.67.0-minapi21-release.aar')
+    minapi21adsApi files('libs/theoplayer-android-mux20190503-2.67.0-minapi21-release.aar')
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
