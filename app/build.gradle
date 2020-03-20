@@ -67,13 +67,17 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':muxstatssdktheoplayer')
+    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
+    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
+    minapi21Implementation(name: 'theoplayer-android-minapi21', ext: "aar")
+    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'com.google.code.gson:gson:2.8.2'
     minapi16adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    minapi16adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    minapi21adsImplementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
+    minapi16adsImplementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
+    minapi21adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     minapi21adsImplementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

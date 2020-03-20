@@ -3,7 +3,6 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 28
 
-
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 28
@@ -14,7 +13,6 @@ android {
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -31,12 +29,14 @@ android {
         }
         minapi21 {
             dimension 'api'
+            minSdkVersion 21
         }
         minapi16ads {
             dimension 'api'
         }
         minapi21ads {
             dimension 'api'
+            minSdkVersion 21
         }
     }
     compileOptions {
@@ -48,10 +48,10 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api files('libs/MuxCore.jar')
-    minapi16Api files('libs/theoplayer-android-mux20190503-2.67.0-minapi16-release.aar')
-    minapi16adsApi files('libs/theoplayer-android-mux20190503-2.67.0-minapi16-release.aar')
-    minapi21Api files('libs/theoplayer-android-mux20190503-2.67.0-minapi21-release.aar')
-    minapi21adsApi files('libs/theoplayer-android-mux20190503-2.67.0-minapi21-release.aar')
+    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
+    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
+    minapi21Implementation(name: 'theoplayer-android-minapi21', ext: "aar")
+    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
     implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
     testImplementation 'junit:junit:4.12'
