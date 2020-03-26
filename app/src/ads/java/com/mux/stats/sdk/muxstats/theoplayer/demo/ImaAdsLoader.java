@@ -134,6 +134,18 @@ public final class ImaAdsLoader
     adsLoader.addAdsLoadedListener(/* adsLoadedListener= */ this);
   }
 
+  public void addAdsErrorListener(AdErrorListener listener) {
+    if (!adsErrorListeners.contains(listener)) {
+      adsErrorListeners.add(listener);
+    }
+  }
+
+  public void addAdsEventListener(AdEventListener listener) {
+    if (!adsEventListeners.contains(listener)) {
+      adsEventListeners.add(listener);
+    }
+  }
+
   void releaseAdsLoader() {
     if (adsManager != null) {
       adsManager.destroy();
@@ -223,12 +235,6 @@ public final class ImaAdsLoader
 
     // Request the ad. After the ad is loaded, onAdsManagerLoaded() will be called.
     adsLoader.requestAds(request);
-  }
-
-  public void addAdsEventListener(AdEventListener listener) {
-    if (!adsEventListeners.contains(listener)) {
-      adsEventListeners.add(listener);
-    }
   }
 
   @Override
