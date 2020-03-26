@@ -12,7 +12,7 @@ android {
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -50,12 +50,12 @@ dependencies {
     api files('libs/MuxCore.jar')
     minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
     minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
-    minapi21Implementation(name: 'theoplayer-android-minapi21', ext: "aar")
+    minapi21Implementation(name: 'theoplayer-minapi21', ext: "aar")
     minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    implementation 'com.google.android.gms:play-services-ads-identifier:15.0.1'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
+    implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
