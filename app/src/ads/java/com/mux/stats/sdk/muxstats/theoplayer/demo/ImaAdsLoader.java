@@ -47,6 +47,7 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 
 //import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 
+import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
@@ -76,6 +77,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
+import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
 
 
 public final class ImaAdsLoader
@@ -128,7 +132,8 @@ public final class ImaAdsLoader
   void initAdsLoader() {
     adsLoader = ImaSdkFactory.getInstance().createAdsLoader(
             context,
-            imaSdkSettings
+            imaSdkSettings,
+            adDisplayContainer
     );
     adsLoader.addAdErrorListener(/* adErrorListener= */ this);
     adsLoader.addAdsLoadedListener(/* adsLoadedListener= */ this);
@@ -158,7 +163,7 @@ public final class ImaAdsLoader
       if (isAdDisplayed) {
         Log.i(TAG, "Ad content playback ended !!!");
         for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
-          adCallback.onEnded();
+          adCallback.onEnded(new AdMediaInfo(playerView.getPlayer().getSrc()));
         }
       } else {
         Log.i(TAG, "Consumer content playback ended !!!");
@@ -170,7 +175,7 @@ public final class ImaAdsLoader
       if (isAdDisplayed) {
         Log.i(TAG, "Ad content playback started !!!");
         for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
-          adCallback.onPlay();
+          adCallback.onPlay(new AdMediaInfo(playerView.getPlayer().getSrc()));
         }
       } else {
         Log.i(TAG, "Consumer content playback started !!!");
@@ -187,7 +192,7 @@ public final class ImaAdsLoader
     playerView.getPlayer().addEventListener(PlayerEventTypes.VOLUMECHANGE, (volumeChangeEvent -> {
       if (isAdDisplayed) {
         for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
-          adCallback.onVolumeChanged((int) volumeChangeEvent.getVolume());
+          adCallback.onVolumeChanged(new AdMediaInfo(playerView.getPlayer().getSrc()), (int)volumeChangeEvent.getVolume());
         }
       }
     }));
@@ -196,7 +201,7 @@ public final class ImaAdsLoader
       if (isAdDisplayed) {
         Log.i(TAG, "Ad content playback paused !!!");
         for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
-          adCallback.onPause();
+          adCallback.onPause(new AdMediaInfo(playerView.getPlayer().getSrc()));
         }
       } else {
         Log.i(TAG, "Consumer content playback paused !!!");
@@ -207,7 +212,7 @@ public final class ImaAdsLoader
       if (isAdDisplayed) {
         Log.i(TAG, "Ad content playback error !!!");
         for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
-          adCallback.onError();
+          adCallback.onError(new AdMediaInfo(playerView.getPlayer().getSrc()));
         }
       } else {
         Log.i(TAG, "Consumer content playback error !!!");
@@ -224,7 +229,7 @@ public final class ImaAdsLoader
     AdsRequest request = ImaSdkFactory.getInstance().createAdsRequest();
     request.setAdTagUrl(adTagUri);
     // Maybe set new adDisplay container instance
-    request.setAdDisplayContainer(adDisplayContainer);
+//    request.setAdDisplayContainer(adDisplayContainer);
     request.setContentProgressProvider(() -> {
         if (isAdDisplayed || playerView == null || playerView.getPlayer().getDuration() <= 0) {
           return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
@@ -320,58 +325,41 @@ public final class ImaAdsLoader
   //////////////////////////////////////////////////////////////////////////////////////
 
   @Override
-  public void playAd() {
+  public void loadAd(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
+    Log.i(TAG, "loadAd: ");
+    String addUrl = adMediaInfo.getUrl();
+    TypedSource.Builder typedSource =  typedSource(addUrl);
+
+    SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+    playerView.getPlayer().setSource(sourceDescription.build());
+  }
+
+  @Override
+  public void playAd(AdMediaInfo adMediaInfo) {
     Log.i(TAG, "playAd");
     playerView.getPlayer().play();
   }
 
   @Override
-  public void loadAd(String addUrl) {
-    Log.i(TAG, "loadAd: ");
-    String[] urlParts = addUrl.split("\\.");
-    String extension = urlParts[urlParts.length - 1];
-    SourceType addSourceType = SourceType.MP4;
-    if (extension.equalsIgnoreCase("mpd")) {
-      addSourceType = SourceType.DASH;
-    }
-    if (extension.equalsIgnoreCase("hls")) {
-      addSourceType = SourceType.HLS;
-    }
-    if (extension.equalsIgnoreCase("hlsx")) {
-      addSourceType = SourceType.HLSX;
-    }
-
-    TypedSource typedSource = TypedSource.Builder
-            .typedSource()
-            .src(addUrl)
-            .type(addSourceType)
-            .build();
-
-    SourceDescription sourceDescription = SourceDescription.Builder
-            .sourceDescription(typedSource)
-            .build();
-    playerView.getPlayer().setSource(sourceDescription);
-  }
-
-  @Override
-  public void stopAd() {
-    Log.i(TAG, "stopAd");
-    playerView.getPlayer().stop();
-    for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
-     adCallback.onEnded();
-    }
-  }
-
-  @Override
-  public void pauseAd() {
+  public void pauseAd(AdMediaInfo adMediaInfo) {
     Log.i(TAG, "pauseAd");
     playerView.getPlayer().pause();
   }
 
   @Override
-  public void resumeAd() {
-    Log.i(TAG, "resumeAd");
-    playerView.getPlayer().play();
+  public void stopAd(AdMediaInfo adMediaInfo) {
+    Log.i(TAG, "stopAd");
+    playerView.getPlayer().stop();
+    for (VideoAdPlayerCallback adCallback : adsPlaybackListeners) {
+      adCallback.onEnded(adMediaInfo);
+    }
+  }
+
+  @Override
+  public void release() {
+    Log.i(TAG, "release Ad");
+//    playerView.getPlayer().play();
+    // TODO maybe resume playback content
   }
 
   @Override

@@ -3,7 +3,7 @@ package com.mux.stats.sdk.muxstats.theoplayer.demo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 //import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
@@ -41,11 +43,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
+import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
+
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = "MainActivity";
 
     THEOplayerView theoPlayerView;
+    Player theoPlayer;
     Button btnPlayPause;
     TextView txtPlayStatus, txtTimeUpdate;
     ListView adTypeList;
@@ -62,27 +68,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         theoPlayerView = findViewById(R.id.theoplayer);
+        theoPlayer = theoPlayerView.getPlayer();
         adTypeList = findViewById(R.id.ad_type_selection);
-        theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
-//        String preRollAdTagUriString = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpreonly&cmsid=496&vid=short_onecue&correlator=";
-
-        String preRollAdTagUriString = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&correlator=";
-
-        TypedSource typedSource = TypedSource.Builder
-                .typedSource()
-//                .src("https://cdn.theoplayer.com/video/dash/big_buck_bunny/BigBuckBunny_10s_simple_2014_05_09.mpd")
-                .src("https://html5demos.com/assets/dizzy.mp4")
-                .type(SourceType.MP4)
-                .build();
-
-        SourceDescription sourceDescription = SourceDescription.Builder
-                .sourceDescription(typedSource)
-//                .ads(ad)
-                .build();
-
-        theoPlayerView.getPlayer().setSource(sourceDescription);
-
+        configureTHEOplayer();
         btnPlayPause = findViewById(R.id.btn_playpause);
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,41 +87,60 @@ public class MainActivity extends AppCompatActivity {
         txtPlayStatus = findViewById(R.id.txt_playstatus);
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
-        theoPlayerView.getPlayer().addEventListener(PlayerEventTypes.PLAY, new EventListener<PlayEvent>() {
-            @Override
-            public void handleEvent(PlayEvent playEvent) {
-                txtPlayStatus.setText("Playing");
-            }
-        });
+//        configureMuxSdk();
+        createAdsLoader();
+        initAdTypeList();
+    }
 
-        theoPlayerView.getPlayer().addEventListener(PlayerEventTypes.PAUSE, new EventListener<PauseEvent>() {
-            @Override
-            public void handleEvent(PauseEvent pauseEvent) {
-                txtPlayStatus.setText("Paused");
-            }
-        });
-
-        theoPlayerView.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE, new EventListener<TimeUpdateEvent>() {
-            @Override
-            public void handleEvent(TimeUpdateEvent timeUpdateEvent) {
-                currentPlaybackTime = timeUpdateEvent.getCurrentTime();
-                txtTimeUpdate.setText(String.valueOf(timeUpdateEvent.getCurrentTime()));
-            }
-        });
-
+    private void configureMuxSdk() {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+        customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY HERE");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Dizzy");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);
-        muxStatsSDKTHEOplayer.enableMuxCoreDebug(true, false);
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStatsSDKTHEOplayer.setScreenSize(size.x, size.y);
+    }
 
-        createAdsLoader();
-        initAdTypeList();
+    private void configureTHEOplayer() {
+        // Coupling the orientation of the device with the fullscreen state.
+        // The player will go fullscreen when the device is rotated to landscape
+        // and will also exit fullscreen when the device is rotated back to portrait.
+        theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
+
+        // Creating a TypedSource builder that defines the location of a single stream source.
+        TypedSource.Builder typedSource =  typedSource(getString(R.string.adsSourceUrl));
+
+        // Creating a SourceDescription builder that contains the settings to be applied as a new
+        // THEOplayer source.
+        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+        // Skip the default poster
+//                .poster(getString(R.string.defaultPosterUrl));
+
+        // Configuring THEOplayer with defined SourceDescription object.
+        theoPlayer.setSource(sourceDescription.build());
+
+        theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
+                txtPlayStatus.setText("Playing")
+        );
+
+        theoPlayer.addEventListener(PlayerEventTypes.PAUSE, event ->
+                txtPlayStatus.setText("Paused")
+        );
+
+        theoPlayer.addEventListener(PlayerEventTypes.ENDED, event ->
+                txtPlayStatus.setText("Ended")
+        );
+
+        theoPlayer.addEventListener(PlayerEventTypes.ERROR, event ->
+                txtPlayStatus.setText("Error: " + event.getError())
+        );
+
+        theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->
+                txtTimeUpdate.setText(String.valueOf(event.getCurrentTime()))
+        );
     }
 
     void initAdTypeList() {
@@ -185,12 +193,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void createAdsLoader() {
-        imaAdsListener = new AdsImaSDKListener();
+//        imaAdsListener = new AdsImaSDKListener();
         imaLoader = new ImaAdsLoader(this, theoPlayerView);
-        imaLoader.addAdsErrorListener(imaAdsListener);
-        imaLoader.addAdsEventListener(imaAdsListener);
-        muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
-//        imaLoader.setAdTagUri("https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=vmap&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ar%3Dpremidpost&cmsid=496&vid=short_onecue&correlator=" );
+//        imaLoader.addAdsErrorListener(imaAdsListener);
+//        imaLoader.addAdsEventListener(imaAdsListener);
+//        muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
     }
 
     @Override

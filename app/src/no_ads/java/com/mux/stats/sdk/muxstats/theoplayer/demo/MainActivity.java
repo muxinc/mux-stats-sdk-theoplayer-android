@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void configureMuxSdk() {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("g48011fena4sr1k35jck5eokt");
+        customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY HERE");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Big buck bunny");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);
