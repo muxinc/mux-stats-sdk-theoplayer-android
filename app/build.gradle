@@ -21,23 +21,23 @@ android {
     sourceSets {
         minapi16 {
             java.srcDirs = ['./src/no_ads/java']
-            res.srcDirs = ['./src/main/res']
-            assets.srcDirs = ['./src/main/assets']
+            res.srcDirs = ['./src/no_ads/res']
+            assets.srcDirs = ['./src/no_ads/assets']
         }
         minapi21 {
             java.srcDirs = ['./src/no_ads/java']
-            res.srcDirs = ['./src/main/res']
-            assets.srcDirs = ['./src/main/assets']
+            res.srcDirs = ['./src/no_ads/res']
+            assets.srcDirs = ['./src/no_ads/assets']
         }
         minapi16ads {
             java.srcDirs = ['./src/ads/java']
-            res.srcDirs = ['./src/main/res']
-            assets.srcDirs = ['./src/main/assets']
+            res.srcDirs = ['./src/ads/res']
+            assets.srcDirs = ['./src/ads/assets']
         }
         minapi21ads {
             java.srcDirs = ['./src/ads/java']
-            res.srcDirs = ['./src/main/res']
-            assets.srcDirs = ['./src/main/assets']
+            res.srcDirs = ['./src/ads/res']
+            assets.srcDirs = ['./src/ads/assets']
         }
     }
 

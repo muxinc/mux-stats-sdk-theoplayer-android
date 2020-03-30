@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
 import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
+import static com.theoplayer.android.api.source.addescription.GoogleImaAdDescription.Builder.googleImaAdDescription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
 //        configureMuxSdk();
-        createAdsLoader();
+//        createAdsLoader();
         initAdTypeList();
     }
 
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
         // Creating a TypedSource builder that defines the location of a single stream source.
-        TypedSource.Builder typedSource =  typedSource(getString(R.string.adsSourceUrl));
+        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
 
         // Creating a SourceDescription builder that contains the settings to be applied as a new
         // THEOplayer source.
@@ -178,7 +179,14 @@ public class MainActivity extends AppCompatActivity {
                 theoPlayerView.getPlayer().stop();
                 String selectedAdType = (String)adTypeList.getAdapter().getItem(position);
                 String adTagUri = adsUriTagMap.get(selectedAdType);
-                imaLoader.setAdTagUri(adTagUri);
+                GoogleImaAdDescription.Builder adDescription = googleImaAdDescription(adTagUri)
+                        .timeOffset("0");
+                TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+                SourceDescription.Builder sourceDescription =
+                        sourceDescription(typedSource.build())
+                                .ads(adDescription.build());
+                theoPlayer.setSource(sourceDescription.build());
+//                imaLoader.setAdTagUri(adTagUri);
             });
             adTypeList.performItemClick(
                     adTypeList.findViewWithTag(
@@ -194,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
     void createAdsLoader() {
 //        imaAdsListener = new AdsImaSDKListener();
-        imaLoader = new ImaAdsLoader(this, theoPlayerView);
+//        imaLoader = new ImaAdsLoader(this, theoPlayerView);
 //        imaLoader.addAdsErrorListener(imaAdsListener);
 //        imaLoader.addAdsEventListener(imaAdsListener);
 //        muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
@@ -225,12 +233,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         theoPlayerView.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        muxStatsSDKTHEOplayer.release();
     }
 
     @Override
