@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
 import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
 import static com.theoplayer.android.api.source.addescription.GoogleImaAdDescription.Builder.googleImaAdDescription;
+import static com.theoplayer.android.api.source.addescription.THEOplayerAdDescription.Builder.adDescription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     TextView txtPlayStatus, txtTimeUpdate;
     ListView adTypeList;
     double currentPlaybackTime = -1;
-    HashMap<String, String> adsUriTagMap = new HashMap<>();
+    ArrayList<AdSample> adSamples = new ArrayList<>();
 
     MuxStatsSDKTHEOplayer muxStatsSDKTHEOplayer;
     private AdsImaSDKListener imaAdsListener;
@@ -88,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
         txtPlayStatus = findViewById(R.id.txt_playstatus);
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
-//        configureMuxSdk();
-//        createAdsLoader();
+        configureMuxSdk();
+        createAdsLoader();
         initAdTypeList();
     }
 
@@ -106,23 +107,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureTHEOplayer() {
-        // Coupling the orientation of the device with the fullscreen state.
-        // The player will go fullscreen when the device is rotated to landscape
-        // and will also exit fullscreen when the device is rotated back to portrait.
-        theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
-
-        // Creating a TypedSource builder that defines the location of a single stream source.
-        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
-
-        // Creating a SourceDescription builder that contains the settings to be applied as a new
-        // THEOplayer source.
-        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
-        // Skip the default poster
-//                .poster(getString(R.string.defaultPosterUrl));
-
-        // Configuring THEOplayer with defined SourceDescription object.
-        theoPlayer.setSource(sourceDescription.build());
-
         theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
                 txtPlayStatus.setText("Playing")
         );
@@ -146,11 +130,13 @@ public class MainActivity extends AppCompatActivity {
 
     void initAdTypeList() {
         JsonReader reader;
+        ArrayList<String> adNames = new ArrayList<>();
         try {
             InputStream in = getAssets().open("media.json");
             reader = new JsonReader(new InputStreamReader(in, java.nio.charset.Charset.forName("UTF-8")));
             reader.beginArray();
             while (reader.hasNext()) {
+                AdSample adSample = new AdSample();
                 reader.beginObject();
                 String name = null;
                 String adTagUri = null;
@@ -158,35 +144,33 @@ public class MainActivity extends AppCompatActivity {
                     String attributeName = reader.nextName();
                     String attributeValue = reader.nextString();
                     if (attributeName.equalsIgnoreCase("name")) {
-                        name = attributeValue;
+                        adSample.setName(attributeValue);
                     }
                     if (attributeName.equalsIgnoreCase("ad_tag_uri")) {
-                        adTagUri = attributeValue;
+                        adSample.setAdTagUri(attributeValue);
+                    }
+                    if (attributeName.equalsIgnoreCase("uri")) {
+                        adSample.setUri(attributeValue);
                     }
                 }
-                if (name != null && adTagUri != null) {
-                    adsUriTagMap.put(name, adTagUri);
-                }
                 reader.endObject();
+                adSamples.add(adSample);
             }
             reader.close();
-            String[] values = adsUriTagMap.keySet().toArray(new String[0]);
-            adTypeList.setAdapter(new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1,
-                    values));
+            adTypeList.setAdapter(new AdListAdapter(this, adSamples, adTypeList));
+
             adTypeList.setOnItemClickListener((parent, view, position, id) -> {
                 // Reset player playback
                 theoPlayerView.getPlayer().stop();
-                String selectedAdType = (String)adTypeList.getAdapter().getItem(position);
-                String adTagUri = adsUriTagMap.get(selectedAdType);
-                GoogleImaAdDescription.Builder adDescription = googleImaAdDescription(adTagUri)
-                        .timeOffset("0");
-                TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
-                SourceDescription.Builder sourceDescription =
-                        sourceDescription(typedSource.build())
-                                .ads(adDescription.build());
-                theoPlayer.setSource(sourceDescription.build());
-//                imaLoader.setAdTagUri(adTagUri);
+                AdSample selectedAd = (AdSample) adTypeList.getAdapter().getItem(position);
+                // SDK ad insertion method, not working
+//                if (selectedAdType.startsWith("VMAP")) {
+//                    setupVMAPAd(adTagUri);
+//                } else {
+//                    setupVASTAd(adTagUri);
+//                }
+                // Custom implementation of Ima SDK
+                imaLoader.setVideoWithAds(selectedAd.getAdTagUri(), selectedAd.getUri());
             });
             adTypeList.performItemClick(
                     adTypeList.findViewWithTag(
@@ -201,11 +185,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void createAdsLoader() {
-//        imaAdsListener = new AdsImaSDKListener();
-//        imaLoader = new ImaAdsLoader(this, theoPlayerView);
-//        imaLoader.addAdsErrorListener(imaAdsListener);
-//        imaLoader.addAdsEventListener(imaAdsListener);
-//        muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
+        imaAdsListener = new AdsImaSDKListener();
+        imaLoader = new ImaAdsLoader(this, theoPlayerView);
+        imaLoader.addAdsErrorListener(imaAdsListener);
+        imaLoader.addAdsEventListener(imaAdsListener);
+        muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
     }
 
     @Override
@@ -239,6 +223,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         theoPlayerView.onDestroy();
+    }
+
+    void setupVMAPAd(String adTagUri) {
+        // Creating a TypedSource builder that defines the location of a single stream source.
+        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+
+        // Creating a SourceDescription builder that contains the settings to be applied as a new
+        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+        // VMAP standard defines ads playlist and contains ads time offset definitions. To avoid
+        // overlapping, VMAP ads are defined separately.
+        sourceDescription
+                .ads(adDescription(adTagUri).build());
+        theoPlayer.setSource(sourceDescription.build());
+    }
+
+    void setupVASTAd(String adTagUri) {
+        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+                    sourceDescription.ads(
+                    // Inserting linear pre-roll ad defined with VAST standard.
+                    adDescription(adTagUri)
+                            .timeOffset("start")
+                            .build());
+        theoPlayer.setSource(sourceDescription.build());
     }
 }
 

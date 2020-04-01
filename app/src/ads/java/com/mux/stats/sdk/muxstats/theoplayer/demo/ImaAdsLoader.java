@@ -80,6 +80,7 @@ import java.util.Set;
 
 import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
 import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
+import static com.theoplayer.android.api.source.addescription.THEOplayerAdDescription.Builder.adDescription;
 
 
 public final class ImaAdsLoader
@@ -97,12 +98,13 @@ public final class ImaAdsLoader
   AdDisplayContainer adDisplayContainer;
   THEOplayerView playerView;
   String adTagUri;
+  String videoUri;
+  String adUri;
   boolean isAdDisplayed = false;
   boolean isAdRequestsed = false;
   double currentPlaybackTime;
   ImaSdkSettings imaSdkSettings;
   AdsManager adsManager;
-  SourceDescription consumerContent;
   double consumerContentPosition;
 
   ArrayList<AdsLoadedListener> adsLoadedListeners = new ArrayList<>();
@@ -116,17 +118,20 @@ public final class ImaAdsLoader
     this.context = context;
     this.playerView = playerView;
     imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
-    adDisplayContainer = ImaSdkFactory.getInstance().createAdDisplayContainer();
-    adDisplayContainer.setPlayer(this);
-    adDisplayContainer.setAdContainer(playerView);
-
+    adDisplayContainer = ImaSdkFactory
+            .createAdDisplayContainer(playerView, this);
     initAdsLoader();
     hookPlayerEvents();
   }
 
-  public void setAdTagUri(String adTagUri) {
+  public void setVideoWithAds(String adTagUri, String videoUri) {
     this.adTagUri = adTagUri;
+    this.videoUri = videoUri;
     isAdRequestsed = false;
+    if (playerView.getPlayer().isAutoplay()) {
+      createAdsRequests();
+    }
+    playUri(videoUri);
   }
 
   void initAdsLoader() {
@@ -223,13 +228,9 @@ public final class ImaAdsLoader
   private void createAdsRequests() {
     Log.i(TAG, "Creating ads request ...");
     isAdRequestsed = true;
-    AdDisplayContainer adDisplayContainer = ImaSdkFactory.getInstance().createAdDisplayContainer();
-    adDisplayContainer.setAdContainer(playerView);
 
     AdsRequest request = ImaSdkFactory.getInstance().createAdsRequest();
     request.setAdTagUrl(adTagUri);
-    // Maybe set new adDisplay container instance
-//    request.setAdDisplayContainer(adDisplayContainer);
     request.setContentProgressProvider(() -> {
         if (isAdDisplayed || playerView == null || playerView.getPlayer().getDuration() <= 0) {
           return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
@@ -287,6 +288,8 @@ public final class ImaAdsLoader
         resumeContentAfterAdPlayback();
         break;
       case ALL_ADS_COMPLETED:
+        adUri = null;
+        adsLoader.contentComplete();
         break;
       default:
         break;
@@ -302,7 +305,6 @@ public final class ImaAdsLoader
     isAdDisplayed = true;
     consumerContentPosition = currentPlaybackTime;
     currentPlaybackTime = 0;
-    consumerContent = playerView.getPlayer().getSource();
     playerView.getPlayer().pause();
   }
 
@@ -311,13 +313,17 @@ public final class ImaAdsLoader
       Log.i(TAG, "resumeContentAfterAdPlayback");
       currentPlaybackTime = consumerContentPosition;
       // TODO maybe seek to consumerContentPosition
-      playerView.getPlayer().setSource(consumerContent);
-      playerView.getPlayer().setCurrentTime(consumerContentPosition);
-      playerView.getPlayer().play();
+      playUri(videoUri);
       isAdDisplayed = false;
     } else {
       Log.i(TAG, "Why !!!!!!!!!!!!!1");
     }
+  }
+
+  void playUri(String uri) {
+    TypedSource.Builder typedSource = typedSource(uri);
+    SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+    playerView.getPlayer().setSource(sourceDescription.build());
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -327,17 +333,17 @@ public final class ImaAdsLoader
   @Override
   public void loadAd(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
     Log.i(TAG, "loadAd: ");
-    String addUrl = adMediaInfo.getUrl();
-    TypedSource.Builder typedSource =  typedSource(addUrl);
-
-    SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
-    playerView.getPlayer().setSource(sourceDescription.build());
+    adUri = adMediaInfo.getUrl();
   }
 
   @Override
   public void playAd(AdMediaInfo adMediaInfo) {
     Log.i(TAG, "playAd");
-    playerView.getPlayer().play();
+    if (adUri != null) {
+      playUri(adUri);
+    } else {
+      Log.e(TAG, "Play add called before load add was called !!!");
+    }
   }
 
   @Override
