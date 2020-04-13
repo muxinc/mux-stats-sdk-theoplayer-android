@@ -7,41 +7,32 @@ import android.os.Bundle;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 //import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.theoplayer.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
 import com.theoplayer.android.api.THEOplayerView;
-import com.theoplayer.android.api.event.EventListener;
-import com.theoplayer.android.api.event.player.PauseEvent;
-import com.theoplayer.android.api.event.player.PlayEvent;
+import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
-import com.theoplayer.android.api.event.player.TimeUpdateEvent;
 import com.theoplayer.android.api.player.Player;
-import com.theoplayer.android.api.player.RequestCallback;
 import com.theoplayer.android.api.source.SourceDescription;
-import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
+import com.theoplayer.android.api.source.addescription.AdDescription;
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription;
+import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
 import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
@@ -62,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     MuxStatsSDKTHEOplayer muxStatsSDKTHEOplayer;
     private AdsImaSDKListener imaAdsListener;
-    ImaAdsLoader imaLoader;
+//    ImaAdsLoaderOld imaLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,25 +98,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureTHEOplayer() {
-        theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
-                txtPlayStatus.setText("Playing")
-        );
+//        theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
+//                txtPlayStatus.setText("Playing")
+//        );
+//
+//        theoPlayer.addEventListener(PlayerEventTypes.PAUSE, event ->
+//                txtPlayStatus.setText("Paused")
+//        );
+//
+//        theoPlayer.addEventListener(PlayerEventTypes.ENDED, event ->
+//                txtPlayStatus.setText("Ended")
+//        );
+//
+//        theoPlayer.addEventListener(PlayerEventTypes.ERROR, event ->
+//                txtPlayStatus.setText("Error: " + event.getError())
+//        );
+//
+//        theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->
+//                txtTimeUpdate.setText(String.valueOf(event.getCurrentTime()))
+//        );
 
-        theoPlayer.addEventListener(PlayerEventTypes.PAUSE, event ->
-                txtPlayStatus.setText("Paused")
-        );
+        theoPlayer.getAds().addEventListener(AdsEventTypes.AD_BEGIN, event ->
+                Log.i(TAG, "Event: AD_BEGIN, ad=" + event.getAd()));
 
-        theoPlayer.addEventListener(PlayerEventTypes.ENDED, event ->
-                txtPlayStatus.setText("Ended")
-        );
-
-        theoPlayer.addEventListener(PlayerEventTypes.ERROR, event ->
-                txtPlayStatus.setText("Error: " + event.getError())
-        );
-
-        theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->
-                txtTimeUpdate.setText(String.valueOf(event.getCurrentTime()))
-        );
+        theoPlayer.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
+            Log.e(TAG, "AdError: " + event.getError());
+        });
     }
 
     void initAdTypeList() {
@@ -164,13 +162,13 @@ public class MainActivity extends AppCompatActivity {
                 theoPlayerView.getPlayer().stop();
                 AdSample selectedAd = (AdSample) adTypeList.getAdapter().getItem(position);
                 // SDK ad insertion method, not working
-//                if (selectedAdType.startsWith("VMAP")) {
-//                    setupVMAPAd(adTagUri);
-//                } else {
-//                    setupVASTAd(adTagUri);
-//                }
+                if (selectedAd.getName().startsWith("VMAP")) {
+                    setupVMAPAd(selectedAd.getAdTagUri());
+                } else {
+                    setupVASTAd(selectedAd.getAdTagUri());
+                }
                 // Custom implementation of Ima SDK
-                imaLoader.setVideoWithAds(selectedAd.getAdTagUri(), selectedAd.getUri());
+//                imaLoader.setVideoWithAds(selectedAd.getAdTagUri(), selectedAd.getUri());
             });
             adTypeList.performItemClick(
                     adTypeList.findViewWithTag(
@@ -186,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
 
     void createAdsLoader() {
         imaAdsListener = new AdsImaSDKListener();
-        imaLoader = new ImaAdsLoader(this, theoPlayerView);
-        imaLoader.addAdsErrorListener(imaAdsListener);
-        imaLoader.addAdsEventListener(imaAdsListener);
+//        imaLoader = new ImaAdsLoaderOld(this, theoPlayerView);
+//        imaLoader.addAdsErrorListener(imaAdsListener);
+//        imaLoader.addAdsEventListener(imaAdsListener);
         muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
     }
 
@@ -226,27 +224,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupVMAPAd(String adTagUri) {
-        // Creating a TypedSource builder that defines the location of a single stream source.
         TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+//        AdDescription ad = THEOplayerAdDescription.Builder.adDescription(adTagUri).build();
+        GoogleImaAdDescription ad = googleImaAdDescription(adTagUri).build();
+//                .timeOffset(adTimeOffset);
 
-        // Creating a SourceDescription builder that contains the settings to be applied as a new
-        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
-        // VMAP standard defines ads playlist and contains ads time offset definitions. To avoid
-        // overlapping, VMAP ads are defined separately.
-        sourceDescription
-                .ads(adDescription(adTagUri).build());
-        theoPlayer.setSource(sourceDescription.build());
+        SourceDescription sourceDescription = SourceDescription.Builder
+                .sourceDescription(typedSource.build())
+                .ads(ad)
+                .build();
+        theoPlayer.setSource(sourceDescription);
     }
 
     void setupVASTAd(String adTagUri) {
-        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
-        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
-                    sourceDescription.ads(
-                    // Inserting linear pre-roll ad defined with VAST standard.
-                    adDescription(adTagUri)
-                            .timeOffset("start")
-                            .build());
-        theoPlayer.setSource(sourceDescription.build());
+//        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+//        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+//                    sourceDescription.ads(
+//                    // Inserting linear pre-roll ad defined with VAST standard.
+//                    adDescription(adTagUri)
+//                            .timeOffset("start")
+//                            .build());
+//        theoPlayer.setSource(sourceDescription.build());
     }
 }
 

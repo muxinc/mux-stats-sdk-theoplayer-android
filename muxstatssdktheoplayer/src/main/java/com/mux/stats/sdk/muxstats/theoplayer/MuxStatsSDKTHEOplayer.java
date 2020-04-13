@@ -143,12 +143,14 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     @Override
     public String getMimeType() {
         try {
-            List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
-            return sources.size() > 0 ? sources.get(0).getType().toString() : "";
+            if (player.get().getPlayer().getSource() != null) {
+                List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
+                return sources.size() > 0 ? sources.get(0).getType().toString() : "";
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+//            e.printStackTrace();
         }
+        return null;
     }
 
     @Override

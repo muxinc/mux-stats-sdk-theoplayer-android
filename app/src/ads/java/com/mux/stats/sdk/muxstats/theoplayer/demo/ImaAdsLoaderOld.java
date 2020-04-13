@@ -83,7 +83,7 @@ import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
 import static com.theoplayer.android.api.source.addescription.THEOplayerAdDescription.Builder.adDescription;
 
 
-public final class ImaAdsLoader
+public final class ImaAdsLoaderOld
     implements
         VideoAdPlayer,
         AdErrorListener,
@@ -112,7 +112,7 @@ public final class ImaAdsLoader
   ArrayList<VideoAdPlayerCallback> adsPlaybackListeners = new ArrayList<>();
   ArrayList<AdEventListener> adsEventListeners = new ArrayList<>();
 
-  public ImaAdsLoader(
+  public ImaAdsLoaderOld(
           Context context,
           THEOplayerView playerView) {
     this.context = context;
@@ -257,6 +257,7 @@ public final class ImaAdsLoader
   public void onAdError(AdErrorEvent adErrorEvent) {
     Log.e(TAG, "Ad Error: " + adErrorEvent.getError().getMessage());
     isAdDisplayed = true;
+    playerView.getPlayer().stop();
     resumeContentAfterAdPlayback();
     for (AdErrorListener listener : adsErrorListeners) {
       listener.onAdError(adErrorEvent);
@@ -334,16 +335,13 @@ public final class ImaAdsLoader
   public void loadAd(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
     Log.i(TAG, "loadAd: ");
     adUri = adMediaInfo.getUrl();
+    playUri(adUri);
   }
 
   @Override
   public void playAd(AdMediaInfo adMediaInfo) {
     Log.i(TAG, "playAd");
-    if (adUri != null) {
-      playUri(adUri);
-    } else {
-      Log.e(TAG, "Play add called before load add was called !!!");
-    }
+    playerView.getPlayer().play();
   }
 
   @Override
