@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.theoplayer.demo;
 
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
@@ -115,6 +117,21 @@ public class MainActivity extends AppCompatActivity {
         theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->
                 txtTimeUpdate.setText(String.valueOf(event.getCurrentTime()))
         );
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (theoPlayer == null) {
+            return;
+        }
+        // Set fullscreen when the device is rotated to landscape
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            muxStatsSDKTHEOplayer.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
+        }
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            muxStatsSDKTHEOplayer.orientationChange(MuxSDKViewOrientation.PORTRAIT);
+        }
     }
 
     @Override
