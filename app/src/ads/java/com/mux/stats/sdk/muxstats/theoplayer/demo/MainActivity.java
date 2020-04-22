@@ -11,14 +11,11 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-//import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.theoplayer.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
@@ -50,10 +47,7 @@ public class MainActivity extends AppCompatActivity {
     ListView adTypeList;
     double currentPlaybackTime = -1;
     ArrayList<AdSample> adSamples = new ArrayList<>();
-
     MuxStatsSDKTHEOplayer muxStatsSDKTHEOplayer;
-    private AdsImaSDKListener imaAdsListener;
-//    ImaAdsLoaderOld imaLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         theoPlayer = theoPlayerView.getPlayer();
         adTypeList = findViewById(R.id.ad_type_selection);
 
-        configureTHEOplayer();
         btnPlayPause = findViewById(R.id.btn_playpause);
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
         configureMuxSdk();
-        createAdsLoader();
         initAdTypeList();
     }
 
@@ -95,35 +87,7 @@ public class MainActivity extends AppCompatActivity {
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStatsSDKTHEOplayer.setScreenSize(size.x, size.y);
-    }
-
-    private void configureTHEOplayer() {
-//        theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
-//                txtPlayStatus.setText("Playing")
-//        );
-//
-//        theoPlayer.addEventListener(PlayerEventTypes.PAUSE, event ->
-//                txtPlayStatus.setText("Paused")
-//        );
-//
-//        theoPlayer.addEventListener(PlayerEventTypes.ENDED, event ->
-//                txtPlayStatus.setText("Ended")
-//        );
-//
-//        theoPlayer.addEventListener(PlayerEventTypes.ERROR, event ->
-//                txtPlayStatus.setText("Error: " + event.getError())
-//        );
-//
-//        theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->
-//                txtTimeUpdate.setText(String.valueOf(event.getCurrentTime()))
-//        );
-
-        theoPlayer.getAds().addEventListener(AdsEventTypes.AD_BEGIN, event ->
-                Log.i(TAG, "Event: AD_BEGIN, ad=" + event.getAd()));
-
-        theoPlayer.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
-            Log.e(TAG, "AdError: " + event.getError());
-        });
+        muxStatsSDKTHEOplayer.enableMuxCoreDebug(true, false);
     }
 
     void initAdTypeList() {
@@ -167,8 +131,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     setupVASTAd(selectedAd.getAdTagUri());
                 }
-                // Custom implementation of Ima SDK
-//                imaLoader.setVideoWithAds(selectedAd.getAdTagUri(), selectedAd.getUri());
             });
             adTypeList.performItemClick(
                     adTypeList.findViewWithTag(
@@ -180,14 +142,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    void createAdsLoader() {
-        imaAdsListener = new AdsImaSDKListener();
-//        imaLoader = new ImaAdsLoaderOld(this, theoPlayerView);
-//        imaLoader.addAdsErrorListener(imaAdsListener);
-//        imaLoader.addAdsEventListener(imaAdsListener);
-        muxStatsSDKTHEOplayer.setAdsListener(imaAdsListener);
     }
 
     @Override
@@ -225,10 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
     void setupVMAPAd(String adTagUri) {
         TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
-//        AdDescription ad = THEOplayerAdDescription.Builder.adDescription(adTagUri).build();
-        GoogleImaAdDescription ad = googleImaAdDescription(adTagUri).build();
-//                .timeOffset(adTimeOffset);
-
+        AdDescription ad = THEOplayerAdDescription.Builder.adDescription(adTagUri).build();
         SourceDescription sourceDescription = SourceDescription.Builder
                 .sourceDescription(typedSource.build())
                 .ads(ad)
@@ -237,14 +188,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupVASTAd(String adTagUri) {
-//        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
-//        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
-//                    sourceDescription.ads(
-//                    // Inserting linear pre-roll ad defined with VAST standard.
-//                    adDescription(adTagUri)
-//                            .timeOffset("start")
-//                            .build());
-//        theoPlayer.setSource(sourceDescription.build());
+        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+                    sourceDescription.ads(
+                    adDescription(adTagUri)
+                            .timeOffset("start")
+                            .build());
+        theoPlayer.setSource(sourceDescription.build());
     }
 }
 

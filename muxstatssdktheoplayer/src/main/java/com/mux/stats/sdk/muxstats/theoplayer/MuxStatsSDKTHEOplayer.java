@@ -11,6 +11,11 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
+import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
+import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
+import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
+import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -27,6 +32,7 @@ import com.mux.stats.sdk.muxstats.IPlayerListener;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
+import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.source.TypedSource;
 
@@ -52,9 +58,10 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
     protected Float sourceAdvertisedFramerate;
-    protected AdsImaSDKListener imaListener;
     protected long sourceDuration;
     protected boolean playWhenReady;
+    protected boolean inAdBreak;
+    protected boolean sendAdPlay;
 
     protected double playbackPosition;
 
@@ -75,7 +82,6 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
 
         // Setup listeners
-
         player.getPlayer().addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
             player.getPlayer().requestVideoWidth((playerSourceWidth -> {
                 sourceWidth = playerSourceWidth;
@@ -108,12 +114,51 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
-            internalError(new MuxErrorException(0, errorEvent.getError()))));
-    }
+            internalError(new MuxErrorException(0, errorEvent.getError()))
+        ));
 
-    public void setAdsListener(AdsImaSDKListener listener) {
-        imaListener = listener;
-        imaListener.setTheoPlayerListener(this);
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
+            Log.e(TAG, "AAAAA: " + event.getError());
+        });
+
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
+            // Record that we're in an ad break so we can supress standard play/playing/pause events
+            inAdBreak = true;
+            // For everything but preroll ads, we need to simulate a pause event
+            if (getCurrentPosition() > 1000) {
+                dispatch(new PauseEvent(null));
+            }
+            dispatch(new AdBreakStartEvent(null));
+        });
+
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_IMPRESSION, event -> {
+            sendAdPlay = false;
+            dispatch(new AdPlayEvent(null));
+        });
+
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
+            if (sendAdPlay) {
+                dispatch(new AdPlayEvent(null));
+            }
+            dispatch(new AdPlayingEvent(null));
+        });
+
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
+            sendAdPlay = false;
+            dispatch(new AdEndedEvent(null));
+        });
+
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
+            // Reset all of our state correctly for getting out of ads
+            inAdBreak = false;
+            sendAdPlay = false;
+
+            dispatch(new AdBreakEndEvent(null));
+            // For everything but preroll ads, we need to simulate a play event to resume
+            if (getCurrentPosition() > 1000) {
+                dispatch(new PlayEvent(null));
+            }
+        });
     }
 
     // IPlayerListener
