@@ -79,10 +79,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void configureMuxSdk() {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY HERE");
+        customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY");
         CustomerVideoData customerVideoData = new CustomerVideoData();
-        customerVideoData.setVideoTitle("Dizzy");
-        muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this, theoPlayerView, "demo-view-player", customerPlayerData, customerVideoData);
+        customerVideoData.setVideoTitle("Big Buck Bunny");
+        muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this,
+                theoPlayerView, "demo-view-player",
+                customerPlayerData,
+                customerVideoData);
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
@@ -178,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupVMAPAd(String adTagUri) {
-        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+        TypedSource.Builder typedSource = typedSource(getString(R.string.defaultSourceUrl));
         AdDescription ad = THEOplayerAdDescription.Builder.adDescription(adTagUri).build();
         SourceDescription sourceDescription = SourceDescription.Builder
                 .sourceDescription(typedSource.build())
@@ -188,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupVASTAd(String adTagUri) {
-        TypedSource.Builder typedSource = typedSource(getString(R.string.adsSourceUrl));
+        TypedSource.Builder typedSource = typedSource(getString(R.string.defaultSourceUrl));
         SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
                     sourceDescription.ads(
                     adDescription(adTagUri)
