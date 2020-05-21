@@ -15,6 +15,7 @@ import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
 import com.mux.stats.sdk.core.events.playback.AdErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
@@ -71,7 +72,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     protected boolean playWhenReady;
     protected boolean sourceChanged;
     protected boolean inAdBreak;
-    protected boolean sendAdPlay;
+    protected boolean inAdPlayback;
 
     protected double playbackPosition;
 
@@ -137,7 +138,19 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
                     }
                 });
 
-        player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> play()));
+        player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
+            if (inAdBreak) {
+                // It happend that play event callback will be triggered
+                // bfore adBreakEbnd callback is triggered, we need to skip that one because another
+                // play callback will come after adBreakEnd
+                if (inAdPlayback) {
+                    dispatch(new AdPlayEvent(null));
+                    dispatch(new AdPlayingEvent(null));
+                }
+            } else {
+                play();
+            }
+        }));
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             playing();
             if (sourceChanged) {
@@ -151,7 +164,13 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
                 sourceChanged = false;
             }
         }));
-        player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, (playEvent -> pause()));
+        player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, (playEvent -> {
+            if (inAdBreak) {
+                dispatch(new AdPauseEvent(null));
+            } else {
+                pause();
+            }
+        }));
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKING, (playEvent -> {
             dispatch(new SeekingEvent(null));
         }));
@@ -161,20 +180,19 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
             dispatch(new EndedEvent(null));
         }));
-
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
                 internalError(new MuxErrorException(0, errorEvent.getError()))
         ));
-
         // Ads listeners
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
-            Log.e(TAG, "AdError: " + event.getError());
             dispatch(new AdErrorEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
-            // Record that we're in an ad break so we can supress standard play/playing/pause events
             inAdBreak = true;
+            // Dispatch pause event because pause callback will not be called
+            dispatch(new PauseEvent(null));
+            // Record that we're in an ad break so we can supress standard play/playing/pause events
             AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);
             // For everything but preroll ads, we need to simulate a pause event
             if (getCurrentPosition() > 0) {
@@ -191,32 +209,24 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
             dispatch(adBreakEvent);
         });
 
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_IMPRESSION, event -> {
-            sendAdPlay = false;
-            dispatch(new AdPlayEvent(null));
-        });
-
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
-            if (sendAdPlay) {
-                dispatch(new AdPlayEvent(null));
-            }
+            // Play listener is called before AD_BREAK_END event, this is a problem
+            inAdPlayback = true;
+            dispatch(new AdPlayEvent(null));
             dispatch(new AdPlayingEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
-            sendAdPlay = false;
+            inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
-            // Reset all of our state correctly for getting out of ads
             inAdBreak = false;
-            sendAdPlay = false;
-
+            // Reset all of our state correctly for getting out of ads
             dispatch(new AdBreakEndEvent(null));
             // For everything but preroll ads, we need to simulate a play event to resume
             if (getCurrentPosition() == 0) {
-                Log.e(TAG, "Sending play event on preroll ad end event !!!");
                 dispatch(new PlayEvent(null));
             }
         });

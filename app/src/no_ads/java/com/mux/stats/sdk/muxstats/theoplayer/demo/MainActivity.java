@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
