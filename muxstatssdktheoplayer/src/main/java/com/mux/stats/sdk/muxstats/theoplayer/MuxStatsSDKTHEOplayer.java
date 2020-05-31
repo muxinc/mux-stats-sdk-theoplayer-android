@@ -258,13 +258,10 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
     @Override
     public String getMimeType() {
-        try {
-            if (player.get().getPlayer().getSource() != null) {
-                List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
-                return sources.size() > 0 ? sources.get(0).getType().toString() : "";
-            }
-        } catch (Exception e) {
-//            e.printStackTrace();
+        if (player != null &&
+                player.get() != null && player.get().getPlayer().getSource() != null) {
+            List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
+            return sources.size() > 0 ? sources.get(0).getType().toString() : "";
         }
         return null;
     }
@@ -294,17 +291,26 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
     @Override
     public Long getSourceDuration() {
-        return secondsToMs(player.get().getPlayer().getDuration());
+        if (player != null && player.get() != null) {
+            return secondsToMs(player.get().getPlayer().getDuration());
+        }
+        return -1l;
     }
 
     @Override
     public boolean isPaused() {
-        return player.get().getPlayer().isPaused();
+        if (player != null && player.get() != null) {
+            return player.get().getPlayer().isPaused();
+        }
+        return true;
     }
 
     @Override
     public boolean isBuffering() {
-        return player.get().getPlayer().isSeeking();
+        if (player != null && player.get() != null) {
+            return player.get().getPlayer().isSeeking();
+        }
+        return false;
     }
 
     @Override
@@ -350,10 +356,12 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         Log.d(TAG, "Playing file");
         state = PlayerState.PLAY;
         // Update the videoSource url
-        String videoUrl = player.get().getPlayer().getSrc();
-        CustomerVideoData videoData = muxStats.getCustomerVideoData();
-        videoData.setVideoSourceUrl(videoUrl);
-        muxStats.updateCustomerData(null, videoData);
+        if (player != null && player.get() != null) {
+            String videoUrl = player.get().getPlayer().getSrc();
+            CustomerVideoData videoData = muxStats.getCustomerVideoData();
+            videoData.setVideoSourceUrl(videoUrl);
+            muxStats.updateCustomerData(null, videoData);
+        }
         dispatch(new PlayEvent(null));
     }
 
