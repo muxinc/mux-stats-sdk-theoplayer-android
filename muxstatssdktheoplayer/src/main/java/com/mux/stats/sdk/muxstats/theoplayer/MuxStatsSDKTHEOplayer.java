@@ -139,18 +139,9 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
                 });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
-            if (inAdBreak) {
-                // It happend that play event callback will be triggered
-                // bfore adBreakEbnd callback is triggered, we need to skip that one because another
-                // play callback will come after adBreakEnd
-                if (inAdPlayback) {
-                    dispatch(new AdPlayEvent(null));
-                    dispatch(new AdPlayingEvent(null));
-                }
-            } else {
                 play();
-            }
         }));
+
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             playing();
             if (sourceChanged) {
@@ -164,6 +155,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
                 sourceChanged = false;
             }
         }));
+
         player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, (playEvent -> {
             if (inAdBreak) {
                 dispatch(new AdPauseEvent(null));
@@ -171,18 +163,23 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
                 pause();
             }
         }));
+
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKING, (playEvent -> {
             dispatch(new SeekingEvent(null));
         }));
+
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKED, (playEvent -> {
             dispatch(new SeekedEvent(null));
         }));
+
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
             dispatch(new EndedEvent(null));
         }));
+
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
                 internalError(new MuxErrorException(0, errorEvent.getError()))
         ));
+
         // Ads listeners
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
             dispatch(new AdErrorEvent(null));
@@ -196,7 +193,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
             AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);
             // For everything but preroll ads, we need to simulate a pause event
             if (getCurrentPosition() > 0) {
-                dispatch(new PauseEvent(null));
+                //dispatch(new PauseEvent(null));
             } else {
                 ViewData viewData = new ViewData();
                 // TODO get these ids somehow
@@ -213,7 +210,6 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayEvent(null));
-            dispatch(new AdPlayingEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
@@ -223,6 +219,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
             inAdBreak = false;
+            inAdPlayback = false;
             // Reset all of our state correctly for getting out of ads
             dispatch(new AdBreakEndEvent(null));
             // For everything but preroll ads, we need to simulate a play event to resume
@@ -358,7 +355,10 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (inAdBreak) { return; }
+        if (inAdBreak) {
+            dispatch(new AdPlayingEvent(null));
+            return;
+        }
         if (state ==  PlayerState.PAUSED) {
             play();
         }
