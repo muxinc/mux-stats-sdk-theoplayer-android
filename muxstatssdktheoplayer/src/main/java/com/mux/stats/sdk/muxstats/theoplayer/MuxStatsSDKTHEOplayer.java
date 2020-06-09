@@ -157,11 +157,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, (playEvent -> {
-            if (inAdBreak) {
-                dispatch(new AdPauseEvent(null));
-            } else {
-                pause();
-            }
+            pause();
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKING, (playEvent -> {
@@ -173,7 +169,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
-            dispatch(new EndedEvent(null));
+            ended();
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
@@ -192,17 +188,13 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
             // Record that we're in an ad break so we can supress standard play/playing/pause events
             AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);
             // For everything but preroll ads, we need to simulate a pause event
-            if (getCurrentPosition() > 0) {
-                //dispatch(new PauseEvent(null));
-            } else {
-                ViewData viewData = new ViewData();
-                // TODO get these ids somehow
-                String adId = "";
-                String adCreativeId = "";
-                viewData.setViewPrerollAdId(adId);
-                viewData.setViewPrerollCreativeId(adCreativeId);
-                adBreakEvent.setViewData(viewData);
-            }
+            ViewData viewData = new ViewData();
+            // TODO get these ids somehow
+            String adId = "";
+            String adCreativeId = "";
+            viewData.setViewPrerollAdId(adId);
+            viewData.setViewPrerollCreativeId(adCreativeId);
+            adBreakEvent.setViewData(viewData);
             dispatch(adBreakEvent);
         });
 
@@ -219,7 +211,6 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
             inAdBreak = false;
-            inAdPlayback = false;
             // Reset all of our state correctly for getting out of ads
             dispatch(new AdBreakEndEvent(null));
             // For everything but preroll ads, we need to simulate a play event to resume
@@ -256,9 +247,15 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     @Override
     public String getMimeType() {
         if (player != null &&
-                player.get() != null && player.get().getPlayer().getSource() != null) {
+                player.get() != null &&
+                player.get().getPlayer().getSource() != null &&
+                player.get().getPlayer().getSource().getSources() != null) {
             List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
-            return sources.size() > 0 ? sources.get(0).getType().toString() : "";
+            if (sources.size() > 0 && sources.get(0).getType() != null) {
+                return sources.get(0).getType().toString();
+            } else {
+                return "";
+            }
         }
         return null;
     }
@@ -342,16 +339,24 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     }
 
     protected void pause() {
-        if (inAdBreak) { return; }
-        Log.d(TAG, "Pausing file");
         state = PlayerState.PAUSED;
+        if (inAdBreak) {
+            dispatch(new AdPauseEvent(null));
+            return;
+        }
         dispatch(new PauseEvent(null));
     }
 
     protected void play() {
-        if (inAdBreak) { return; }
-        Log.d(TAG, "Playing file");
         state = PlayerState.PLAY;
+        if (inAdBreak) {
+            if (inAdPlayback) {
+                dispatch(new AdPlayEvent(null));
+                // For some reason playing callback will not be fired.
+                dispatch(new AdPlayingEvent(null));
+            }
+            return;
+        }
         // Update the videoSource url
         if (player != null && player.get() != null) {
             String videoUrl = player.get().getPlayer().getSrc();
@@ -363,14 +368,16 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (inAdBreak) {
-            dispatch(new AdPlayingEvent(null));
-            return;
-        }
         if (state ==  PlayerState.PAUSED) {
             play();
         }
         state = PlayerState.PLAYING;
+        if (inAdBreak) {
+            if (inAdPlayback) {
+                dispatch(new AdPlayingEvent(null));
+            }
+            return;
+        }
         dispatch(new PlayingEvent(null));
     }
 
