@@ -109,7 +109,8 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
 
     public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                                 CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
+                                 CustomerPlayerData customerPlayerData,
+                                 CustomerVideoData customerVideoData,
                                  CustomerViewData customerViewData) {
         super();
         this.player = new WeakReference<>(player);
@@ -585,4 +586,3 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         }
     }
 }
-
