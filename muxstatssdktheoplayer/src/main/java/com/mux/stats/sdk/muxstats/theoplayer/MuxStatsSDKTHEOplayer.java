@@ -3,6 +3,9 @@ package com.mux.stats.sdk.muxstats.theoplayer;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
@@ -29,6 +32,7 @@ import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.events.playback.VideoChangeEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.model.ViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.IDevice;
@@ -58,6 +62,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     protected PlayerState state;
     protected MuxStats muxStats;
     protected WeakReference<THEOplayerView> player;
+    protected WeakReference<Context> contextRef;
 
     protected static final int ERROR_UNKNOWN = -1;
     protected static final int ERROR_DRM = -2;
@@ -104,12 +109,14 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
 
     public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                                 CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
+                                 CustomerPlayerData customerPlayerData,
+                                 CustomerVideoData customerVideoData,
+                                 CustomerViewData customerViewData) {
         super();
         this.player = new WeakReference<>(player);
         MuxStats.setHostDevice(new MuxDevice(ctx, player.getVersion()));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
-        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData);
+        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, customerViewData);
         addListener(muxStats);
 
         // TODO test this
@@ -449,10 +456,18 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         private String appVersion = "";
         private String theoVersion = "";
 
+        static final String CONNECTION_TYPE_CELLULAR = "cellular";
+        static final String CONNECTION_TYPE_WIFI = "wifi";
+        static final String CONNECTION_TYPE_ETHERNET = "ethernet";
+        static final String CONNECTION_TYPE_OTHER = "other";
+
+        protected WeakReference<Context> contextRef;
+
         MuxDevice(Context ctx, String theoVersion) {
             deviceId = Settings.Secure.getString(ctx.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
             this.theoVersion = theoVersion;
+            contextRef = new WeakReference<>(ctx);
             try {
                 PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
                 appName = pi.packageName;
@@ -526,9 +541,48 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         }
 
         @Override
+        public String getNetworkConnectionType() {
+
+            // Checking internet connectivity
+            Context ctx = contextRef.get();
+            if (ctx == null) {
+                return null;
+            }
+
+            ConnectivityManager connectivityMgr = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = null;
+            if (connectivityMgr != null) {
+                activeNetwork = connectivityMgr.getActiveNetworkInfo();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    NetworkCapabilities nc = connectivityMgr.getNetworkCapabilities(connectivityMgr.getActiveNetwork());
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        return CONNECTION_TYPE_CELLULAR;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                } else {
+                    if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                        return CONNECTION_TYPE_CELLULAR;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
         public void outputLog(String tag, String msg) {
             Log.v(tag, msg);
         }
     }
 }
-
