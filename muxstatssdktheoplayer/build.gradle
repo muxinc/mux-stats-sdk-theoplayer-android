@@ -67,10 +67,10 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api files('libs/MuxCore.jar')
-    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
-    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
-    minapi21Implementation(name: 'theoplayer-minapi21', ext: "aar")
-    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
+    minapi16CompileOnly(name: 'theoplayer-minapi16', ext: 'aar')
+    minapi16adsCompileOnly(name: 'theoplayer-minapi16', ext: "aar")
+    minapi21CompileOnly(name: 'theoplayer-minapi21', ext: "aar")
+    minapi21adsCompileOnly(name: 'theoplayer-minapi21', ext: "aar")
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'

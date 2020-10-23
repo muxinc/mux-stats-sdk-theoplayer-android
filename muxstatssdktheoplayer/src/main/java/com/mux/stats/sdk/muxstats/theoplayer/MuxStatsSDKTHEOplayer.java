@@ -235,8 +235,16 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
     }
 
     @SuppressWarnings("unused")
-    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    public void updateCustomerData(CustomerPlayerData customerPlayerData,
+                                   CustomerVideoData customerVideoData) {
+        muxStats.updateCustomerData(customerPlayerData, customerVideoData);
+    }
+
+    @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customerPlayerData,
+                                   CustomerVideoData customerVideoData,
+                                   CustomerViewData customerViewData) {
+        muxStats.updateCustomerData(customerPlayerData, customerVideoData, customerViewData);
     }
 
     public CustomerVideoData getCustomerVideoData() {
@@ -245,6 +253,10 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
 
     public CustomerPlayerData getCustomerPlayerData() {
         return muxStats.getCustomerPlayerData();
+    }
+
+    public CustomerViewData getCustomerViewData() {
+        return muxStats.getCustomerViewData();
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
@@ -287,7 +299,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         if (sourceAdvertisedBitrate != null) {
             return sourceAdvertisedFramerate.floatValue();
         }
-        return 0f;
+        return null;
     }
 
     @Override
@@ -295,7 +307,7 @@ public class MuxStatsSDKTHEOplayer extends EventBus implements IPlayerListener {
         if (player != null && player.get() != null) {
             return secondsToMs(player.get().getPlayer().getDuration());
         }
-        return -1l;
+        return null;
     }
 
     @Override
