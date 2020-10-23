@@ -6,3 +6,6 @@
 /build
 /captures
 .externalNativeBuild
+/buildout
+/app/buildout
+/muxstatssdktheoplayer/buildout

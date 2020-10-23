@@ -1,0 +1,9 @@
+steps:
+- agents:
+    dind: true
+  command: ./build.sh
+  label: Build AARs
+  artifact_paths:
+    - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
+    - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
+    - "MuxExoPlayer/buildout/outputs/version-*"

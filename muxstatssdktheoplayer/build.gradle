@@ -18,7 +18,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -32,10 +32,10 @@ android {
             dimension 'api'
             minSdkVersion 21
         }
-        minapi16ads {
+        minapi16_ads {
             dimension 'api'
         }
-        minapi21ads {
+        minapi21_ads {
             dimension 'api'
             minSdkVersion 21
         }
@@ -52,7 +52,7 @@ android {
                     def versionName = flavor.name.replaceAll(/_/, ".")
                     if (!versionName.endsWith(".ads")) {
                         copy {
-                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
+                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
                             into "${buildDir}/outputs/artifacts/"
                             rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
                             rename("mapping.txt", "mapping-${versionName}.txt")
@@ -68,13 +68,12 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api files('libs/MuxCore.jar')
     minapi16CompileOnly(name: 'theoplayer-minapi16', ext: 'aar')
-    minapi16adsCompileOnly(name: 'theoplayer-minapi16', ext: "aar")
+    minapi16_adsCompileOnly(name: 'theoplayer-minapi16', ext: "aar")
     minapi21CompileOnly(name: 'theoplayer-minapi21', ext: "aar")
-    minapi21adsCompileOnly(name: 'theoplayer-minapi21', ext: "aar")
+    minapi21_adsCompileOnly(name: 'theoplayer-minapi21', ext: "aar")
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
-
