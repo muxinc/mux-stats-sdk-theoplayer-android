@@ -1,4 +1,4 @@
-FROM muxinc/theoplayer-android:20201022
+FROM muxinc/theoplayer-android:20201023
 
 ENV ANDROID_HOME /usr/local/android-sdk-linux
 ENV ANDROID_SDK /usr/local/android-sdk-linux
@@ -17,5 +17,8 @@ RUN echo "sdk.dir=$ANDROID_HOME" > local.properties
 # Pull all our dependencies into the image
 RUN ./gradlew --info androidDependencies
 
-# Run build task by default
-CMD ./gradlew --info clean build
+# Run build task when this is built
+RUN ./gradlew --info clean build
+
+# And figure out how to copy the damn stuff
+#CMD
