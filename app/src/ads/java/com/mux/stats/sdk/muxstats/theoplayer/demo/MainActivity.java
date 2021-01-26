@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void configureMuxSdk() {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY HERE");
+        customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Big Buck Bunny");
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this,
@@ -128,12 +128,12 @@ public class MainActivity extends AppCompatActivity {
                 // Reset player playback
                 theoPlayerView.getPlayer().stop();
                 AdSample selectedAd = (AdSample) adTypeList.getAdapter().getItem(position);
-                // setupVASTAd("http://mux-justin-test.s3.amazonaws.com/vast.xml"); // Statiic test ad
-                if (selectedAd.getName().startsWith("VMAP")) {
-                    setupVMAPAd(selectedAd.getAdTagUri());
-                } else {
-                    setupVASTAd(selectedAd.getAdTagUri());
-                }
+                 setupVASTAd("http://mux-justin-test.s3.amazonaws.com/vast.xml"); // Statiic test ad
+//                if (selectedAd.getName().startsWith("VMAP")) {
+//                    setupVMAPAd(selectedAd.getAdTagUri());
+//                } else {
+//                    setupVASTAd(selectedAd.getAdTagUri());
+//                }
             });
             adTypeList.performItemClick(
                     adTypeList.findViewWithTag(
