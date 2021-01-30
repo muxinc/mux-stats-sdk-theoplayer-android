@@ -22,7 +22,14 @@ allprojects {
             dirs 'libs'
         }
     }
+
+    project.ext {
+        minSdkVersion=16
+        compileSdkVersion=30
+        targetSdkVersion=30
+    }
 }
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir
