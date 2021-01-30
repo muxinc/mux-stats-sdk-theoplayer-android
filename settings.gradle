@@ -1,2 +1,3 @@
-include ':app', ':theoplayer-android-mux20190503-2.58.2-minapi16-release', ':muxstatssdktheoplayer',
-        ":automatedtests"
+//include ':app', ':theoplayer-android-mux20190503-2.58.2-minapi16-release', ':muxstatssdktheoplayer',
+//        ":automatedtests"
+include ':app', ':muxstatssdktheoplayer'

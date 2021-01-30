@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 28
-
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "0.0.1"
         multiDexEnabled true
@@ -14,8 +14,7 @@ android {
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
+        testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -24,11 +23,28 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    flavorDimensions 'api'
+
+    productFlavors {
+        minapi16 {
+            dimension 'api'
+        }
+        minapi21 {
+            dimension 'api'
+            minSdkVersion 21
+        }
+        minapi16ads {
+            dimension 'api'
+        }
+        minapi21ads {
+            dimension 'api'
+            minSdkVersion 21
+        }
+    }
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
-
 }
 
 dependencies {
@@ -36,7 +52,14 @@ dependencies {
     api files('libs/MuxCore.jar')
     implementation(name: 'theoplayer', ext: 'aar')
     implementation 'com.android.support:multidex:1.0.3'
+    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
+    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
+    minapi21Implementation(name: 'theoplayer-minapi21', ext: "aar")
+    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
+    compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
+    compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
+

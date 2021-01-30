@@ -1,15 +1,17 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
+
     defaultConfig {
         applicationId "com.mux.stats.sdk.muxstats.theoplayer.demo"
         multiDexEnabled true
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -17,6 +19,48 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        minapi16 {
+            java.srcDirs = ['./src/no_ads/java']
+            res.srcDirs = ['./src/no_ads/res']
+            assets.srcDirs = ['./src/no_ads/assets']
+        }
+        minapi21 {
+            java.srcDirs = ['./src/no_ads/java']
+            res.srcDirs = ['./src/no_ads/res']
+            assets.srcDirs = ['./src/no_ads/assets']
+        }
+        minapi16ads {
+            java.srcDirs = ['./src/ads/java']
+            res.srcDirs = ['./src/ads/res']
+            assets.srcDirs = ['./src/ads/assets']
+        }
+        minapi21ads {
+            java.srcDirs = ['./src/ads/java']
+            res.srcDirs = ['./src/ads/res']
+            assets.srcDirs = ['./src/ads/assets']
+        }
+    }
+
+    flavorDimensions 'api'
+
+    productFlavors {
+        minapi16 {
+            dimension 'api'
+        }
+        minapi21 {
+            dimension 'api'
+            minSdkVersion 21
+        }
+        minapi16ads {
+            dimension 'api'
+        }
+        minapi21ads {
+            dimension 'api'
+            minSdkVersion 21
+        }
+    }
+
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
@@ -25,15 +69,19 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation(name: 'theoplayer', ext: 'aar')
     implementation project(':muxstatssdktheoplayer')
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
-//    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    implementation 'com.google.code.gson:gson:2.8.2'
+    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
+    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
+    minapi21Implementation(name: 'theoplayer-minapi21', ext: "aar")
+    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
+    implementation "androidx.appcompat:appcompat:1.1.0"
+    minapi16adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.1'
+    minapi16adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    minapi21adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.1'
+    minapi21adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:multidex:1.0.3'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
