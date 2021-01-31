@@ -50,7 +50,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api files('libs/MuxCore.jar')
-    implementation(name: 'theoplayer', ext: 'aar')
     implementation 'com.android.support:multidex:1.0.3'
     minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
     minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
