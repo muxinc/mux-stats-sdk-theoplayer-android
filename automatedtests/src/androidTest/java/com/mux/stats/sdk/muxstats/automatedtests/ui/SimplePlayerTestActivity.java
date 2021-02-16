@@ -55,6 +55,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     MockNetworkRequest mockNetwork;
     AtomicBoolean onResumedCalled = new AtomicBoolean(false);
     double currentPosition = 0;
+    protected ReadyState previousReadyState;
 
     Lock activityLock = new ReentrantLock();
     Condition playbackEnded = activityLock.newCondition();
@@ -77,7 +78,16 @@ public class SimplePlayerTestActivity extends AppCompatActivity
             Log.e(TAG, "Ads error: " + event.getError());
         });
 
-        player.addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
+        player.addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
+            ReadyState state = stateChange.getReadyState();
+            if ( state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
+                    || (state.ordinal() < previousReadyState.ordinal()) ) {
+                signalPlaybackBuffering();
+            }
+            previousReadyState = state;
+        }));
+
+        player.addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             signalPlaybackStarted();
         }));
 
@@ -99,6 +109,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         player.addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
             signalPlaybackEnded();
         }));
+
     }
 
     public double getCurrentPosition() {
@@ -209,7 +220,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         muxStats = new MuxStatsSDKTHEOplayer(this,
                 theoPlayerView, "demo-view-player",
                 customerPlayerData,
-                customerVideoData);
+                customerVideoData,
+                null,
+                true,
+                mockNetwork);
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);

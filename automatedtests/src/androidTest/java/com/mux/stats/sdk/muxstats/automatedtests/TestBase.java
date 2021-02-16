@@ -72,12 +72,12 @@ public abstract class TestBase {
     long startedJammingTheNetworkAt;
     // Amount of video playback time in player buffer
     private long bufferedTime;
-    protected int networkJamPeriodInMs = 10000;
+    protected int networkJamPeriodInMs = 15000;
     // This is the number of times the network bandwidth will be reduced,
     // not constantly but each 10 ms a random number between 2 and factor will divide
     // the regular amount of bytes to send.
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
-    protected int networkJamFactor = 4;
+    protected int networkJamFactor = 5;
     protected int waitForPlaybackToStartInMS = 10000;
 
 //    protected ActivityScenario<SimplePlayerTestActivity> testScenario;
@@ -139,11 +139,7 @@ public abstract class TestBase {
     public void jamNetwork() {
         testActivity.runOnUiThread(() -> {
             startedJammingTheNetworkAt = System.currentTimeMillis();
-            // TODO reimplement this
-//            long bufferPosition = pView.getBuffer();
-//            long currentPosition = (long)pView.getPosition();
-//            bufferedTime = bufferPosition - currentPosition;
-//            httpServer.jamNetwork(networkJamPeriodInMs, networkJamFactor, true);
+            httpServer.jamNetwork(networkJamPeriodInMs, networkJamFactor, true);
         });
     }
 
@@ -170,8 +166,10 @@ public abstract class TestBase {
                     ", pauseIndex: " + pauseIndex + ", starting at index: " + index +
                     ", availableEvents: " + networkRequest.getReceivedEventNames());
         }
+//        int startIndex = playIndex == -1 ? playingIndex : playIndex;
+        int startIndex = playingIndex;
         long playbackPeriod = networkRequest.getCreationTimeForEvent(pauseIndex) -
-                networkRequest.getCreationTimeForEvent(playingIndex);
+                networkRequest.getCreationTimeForEvent(startIndex);
         if (Math.abs(playbackPeriod - expectedPlayPeriod) > 500 ) {
             fail("Reported play period: " + playbackPeriod + " do not match expected play period: "
                     + expectedPlayPeriod + ", playingIndex: " + playingIndex +
