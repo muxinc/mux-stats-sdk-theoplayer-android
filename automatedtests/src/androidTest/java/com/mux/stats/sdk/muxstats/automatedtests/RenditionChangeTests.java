@@ -60,14 +60,14 @@ public class RenditionChangeTests extends TestBase {
 
             Thread.sleep(PLAY_PERIOD_IN_MS);
             int renditionChangeIndex = 0;
-            int playinIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
+            int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             JSONArray receivedRenditionChangeEvents = new JSONArray();
             while (true) {
                 renditionChangeIndex = networkRequest
                         .getIndexForNextEvent(renditionChangeIndex + 1, RenditionChangeEvent.TYPE);
                 long lastRenditionChangeAt = networkRequest
                         .getCreationTimeForEvent(renditionChangeIndex) - networkRequest
-                        .getCreationTimeForEvent(playinIndex);
+                        .getCreationTimeForEvent(playingIndex);
                 if (renditionChangeIndex == -1) {
                     fail("Failed to find RenditionChangeEvent dispatched after: "
                             + PLAY_PERIOD_IN_MS + " ms since playback started, with valid data"
@@ -75,7 +75,7 @@ public class RenditionChangeTests extends TestBase {
                 }
                 JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
                 receivedRenditionChangeEvents.put(jo);
-                if (Math.abs(lastRenditionChangeAt - (PLAY_PERIOD_IN_MS + PAUSE_PERIOD_IN_MS)) < 1000) {
+                if ( lastRenditionChangeAt > ( PLAY_PERIOD_IN_MS + PAUSE_PERIOD_IN_MS ) ) {
                     // We found rendition change index we ware looking for, there may be more after,
                     // because I dont know how to controll the player bitadaptive settings
                     if ( !jo.has(VideoData.VIDEO_SOURCE_WIDTH) || ! jo.has(VideoData.VIDEO_SOURCE_HEIGHT)) {

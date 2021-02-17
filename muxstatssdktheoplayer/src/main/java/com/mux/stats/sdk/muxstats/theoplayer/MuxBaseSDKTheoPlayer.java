@@ -119,6 +119,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                          INetworkRequest networkRequest) {
         super();
         this.player = new WeakReference<>(player);
+        contextRef = new WeakReference<>(ctx);
         MuxStats.setHostDevice(new MuxStatsSDKTHEOplayer.MuxDevice(ctx, player.getVersion()));
 
         if ( networkRequest == null ) {
@@ -404,16 +405,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void pause() {
-        if ( state == PlayerState.PAUSED ) {
+        if ( state == PlayerState.PAUSED || state == PlayerState.ENDED ) {
             // ignore
             return;
+        }
+        if (state == PlayerState.REBUFFERING) {
+            rebufferingEnded();
         }
         state = PlayerState.PAUSED;
         if (inAdBreak) {
             dispatch(new AdPauseEvent(null));
             return;
+        } else {
+            dispatch(new PauseEvent(null));
         }
-        dispatch(new PauseEvent(null));
     }
 
     protected void play() {
