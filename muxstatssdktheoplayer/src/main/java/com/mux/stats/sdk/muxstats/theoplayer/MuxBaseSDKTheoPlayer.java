@@ -83,7 +83,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected boolean inAdBreak;
     protected boolean inAdPlayback;
     protected ReadyState previousReadyState;
-    protected Timer updatePlayheadPositionTimer;
 
     protected double playbackPosition;
 
@@ -188,19 +187,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKING, (playEvent -> {
-            if ( state == PlayerState.PLAYING ) {
-                pause();
-            }
-            state = PlayerState.SEEKING;
-            dispatch(new SeekingEvent(null));
+            seeking();
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.SEEKED, (playEvent -> {
-            state = PlayerState.SEEKED;
-            dispatch(new SeekedEvent(null));
-            if ( player.getPlayer().isAutoplay() ) {
-                playing();
-            }
+            seeked();
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
@@ -333,7 +324,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     @Override
     public boolean isBuffering() {
         if (player != null && player.get() != null) {
-            return getState() == MuxBaseSDKTheoPlayer.PlayerState.BUFFERING;
+            return getState() == PlayerState.BUFFERING ||
+                    getState() == PlayerState.REBUFFERING;
         }
         return false;
     }
@@ -442,6 +434,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
+        if (state == PlayerState.SEEKING) {
+            seeked();
+        }
         if (state ==  PlayerState.PLAYING) {
             // ignore
             return;
@@ -460,6 +455,26 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return;
         }
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void seeking() {
+        if ( state == PlayerState.PLAYING ) {
+            pause();
+        }
+        state = PlayerState.SEEKING;
+        dispatch(new SeekingEvent(null));
+    }
+
+    protected void seeked() {
+        if ( state != PlayerState.SEEKING ) {
+            // Seeked can come only after seeking
+            return;
+        }
+        state = PlayerState.SEEKED;
+        dispatch(new SeekedEvent(null));
+        if ( player.get().getPlayer().isAutoplay() ) {
+            playing();
+        }
     }
 
     protected void ended() {
