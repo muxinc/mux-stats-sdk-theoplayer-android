@@ -18,9 +18,9 @@ task checkstyle(type: Checkstyle) {
     ignoreFailures = false
 }
 
-preBuild.dependsOn('checkstyle')
-assemble.dependsOn('lint')
-check.dependsOn('checkstyle')
+//preBuild.dependsOn('checkstyle')
+//assemble.dependsOn('lint')
+//check.dependsOn('checkstyle')
 
 android {
     compileSdkVersion 30
