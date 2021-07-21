@@ -11,3 +11,4 @@ steps:
           - "muxstatssdktheoplayer/build/outputs/artifacts/*.txt"
           - "muxstatssdktheoplayer/build/outputs/version-*"
           - "muxstatssdktheoplayer/build/reports/*/*.*"
+          - "muxstatssdktheoplayer/build/reports/lint-results.*"
