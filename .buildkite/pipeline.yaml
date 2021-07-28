@@ -1,0 +1,12 @@
+env:
+  SAUCECTL_LABEL: "$BUILDKITE_BUILD_NUMBER $BUILDKITE_PIPELINE_SLUG $BUILDKITE_BRANCH $BUILDKITE_COMMIT"
+steps:
+- agents: [dind=true,queue=beta]
+  command: docker run -it --rm -v $(pwd):/data -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info muxstatssdktheoplayer:clean muxstatssdktheoplayer:build muxstatssdktheoplayer:assemble"
+  label: Build AARs and APKs
+  plugins:
+    - artifacts#v1.3.0:
+        upload:
+          - "muxstatssdktheoplayer/build/outputs/aar/*.aar"
+          - "muxstatssdktheoplayer/build/reports/*/*.*"
+          - "muxstatssdktheoplayer/build/reports/lint-results.*"
