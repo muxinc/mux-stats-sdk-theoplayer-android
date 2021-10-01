@@ -20,7 +20,10 @@ public class RunInBackgroundTests extends TestBase {
         super.init();
     }
 
-    @Test
+//    @Test
+    /*
+     * Not supporting background playback.
+     */
     public void testBackgroundAudioPlayback() {
         try {
             testActivity.waitForActivityToInitialize();

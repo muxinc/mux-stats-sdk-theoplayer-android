@@ -149,8 +149,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         player.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE,
                 timeUpdateEvent -> {
-                    if (!inAdBreak) {
-                        player.getPlayer().requestCurrentTime(time -> playbackPosition = time);
+                    if (!inAdBreak && this.player != null && this.player.get() != null) {
+                        this.player.get().getPlayer()
+                            .requestCurrentTime(time -> playbackPosition = time);
                         dispatch(new TimeUpdateEvent(null));
                     }
                 });
@@ -161,7 +162,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             playing();
-            if (sourceChanged) {
+            if (sourceChanged && this.player != null && this.player.get() != null) {
                 this.player.get().getPlayer().requestVideoWidth((playerSourceWidth -> {
                     sourceWidth = playerSourceWidth;
                     this.player.get().getPlayer().requestVideoHeight((playerSourceHeight -> {
@@ -175,11 +176,15 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
             ReadyState state = stateChange.getReadyState();
-            if ( state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
-                || (state.ordinal() < previousReadyState.ordinal()) ) {
-                buffering();
+            if (state != null) {
+                if (previousReadyState != null
+                    && (state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
+                    || (state.ordinal() < previousReadyState.ordinal()))
+                ) {
+                    buffering();
+                }
+                previousReadyState = state;
             }
-            previousReadyState = state;
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, (playEvent -> {

@@ -80,11 +80,15 @@ public class SimplePlayerTestActivity extends AppCompatActivity
 
         player.addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
             ReadyState state = stateChange.getReadyState();
-            if ( state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
-                    || (state.ordinal() < previousReadyState.ordinal()) ) {
-                signalPlaybackBuffering();
+            if (state != null) {
+                if (previousReadyState != null
+                    && (state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
+                    || (state.ordinal() < previousReadyState.ordinal()))
+                ) {
+                    signalPlaybackBuffering();
+                }
+                previousReadyState = state;
             }
-            previousReadyState = state;
         }));
 
         player.addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
