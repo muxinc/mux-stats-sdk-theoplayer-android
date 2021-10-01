@@ -52,10 +52,12 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     SourceDescription testMediaSource;
     MuxStatsSDKTHEOplayer muxStats;
     Uri loadedAdTagUri;
+    boolean playWhenReady = true;
     MockNetworkRequest mockNetwork;
     AtomicBoolean onResumedCalled = new AtomicBoolean(false);
     double currentPosition = 0;
     protected ReadyState previousReadyState;
+    long playbackStartPosition = 0;
 
     Lock activityLock = new ReentrantLock();
     Condition playbackEnded = activityLock.newCondition();
@@ -159,7 +161,9 @@ public class SimplePlayerTestActivity extends AppCompatActivity
                     .sourceDescription(typedSource.build())
                     .build();
             player.setSource(testMediaSource);
+            player.setCurrentTime(playbackStartPosition);
         }
+        player.setAutoplay(playWhenReady);
         player.play();
     }
 
@@ -199,9 +203,15 @@ public class SimplePlayerTestActivity extends AppCompatActivity
 //        return trackSelector;
 //    }
 
+    public void setPlaybackStartPosition(long position) {
+        playbackStartPosition = position;
+    }
 
+    public void setPlayWhenReady(boolean playWhenReady) {
+        this.playWhenReady = playWhenReady;
+    }
 
-    public void releaseExoPlayer() {
+    public void releaseTheoPlayer() {
         theoPlayerView.onDestroy();
         muxStats.release();
     }

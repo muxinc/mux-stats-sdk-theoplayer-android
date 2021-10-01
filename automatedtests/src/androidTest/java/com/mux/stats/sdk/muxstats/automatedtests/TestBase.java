@@ -62,6 +62,8 @@ public abstract class TestBase {
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
+    static final int WAIT_FOR_NETWORK_PERIOD_IN_MS = 12000;
+
     // I could not make this work as expected
 //    static final int SEEK_PERIOD_IN_MS = 5000;
     protected int runHttpServerOnPort = 5000;
@@ -79,6 +81,8 @@ public abstract class TestBase {
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
     protected int networkJamFactor = 5;
     protected int waitForPlaybackToStartInMS = 10000;
+    protected long playbackStartPosition = 0;
+    protected boolean playWhenReady = true;
 
 //    protected ActivityScenario<SimplePlayerTestActivity> testScenario;
     protected SimplePlayerTestActivity testActivity;
@@ -116,7 +120,9 @@ public abstract class TestBase {
         testActivity.runOnUiThread(() -> {
             testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
             testActivity.setUrlToPlay(urlToPlay);
+            testActivity.setPlayWhenReady(playWhenReady);
             testActivity.initMuxSats();
+            testActivity.setPlaybackStartPosition(playbackStartPosition);
             testActivity.startPlayback();
             pView = testActivity.getPlayerView();
             testMediaSource = testActivity.getTestMediaSource();
