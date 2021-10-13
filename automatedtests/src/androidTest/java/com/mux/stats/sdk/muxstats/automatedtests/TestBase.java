@@ -58,7 +58,11 @@ public abstract class TestBase {
 //                    SimplePlayerTestActivity.class).putExtras(getActivityOptions())
 //            );
 
-    @Rule public TestName currentTestName = new TestName();
+    @Rule
+    public TestName currentTestName = new TestName();
+
+    @Rule
+    public RetryTest retryTestRule = new RetryTest(3);
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
@@ -80,7 +84,7 @@ public abstract class TestBase {
     // the regular amount of bytes to send.
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
     protected int networkJamFactor = 5;
-    protected int waitForPlaybackToStartInMS = 10000;
+    protected int waitForPlaybackToStartInMS = 30000;
     protected long playbackStartPosition = 0;
     protected boolean playWhenReady = true;
 

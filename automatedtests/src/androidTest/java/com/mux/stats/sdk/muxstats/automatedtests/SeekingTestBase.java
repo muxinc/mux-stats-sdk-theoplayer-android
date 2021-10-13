@@ -34,7 +34,7 @@ public class SeekingTestBase extends TestBase {
       int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
       int seekingIndex = networkRequest.getIndexForFirstEvent(SeekingEvent.TYPE);
       int seekedIndex = networkRequest.getIndexForFirstEvent(SeekedEvent.TYPE);
-      if (seekingIndex < playIndex) {
+      if (seekingIndex < playingIndex) {
         // Sometimes seeking and seeked are displayed at begining
         seekingIndex = networkRequest.getIndexForNextEvent(seekedIndex, SeekingEvent.TYPE);
         seekedIndex = networkRequest.getIndexForNextEvent(seekingIndex, SeekedEvent.TYPE);
@@ -83,14 +83,9 @@ public class SeekingTestBase extends TestBase {
       // Expected events play, playing, pause, seeking, seeked
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
       int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
-      int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
-      int seekingIndex = networkRequest.getIndexForFirstEvent(SeekingEvent.TYPE);
-      int seekedIndex = networkRequest.getIndexForFirstEvent(SeekedEvent.TYPE);
-      if (seekingIndex < playIndex) {
-        // Sometimes seeking and seeked are displayed at begining
-        seekingIndex = networkRequest.getIndexForNextEvent(seekedIndex, SeekingEvent.TYPE);
-        seekedIndex = networkRequest.getIndexForNextEvent(seekingIndex, SeekedEvent.TYPE);
-      }
+      int seekingIndex = networkRequest.getIndexForNextEvent(playingIndex, SeekingEvent.TYPE);
+      int seekedIndex = networkRequest.getIndexForNextEvent(playingIndex, SeekedEvent.TYPE);
+      int pauseIndex = networkRequest.getIndexForNextEvent(playingIndex , PauseEvent.TYPE);
       if (!(playIndex < playingIndex
           && playingIndex < pauseIndex
           && pauseIndex < seekingIndex

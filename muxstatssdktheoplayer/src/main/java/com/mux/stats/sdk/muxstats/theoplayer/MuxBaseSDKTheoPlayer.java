@@ -78,15 +78,26 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected Integer sourceAdvertisedBitrate;
     protected Double sourceAdvertisedFramerate;
     protected long sourceDuration;
-    protected boolean playWhenReady;
+    protected boolean isPlaying;
     protected boolean sourceChanged;
     protected boolean inAdBreak;
     protected boolean inAdPlayback;
     protected ReadyState previousReadyState;
+    /**
+     * Set to true if the player is currently seeking. This also include all necessary network
+     * buffering to start the playback from new position.
+     */
+    boolean seekingInProgress;
+    protected int numberOfEventsSent = 0;
+    protected int numberOfPlayEventsSent = 0;
 
     protected double playbackPosition;
 
     public int streamType = -1;
+
+    public enum PlaybackState {
+        PLAYING, PAUSED, UNDEFINED
+    }
 
     public enum PlayerState {
         BUFFERING, REBUFFERING, SEEKING, SEEKED, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS,
@@ -120,7 +131,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         this.player = new WeakReference<>(player);
         contextRef = new WeakReference<>(ctx);
         MuxStats.setHostDevice(new MuxStatsSDKTHEOplayer.MuxDevice(ctx, player.getVersion()));
-
+        resetInternalStats();
         if ( networkRequest == null ) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         } else {
@@ -157,6 +168,14 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
+            if (this.player != null && this.player.get() != null
+                && this.player.get().getPlayer() != null
+                && !this.player.get().getPlayer().isAutoplay()
+                && numberOfPlayEventsSent == 0
+            ) {
+                // This is first play event in autoplay = fase sequence, ignore this
+                return;
+            }
             play();
         }));
 
@@ -252,6 +271,18 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
     }
 
+    /**
+     * Reset internal counters for each new view.
+     */
+    private void resetInternalStats() {
+//        detectMimeType = true;
+//        numberOfPauseEventsSent = 0;
+        isPlaying = false;
+        state = PlayerState.INIT;
+        numberOfPlayEventsSent = 0;
+        numberOfEventsSent = 0;
+    }
+
     public void release() {
         muxStats.release();
         muxStats = null;
@@ -320,10 +351,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isPaused() {
-        if (player != null && player.get() != null) {
-            return player.get().getPlayer().isPaused();
-        }
-        return true;
+        return !isPlaying;
     }
 
     @Override
@@ -371,6 +399,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     @Override
     public void dispatch(IEvent event) {
         if (player != null && player.get() != null && muxStats != null) {
+            numberOfEventsSent ++;
+            if (event instanceof PlayEvent) {
+                numberOfPlayEventsSent++;
+            }
             super.dispatch(event);
         }
     }
@@ -402,6 +434,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void pause() {
+        isPlaying = false;
         if ( state == PlayerState.PAUSED || state == PlayerState.ENDED ) {
             // ignore
             return;
@@ -409,23 +442,32 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         if (state == PlayerState.REBUFFERING) {
             rebufferingEnded();
         }
-        state = PlayerState.PAUSED;
+
         if (inAdBreak) {
             dispatch(new AdPauseEvent(null));
             return;
         } else {
+            state = PlayerState.PAUSED;
             dispatch(new PauseEvent(null));
         }
     }
 
     protected void play() {
-        state = PlayerState.PLAY;
+        isPlaying = true;
         if (inAdBreak) {
             if (inAdPlayback) {
                 dispatch(new AdPlayEvent(null));
                 // For some reason playing callback will not be fired.
                 dispatch(new AdPlayingEvent(null));
             }
+            return;
+        }
+        if (
+            (state == PlayerState.REBUFFERING
+                || seekingInProgress
+                || state == PlayerState.SEEKED)
+        ) {
+            // Ignore play event after rebuffering and Seeking
             return;
         }
         // Update the videoSource url
@@ -435,14 +477,13 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             videoData.setVideoSourceUrl(videoUrl);
             muxStats.updateCustomerData(null, videoData);
         }
+        state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
     }
 
     protected void playing() {
-        if (state == PlayerState.SEEKING) {
-            seeked();
-        }
-        if (state ==  PlayerState.PLAYING) {
+        isPlaying = true;
+        if (state ==  PlayerState.PLAYING || seekingInProgress) {
             // ignore
             return;
         }
@@ -463,11 +504,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeking() {
-        if ( state == PlayerState.PLAYING ) {
-            pause();
+        if ((state ==  PlayerState.INIT && player.get().getPlayer().isAutoplay())
+            || (isPaused() && numberOfPlayEventsSent < 2 && state == PlayerState.PLAY )
+            || state == PlayerState.SEEKING
+        ) {
+            // This is the first seeking event triggered when player start from a position,
+            // ignore this only if we are in autoplay mode.
+            return;
+        }
+        if ( state == PlayerState.PLAYING) {
+            dispatch(new PauseEvent(null));
         }
         state = PlayerState.SEEKING;
         dispatch(new SeekingEvent(null));
+        seekingInProgress = true;
     }
 
     protected void seeked() {
@@ -477,7 +527,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }
         state = PlayerState.SEEKED;
         dispatch(new SeekedEvent(null));
-        if ( player.get().getPlayer().isAutoplay() ) {
+        seekingInProgress = false;
+        if (isPlaying) {
             playing();
         }
     }
@@ -486,6 +537,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         dispatch(new PauseEvent(null));
         dispatch(new EndedEvent(null));
         state = PlayerState.ENDED;
+        isPlaying = false;
     }
 
     static class MuxDevice implements IDevice {

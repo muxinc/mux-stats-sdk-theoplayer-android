@@ -164,7 +164,6 @@ public class SimplePlayerTestActivity extends AppCompatActivity
             player.setCurrentTime(playbackStartPosition);
         }
         player.setAutoplay(playWhenReady);
-        player.play();
     }
 
     void setupVMAPAd(String adTagUri) {
