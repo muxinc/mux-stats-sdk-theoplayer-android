@@ -1,99 +1,31 @@
 package com.mux.stats.sdk.muxstats.theoplayer;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.provider.Settings;
-import android.util.Log;
 
+import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
-import com.mux.stats.sdk.core.events.EventBus;
-import com.mux.stats.sdk.core.events.IEvent;
-import com.mux.stats.sdk.core.events.InternalErrorEvent;
-import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
-import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
-import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
-import com.mux.stats.sdk.core.events.playback.AdErrorEvent;
-import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
-import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
-import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
-import com.mux.stats.sdk.core.events.playback.EndedEvent;
-import com.mux.stats.sdk.core.events.playback.PauseEvent;
-import com.mux.stats.sdk.core.events.playback.PlayEvent;
-import com.mux.stats.sdk.core.events.playback.PlayingEvent;
-import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
-import com.mux.stats.sdk.core.events.playback.SeekedEvent;
-import com.mux.stats.sdk.core.events.playback.SeekingEvent;
-import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
-import com.mux.stats.sdk.core.events.playback.VideoChangeEvent;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
-import com.mux.stats.sdk.core.model.ViewData;
-import com.mux.stats.sdk.core.util.MuxLogger;
-import com.mux.stats.sdk.muxstats.IDevice;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
-import com.mux.stats.sdk.muxstats.IPlayerListener;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
-import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
-import com.theoplayer.android.api.event.EventListener;
-import com.theoplayer.android.api.event.ads.AdsEventTypes;
-import com.theoplayer.android.api.event.player.PlayerEventTypes;
-import com.theoplayer.android.api.event.track.mediatrack.video.ActiveQualityChangedEvent;
-import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTypes;
-import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEvent;
-import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes;
-import com.theoplayer.android.api.player.Player;
-import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality;
-import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
-
-import static android.os.SystemClock.elapsedRealtime;
-import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
 
 public class MuxStatsSDKTHEOplayer extends MuxBaseSDKTheoPlayer {
 
     public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                                 CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData,
-                null, true);
+    CustomerData data) {
+        this(ctx, player, playerName, data, new CustomOptions(), new MuxNetworkRequests());
     }
 
     public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                             CustomerPlayerData customerPlayerData,
-                             CustomerVideoData customerVideoData,
-                             CustomerViewData customerViewData) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData,
-                customerViewData, true);
-    }
-
-    public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                             CustomerPlayerData customerPlayerData,
-                             CustomerVideoData customerVideoData,
-                             boolean sentryEnabled) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData,
-                null, sentryEnabled);
-    }
-
-    public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                             CustomerPlayerData customerPlayerData,
-                             CustomerVideoData customerVideoData,
-                             CustomerViewData customerViewData, boolean sentryEnabled) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData, null,
-                sentryEnabled, new MuxNetworkRequests());
-    }
-
-    public MuxStatsSDKTHEOplayer(Context ctx, THEOplayerView player, String playerName,
-                             CustomerPlayerData customerPlayerData,
-                             CustomerVideoData customerVideoData,
-                             CustomerViewData customerViewData, boolean sentryEnabled,
-                             INetworkRequest networkRequest) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData,
-                sentryEnabled, networkRequest);
+        CustomerData data,
+        CustomOptions options,
+        INetworkRequest networkRequests) {
+        super(ctx, player, playerName, data, options, networkRequests);
     }
 
     @SuppressWarnings("unused")

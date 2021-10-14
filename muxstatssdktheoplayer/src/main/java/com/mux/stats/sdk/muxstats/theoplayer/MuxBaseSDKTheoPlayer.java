@@ -11,6 +11,7 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -32,6 +33,7 @@ import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.events.playback.VideoChangeEvent;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -124,9 +126,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     };
 
     MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView player, String playerName,
-                         CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
-                         CustomerViewData customerViewData, boolean sentryEnabled,
-                         INetworkRequest networkRequest) {
+        CustomerData data, CustomOptions options,
+        INetworkRequest networkRequest) {
         super();
         this.player = new WeakReference<>(player);
         contextRef = new WeakReference<>(ctx);
@@ -137,7 +138,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         } else {
             MuxStats.setHostNetworkApi(networkRequest);
         }
-        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData);
+        muxStats = new MuxStats(this, playerName, data, options);
         addListener(muxStats);
 
         // TODO test this

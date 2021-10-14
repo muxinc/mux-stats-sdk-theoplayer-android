@@ -65,7 +65,7 @@ android {
                             rename("mapping.txt", "mapping-${versionName}.txt")
                             File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
                             println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
-                            if ( aarFile.length() > 120000 ) {
+                            if ( aarFile.length() > 150000 ) {
                                 // Fail
                                 throw new GradleException(
                                         "${project.name}-${flavor.name}-release.aar exceed 120KB!");
@@ -79,7 +79,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:multidex:1.0.3'
     minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
     minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
@@ -95,7 +95,8 @@ dependencies {
     if(project.ext.inLocalDevMode) {
         api muxCoreImport
     } else {
-        embed muxCoreImport
+//        embed muxCoreImport, see whith Nigel why this do not work
+        api muxCoreImport
     }
 }
 

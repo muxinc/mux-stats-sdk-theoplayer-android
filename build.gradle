@@ -13,10 +13,10 @@ buildscript {
     }
 }
 
-// Local dev mode causes the modules to refer to MuxExoPlayer directly
+// Local dev mode causes the modules to refer to TheoPlayer directly
 // When it's NOT set they will download aars from artifactory and use those
 //
-// It must be false for fat aar generation of MuxExoPlayer to work
+// It must be false for fat aar generation of TheoPlayer to work
 // This is a bug/problem with the fat aar mechanism
 def inLocalDevModeFlag = false
 

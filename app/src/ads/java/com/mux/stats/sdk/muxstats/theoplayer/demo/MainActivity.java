@@ -14,6 +14,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
+import com.mux.stats.sdk.core.model.CustomData;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
@@ -79,13 +81,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void configureMuxSdk() {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
+        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
         CustomerVideoData customerVideoData = new CustomerVideoData();
-        customerVideoData.setVideoTitle("Big Buck Bunny");
+        customerVideoData.setVideoTitle("VIDEO_TITLE_HERE");
+        CustomData customData = new CustomData();
+        customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+        CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+        customerData.setCustomData(customData);
+
         muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this,
                 theoPlayerView, "demo-view-player",
-                customerPlayerData,
-                customerVideoData);
+                customerData);
 
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);

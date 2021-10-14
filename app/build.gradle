@@ -18,6 +18,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        // The demo app does not have translations.
+        disable 'MissingTranslation', 'GradleCompatible'
+        // exoplayer 2.8.1 workaround
+        // https://github.com/google/ExoPlayer/issues/4234
+        lintConfig file("../checker-framework-lint.xml")
+    }
     sourceSets {
         minapi16 {
             java.srcDirs = ['./src/no_ads/java']
@@ -67,7 +74,10 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.android.material:material:1.4.0'
+    api 'org.checkerframework:checker-qual:2.5.2'
     implementation project(':muxstatssdktheoplayer')
     minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
     minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
@@ -80,7 +90,4 @@ dependencies {
     minapi16adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     minapi21adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.1'
     minapi21adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
