@@ -5,4 +5,4 @@ echo '--- :house_with_garden: Marking the version'
 
 version=$(git describe --tags --always)
 
-echo "$version" >  MuxExoPlayer/buildout/outputs/version-$version
+echo "$version" >  muxstatssdktheoplayer/buildout/outputs/version-$version
