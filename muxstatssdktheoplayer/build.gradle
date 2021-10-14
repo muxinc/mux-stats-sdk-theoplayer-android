@@ -1,4 +1,9 @@
 apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: 'com.kezong.fat-aar'
+
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -7,7 +12,7 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         versionCode 1
-        versionName "0.0.1"
+        versionName project.ext.versionName
         multiDexEnabled true
 
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
@@ -17,6 +22,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -44,11 +52,34 @@ android {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
     }
+    build  {
+        doLast {
+            productFlavors.each {
+                flavor ->
+                    def versionName = flavor.name.replaceAll(/_/, ".")
+                    if (!versionName.endsWith(".ads")) {
+                        copy {
+                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
+                            into "${buildDir}/outputs/artifacts/"
+                            rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
+                            rename("mapping.txt", "mapping-${versionName}.txt")
+                            File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
+                            println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
+                            if ( aarFile.length() > 120000 ) {
+                                // Fail
+                                throw new GradleException(
+                                        "${project.name}-${flavor.name}-release.aar exceed 120KB!");
+                            }
+                        }
+                    }
+            }
+            dependencies {}
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api files('libs/MuxCore.jar')
     implementation 'com.android.support:multidex:1.0.3'
     minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
     minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
@@ -57,7 +88,14 @@ dependencies {
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // This is due to the problem with fat aar bundling
+    // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
+    def muxCoreImport = 'com.mux:stats.muxcore:7.0.2'
+    if(project.ext.inLocalDevMode) {
+        api muxCoreImport
+    } else {
+        embed muxCoreImport
+    }
 }
 
