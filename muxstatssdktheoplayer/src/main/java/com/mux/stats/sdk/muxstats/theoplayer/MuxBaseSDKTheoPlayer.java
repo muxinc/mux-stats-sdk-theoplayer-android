@@ -173,24 +173,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
-            Log.w("ERRGH!!", "Play Event: " + playEvent);
             if (this.player != null && this.player.get() != null
                 && this.player.get().getPlayer() != null
                 && !this.player.get().getPlayer().isAutoplay()
                 && numberOfPlayEventsSent == 0
             ) {
-                Log.i("ERRGH!!", "Skipped a first event");
-                // This is first play event in autoplay = fase sequence, ignore this
+                // This is first play event in autoplay = false sequence, ignore this
                 return;
             }
             play();
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
-            Log.w("ERRGH!!", "PLAYING");
             playing();
             if (sourceChanged && this.player != null && this.player.get() != null) {
-                Log.v("ERRGH!!", "PLAYING: Didn't skip the big logic");
                 this.player.get().getPlayer().requestVideoWidth((playerSourceWidth -> {
                     sourceWidth = playerSourceWidth;
                     this.player.get().getPlayer().requestVideoHeight((playerSourceHeight -> {
@@ -199,8 +195,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                     }));
                 }));
                 sourceChanged = false;
-            } else {
-                Log.v("ERRGH!!", "PLAYING: DID skip the big logic");
             }
         }));
 
@@ -240,12 +234,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         // Ads listeners
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
-            Log.e("HMM", "Ad ERROR ?????");
             dispatch(new AdErrorEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
-            Log.w("HMM", "See? We get an adBreakBegin");
             inAdBreak = true;
             // Dispatch pause event because pause callback will not be called
             dispatch(new PauseEvent(null));
@@ -263,7 +255,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
-            Log.w("ERRGH", "AD BEGIN! WE ACTUALLY GET AD BEGIN");
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayEvent(null));
@@ -508,17 +499,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             play();
         }
         state = PlayerState.PLAYING;
-        Log.i("HMM", String.format("PLAY EVENT inAdBreak: %b inAdPlayback %b", inAdBreak, inAdPlayback));
         if (inAdBreak) {
-            Log.v("HMM", "inAdBreak During Play Event");
             if (inAdPlayback) {
-                Log.v("HMM", "inAdPlayback During Play Event");
                 dispatch(new AdPlayingEvent(null));
-            } else {
-                Log.d("HMM", "In Ad Break but NOT ad Playback");
             }
         } else {
-            Log.d("HMM", "Playing Ev NOT in ad break");
             dispatch(new PlayingEvent(null));
         }
     }

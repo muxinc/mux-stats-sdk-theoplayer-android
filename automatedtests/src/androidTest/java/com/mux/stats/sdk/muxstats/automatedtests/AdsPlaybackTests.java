@@ -83,10 +83,6 @@ public class AdsPlaybackTests extends TestBase {
             int adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
             int adPlayingIndex = networkRequest.getIndexForFirstEvent(AdPlayingEvent.TYPE);
 
-            for(String x : networkRequest.getReceivedEventNames()) {
-                Log.d("ERRGH", String.format("About to check basic start Events! Got Event [%s]", x));
-            }
-
             if (playIndex == -1 || pauseIndex == -1
                     || adBreakstartIndex == -1 || adPlayIndex == -1 || adPlayingIndex == -1) {
                 fail("Missing basic start events ! playIndex: " + playIndex +
