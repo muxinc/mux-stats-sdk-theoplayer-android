@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import static org.junit.Assert.fail;
 
+import android.util.Log;
+
 public class AdsPlaybackTests extends TestBase {
 
     static final int PREROLL_AD_PERIOD =  10000;
@@ -50,6 +52,7 @@ public class AdsPlaybackTests extends TestBase {
 
     @Test
     public void testPreRollAndBumperAds() {
+        // TODO: em - Events are not delivered from theoplayer for this test. The ads do appear to play
         try {
             testActivity.runOnUiThread(() -> {
                 testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
@@ -79,6 +82,10 @@ public class AdsPlaybackTests extends TestBase {
             int adBreakstartIndex = networkRequest.getIndexForFirstEvent(AdBreakStartEvent.TYPE);
             int adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
             int adPlayingIndex = networkRequest.getIndexForFirstEvent(AdPlayingEvent.TYPE);
+
+            for(String x : networkRequest.getReceivedEventNames()) {
+                Log.d("ERRGH", String.format("About to check basic start Events! Got Event [%s]", x));
+            }
 
             if (playIndex == -1 || pauseIndex == -1
                     || adBreakstartIndex == -1 || adPlayIndex == -1 || adPlayingIndex == -1) {

@@ -79,6 +79,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
 
         player.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
             Log.e(TAG, "Ads error: " + event.getError());
+            Log.e("HMM", "Ads error: " + event.getError());
         });
 
         player.addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
