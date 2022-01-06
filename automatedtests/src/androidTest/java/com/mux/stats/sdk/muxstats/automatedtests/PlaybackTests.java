@@ -10,7 +10,6 @@ import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
-import com.theoplayer.android.internal.player.track.mediatrack.VideoTrackImpl;
 
 import org.json.JSONException;
 import org.junit.Before;

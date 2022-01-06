@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.theoplayer.android.api.THEOplayerView;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -230,12 +231,14 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         }
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle(videoTitle);
+        CustomerData customerData = new CustomerData();
+        customerData.setCustomerPlayerData(customerPlayerData);
+        customerData.setCustomerVideoData(customerVideoData);
         muxStats = new MuxStatsSDKTHEOplayer(this,
-                theoPlayerView, "demo-view-player",
-                customerPlayerData,
-                customerVideoData,
+                theoPlayerView,
+                "demo-view-player",
+                customerData,
                 null,
-                true,
                 mockNetwork);
 
         Point size = new Point();

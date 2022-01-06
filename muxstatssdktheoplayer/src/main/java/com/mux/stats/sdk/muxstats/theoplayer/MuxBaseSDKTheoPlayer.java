@@ -129,8 +129,12 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         CustomerData data, CustomOptions options,
         INetworkRequest networkRequest) {
         super();
+
         this.player = new WeakReference<>(player);
         contextRef = new WeakReference<>(ctx);
+        // MuxCore asserts non-null inputs
+        options = options == null ? new CustomOptions() : options;
+
         MuxStats.setHostDevice(new MuxStatsSDKTHEOplayer.MuxDevice(ctx, player.getVersion()));
         resetInternalStats();
         if ( networkRequest == null ) {
