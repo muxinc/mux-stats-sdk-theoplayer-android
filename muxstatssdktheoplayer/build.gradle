@@ -4,13 +4,13 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 apply plugin: 'com.kezong.fat-aar'
 
-
 android {
     compileSdkVersion project.ext.compileSdkVersion
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+
         versionCode 1
         versionName project.ext.versionName
         multiDexEnabled true
@@ -19,6 +19,10 @@ android {
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
 
         testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
+    }
+
+    lintOptions {
+        abortOnError false
     }
 
     buildTypes {
@@ -48,6 +52,7 @@ android {
             minSdkVersion 21
         }
     }
+
     compileOptions {
         sourceCompatibility = '1.8'
         targetCompatibility = '1.8'
@@ -79,12 +84,11 @@ android {
 }
 
 dependencies {
-//    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:multidex:1.0.3'
-    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
-    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
-    minapi21Implementation(name: 'theoplayer-minapi21', ext: "aar")
-    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
+    minapi16Implementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:+'
+    minapi16adsImplementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:+'
+    minapi21Implementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:+'
+    minapi21adsImplementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:+'
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'

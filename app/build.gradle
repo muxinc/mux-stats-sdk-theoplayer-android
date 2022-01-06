@@ -12,6 +12,11 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -79,10 +84,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     api 'org.checkerframework:checker-qual:2.5.2'
     implementation project(':muxstatssdktheoplayer')
-    minapi16Implementation(name: 'theoplayer-minapi16', ext: 'aar')
-    minapi16adsImplementation(name: 'theoplayer-minapi16', ext: "aar")
-    minapi21Implementation(name: 'theoplayer-minapi21', ext: "aar")
-    minapi21adsImplementation(name: 'theoplayer-minapi21', ext: "aar")
+    minapi16Implementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:+'
+    minapi16adsImplementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:+'
+    minapi21Implementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:+'
+    minapi21adsImplementation 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:+'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     implementation "androidx.appcompat:appcompat:1.1.0"
