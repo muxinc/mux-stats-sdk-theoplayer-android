@@ -219,11 +219,18 @@ public class MuxNetworkRequests implements INetworkRequest {
         }
     }
 
-    private String getAuthority(String propertykey) {
+    /**
+     * Calculate the backend URL based on the user environment key variable.
+     *
+     * @param propertykey environment key variable.
+     * @param domain domain to send beacons to (concatenated with propertykey).
+     * @return backend url.
+     */
+    private String getAuthority(String propertykey, String domain) {
         if (Pattern.matches("^[a-z0-9]+$", propertykey)) {
-            return propertykey + ".litix.io";
+            return propertykey + domain;
         }
-        return "img.litix.io";
+        return "img" + domain;
     }
 
 
@@ -245,22 +252,31 @@ public class MuxNetworkRequests implements INetworkRequest {
         }
     }
 
+    /**
+     * Send HTTP request to the backend and execute given callback if completed successfully.
+     *
+     * @param propertyKey environment key that associate the user with the backend, this value is
+     *                    used to determine the backend URL.
+     * @param body payload to send with request.
+     * @param headers to send with the request.
+     * @param callback to execute on successful completion.
+     */
     @Override
-    public void postWithCompletion(String propertyKey, String body,
-                                   Hashtable<String, String> headers,
-                                   INetworkRequest.IMuxNetworkRequestsCompletion callback) {
+    public void postWithCompletion(String domain, String propertyKey, String body,
+        Hashtable<String, String> headers,
+        INetworkRequest.IMuxNetworkRequestsCompletion callback) {
         try {
             if (propertyKey != null) {
                 Uri.Builder uriBuilder = new Uri.Builder();
-                uriBuilder.scheme("https").authority(this.getAuthority(propertyKey)).path(
-                        "android");
+                uriBuilder.scheme("https").authority(this.getAuthority(propertyKey, domain)).path(
+                    "android");
                 AsyncTaskCompat.executeParallel(new NetworkTaskRunner(callback),
-                        new PostRequest(new URL(uriBuilder.build().toString()), body, headers));
+                    new PostRequest(new URL(uriBuilder.build().toString()), body, headers));
             } else {
                 throw new Exception("propertyKey is null");
             }
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            MuxLogger.d(TAG, e.getMessage());
             callback.onComplete(true);
         }
     }

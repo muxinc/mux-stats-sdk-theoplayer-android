@@ -1,1 +1,3 @@
-include ':app', ':theoplayer-android-mux20190503-2.58.2-minapi16-release', ':muxstatssdktheoplayer'
+include ':app', ':muxstatssdktheoplayer', 'automatedtests'
+
+rootProject.name = 'mux-stats-sdk-theoplayer'

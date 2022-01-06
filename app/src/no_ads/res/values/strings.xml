@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Mux Stats SDK THEOplayer</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="defaultSourceUrl">https://cdn.theoplayer.com/video/dash/big_buck_bunny/BigBuckBunny_10s_simple_2014_05_09.mpd</string>
+    <string name="adTagUrl">https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&amp;iu=/124319096/external/single_ad_samples&amp;ciu_szs=300x250&amp;impl=s&amp;gdfp_req=1&amp;env=vp&amp;output=vast&amp;unviewed_position_start=1&amp;cust_params=deployment%3Ddevsite%26sample_ct%3Dlinear&amp;correlator=</string>
+    <string name="adsSourceUrl">https://html5demos.com/assets/dizzy.mp4</string>
+
+    <string name="appDisplayName">THEO Basic Playback</string>
+</resources>
