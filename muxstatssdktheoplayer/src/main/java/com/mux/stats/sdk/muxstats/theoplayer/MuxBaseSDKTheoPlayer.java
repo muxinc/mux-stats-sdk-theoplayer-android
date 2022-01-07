@@ -12,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.mux.stats.sdk.core.CustomOptions;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -43,6 +44,7 @@ import com.mux.stats.sdk.muxstats.IDevice;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.IPlayerListener;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
+import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.EventListener;
@@ -315,6 +317,14 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     // State Transitions
     public PlayerState getState() {
         return state;
+    }
+
+    public void orientationChange(MuxSDKViewOrientation orientation) {
+        muxStats.orientationChange(orientation);
+    }
+
+    public void presentationChange(MuxSDKViewPresentation presentation) {
+        muxStats.presentationChange(presentation);
     }
 
     // IPlayerListener
