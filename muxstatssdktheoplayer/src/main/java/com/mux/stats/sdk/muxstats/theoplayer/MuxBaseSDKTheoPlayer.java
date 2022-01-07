@@ -43,6 +43,7 @@ import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.IDevice;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.IPlayerListener;
+import com.mux.stats.sdk.muxstats.LogPriority;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
@@ -394,6 +395,60 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         return 0;
     }
 
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getPlayerProgramTime() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getPlayerManifestNewestTime() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoHoldback() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoPartHoldback() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoPartTargetDuration() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoTargetDuration() {
+        return null;
+    }
+
     @Override
     public String getMimeType() {
         if (player != null &&
@@ -681,6 +736,28 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         @Override
         public long getElapsedRealtime() {
             return elapsedRealtime();
+        }
+
+        @Override
+        public void outputLog(LogPriority logPriority, String tag, String msg) {
+            switch (logPriority) {
+                case ERROR:
+                    Log.e(tag, msg);
+                    break;
+                case WARN:
+                    Log.w(tag, msg);
+                    break;
+                case INFO:
+                    Log.i(tag, msg);
+                    break;
+                case DEBUG:
+                    Log.d(tag, msg);
+                    break;
+                case VERBOSE:
+                default: // fall-through
+                    Log.v(tag, msg);
+                    break;
+            }
         }
 
         @Override
