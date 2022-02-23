@@ -35,9 +35,7 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.events.playback.VideoChangeEvent;
 import com.mux.stats.sdk.core.model.CustomerData;
-import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.model.ViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.IDevice;
@@ -60,7 +58,6 @@ import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Timer;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
@@ -138,7 +135,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         // MuxCore asserts non-null inputs
         options = options == null ? new CustomOptions() : options;
 
-        MuxStats.setHostDevice(new MuxStatsSDKTHEOplayer.MuxDevice(ctx, player.getVersion()));
+        MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, player.getVersion()));
         resetInternalStats();
         if ( networkRequest == null ) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -237,10 +234,12 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         // Ads listeners
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
+            Log.d(TAG, "Ad Error: " + event);
             dispatch(new AdErrorEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
+            Log.d(TAG, "Ad Break Begin: " + event);
             inAdBreak = true;
             // Dispatch pause event because pause callback will not be called
             dispatch(new PauseEvent(null));
@@ -258,17 +257,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
+            Log.d(TAG, "Ad Begin: " + event);
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
+            Log.d(TAG, "Ad End: " + event);
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
+            Log.d(TAG, "Ad Break End: " + event);
             inAdBreak = false;
             // Reset all of our state correctly for getting out of ads
             dispatch(new AdBreakEndEvent(null));

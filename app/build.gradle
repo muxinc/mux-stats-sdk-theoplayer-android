@@ -84,10 +84,13 @@ dependencies {
     implementation "com.google.android.material:material:1.4.0"
     api "org.checkerframework:checker-qual:2.5.2"
     implementation project(":muxstatssdktheoplayer")
-    minapi16Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
-    minapi16adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
-    minapi21Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
-    minapi21adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
+    //minapi16Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
+    //minapi16adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
+    //minapi21Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
+    //minapi21adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
+    //implementation "com.theoplayer.theoplayer-sdk-android:unified:${project.ext.theoplayerVersion}"
+    minapi16adsApi files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
+    minapi21adsApi files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
     implementation "com.google.code.gson:gson:2.8.5"
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     implementation "androidx.appcompat:appcompat:1.1.0"

@@ -104,9 +104,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        flatDir {
-            dirs 'libs', "../common_libs"
-        }
 
         // Both our release and dev repos are imported
         maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }

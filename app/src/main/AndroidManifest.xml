@@ -19,7 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="THEOPLAYER_LICENSE"
+            android:value="sZP7IYe6T6fZ3lb_Ilao06k1IlRoFSxKTS0-TSP60Ozt0uhrTQxg0Lg6CoC6FOPlUY3zWokgbgjNIOf9flCkISai0oBcFSac0LR-3uIK0Ok13lfkFSP63KXl0of_CShZTmfVfK4_bQgZCYxNWoryIQXzImf90SCk0Lei3uRi0u5i0Oi6Io4pIYP1UQgqWgjeCYxgflEc3laz3uao0S0c0LbzFOPeWok1dDrLYtA1Ioh6TgV6v6fVfKcqCoXVdQjLUOfVfGxEIDjiWQXrIYfpCoj-fgzVfKxqWDXNWG3ybojkbK3gflNWf6E6FOPVWo31WQ1qbta6FOPzdQ4qbQc1sD4ZFK3qWmPUFOPLIQ-LflNWfKXpIwPqdDa6Ymi6bo4pIXjNWYAZIY3LdDjpflNzbG4gya" />
     </application>
+
     <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

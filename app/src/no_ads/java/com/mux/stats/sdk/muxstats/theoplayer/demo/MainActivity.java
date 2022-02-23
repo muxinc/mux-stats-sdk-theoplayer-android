@@ -2,7 +2,6 @@ package com.mux.stats.sdk.muxstats.theoplayer.demo;
 
 import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,16 +12,11 @@ import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
+import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOPlayer;
 import com.theoplayer.android.api.THEOplayerView;
-import com.theoplayer.android.api.event.EventListener;
-import com.theoplayer.android.api.event.player.PauseEvent;
-import com.theoplayer.android.api.event.player.PlayEvent;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
-import com.theoplayer.android.api.event.player.TimeUpdateEvent;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.source.SourceDescription;
-import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 
 import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
@@ -36,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private Player theoPlayer;
     Button btnPlayPause;
     TextView txtPlayStatus, txtTimeUpdate;
-    MuxStatsSDKTHEOplayer muxStatsSDKTHEOplayer;
+    MuxStatsSDKTHEOPlayer muxStatsSDKTHEOplayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
         customerData.setCustomData(customData);
 
-        muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this,
+        muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOPlayer(this,
             theoPlayerView, "demo-view-player",
             customerData);
 

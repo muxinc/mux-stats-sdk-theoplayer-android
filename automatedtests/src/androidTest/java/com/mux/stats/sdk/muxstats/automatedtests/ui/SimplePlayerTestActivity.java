@@ -8,14 +8,13 @@ import android.view.WindowManager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mux.stats.sdk.core.model.CustomerData;
-import com.mux.stats.sdk.muxstats.MuxErrorException;
+import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOPlayer;
 import com.theoplayer.android.api.THEOplayerView;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
-import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.player.Player;
@@ -25,7 +24,6 @@ import com.theoplayer.android.api.source.TypedSource;
 import com.theoplayer.android.api.source.addescription.AdDescription;
 import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
@@ -51,7 +49,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     THEOplayerView theoPlayerView;
     Player player;
     SourceDescription testMediaSource;
-    MuxStatsSDKTHEOplayer muxStats;
+    MuxStatsSDKTHEOPlayer muxStats;
     Uri loadedAdTagUri;
     boolean playWhenReady = true;
     MockNetworkRequest mockNetwork;
@@ -154,6 +152,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     public void startPlayback() {
+        Log.d(TAG, "startPlayback(): Starting playback for Ad Tag URI: " + loadedAdTagUri);
         if ( loadedAdTagUri != null ) {
             setupVMAPAd( loadedAdTagUri.toString() );
         } else {
@@ -216,7 +215,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         muxStats.release();
     }
 
-    public MuxStatsSDKTHEOplayer getMuxStats() {
+    public MuxStatsSDKTHEOPlayer getMuxStats() {
         return muxStats;
     }
 
@@ -234,7 +233,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         CustomerData customerData = new CustomerData();
         customerData.setCustomerPlayerData(customerPlayerData);
         customerData.setCustomerVideoData(customerVideoData);
-        muxStats = new MuxStatsSDKTHEOplayer(this,
+        muxStats = new MuxStatsSDKTHEOPlayer(this,
                 theoPlayerView,
                 "demo-view-player",
                 customerData,
