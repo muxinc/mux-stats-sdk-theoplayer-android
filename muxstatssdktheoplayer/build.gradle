@@ -84,20 +84,12 @@ android {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
-    //minapi16Api fileTree("../common_libs") {filter { it.getName().contains("api16")}}
-    //minapi21Api fileTree("../common_libs") {filter { it.getName().contains("api21")}}
-    //minapi21Api files(name: 'theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-280.0-minapi21-release', ext: 'aar')
-    //minapi16Api files(name: 'theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-280.0-minapi16-release', ext: 'aar')
-    //minapi21Api files(name: 'theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-280.0-minapi21-release', ext: 'aar')
+
     minapi16adsCompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
     minapi21adsCompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
     minapi16CompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
     minapi21CompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-    //minapi16Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
-    //minapi16adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
-    //minapi21Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
-    //minapi21adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
-    //implementation "com.theoplayer.theoplayer-sdk-android:unified:${project.ext.theoplayerVersion}"
+
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation 'junit:junit:4.12'
