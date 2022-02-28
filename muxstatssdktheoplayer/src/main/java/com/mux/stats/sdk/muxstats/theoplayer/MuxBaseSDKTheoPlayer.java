@@ -234,13 +234,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         // Ads listeners
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
-            Log.d(TAG, "Ad Error: " + event);
             dispatch(new AdErrorEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
-            Log.d(TAG, "Ad Break Begin: " + event);
-            inAdBreak = true;
             // Dispatch pause event because pause callback will not be called
             dispatch(new PauseEvent(null));
             // Record that we're in an ad break so we can supress standard play/playing/pause events
@@ -257,20 +254,17 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
-            Log.d(TAG, "Ad Begin: " + event);
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
-            Log.d(TAG, "Ad End: " + event);
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
-            Log.d(TAG, "Ad Break End: " + event);
             inAdBreak = false;
             // Reset all of our state correctly for getting out of ads
             dispatch(new AdBreakEndEvent(null));
@@ -300,7 +294,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void internalError(Exception error) {
-        Log.d(TAG, "Internal error");
         if (error instanceof MuxErrorException) {
             MuxErrorException muxError = (MuxErrorException) error;
             dispatch(new InternalErrorEvent(muxError.getCode(), muxError.getMessage()));
