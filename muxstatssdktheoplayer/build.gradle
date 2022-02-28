@@ -91,6 +91,8 @@ dependencies {
     //minapi21Api files(name: 'theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-280.0-minapi21-release', ext: 'aar')
     minapi16adsCompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
     minapi21adsCompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
+    minapi16CompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
+    minapi21CompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
     //minapi16Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
     //minapi16adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
     //minapi21Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
