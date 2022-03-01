@@ -11,6 +11,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders.theoLicencse = System.getenv("THEO_LICENSE")
     }
 
     lintOptions {
