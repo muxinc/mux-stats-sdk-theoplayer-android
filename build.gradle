@@ -131,6 +131,7 @@ allprojects {
 
         inLocalDevMode = inLocalDevModeFlag
         theoplayerVersion = "2.92.0"
+        muxCoreVersion = "7.0.9"
     }
 }
 
