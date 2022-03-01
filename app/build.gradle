@@ -26,8 +26,6 @@ android {
         }
     }
     lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
         // The demo app does not have translations.
         disable "MissingTranslation", "GradleCompatible"
         // exoplayer 2.8.1 workaround
