@@ -15,7 +15,7 @@ steps:
           - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/minapi16/debug/automatedtests-minapi16-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/minapi16/debug/automatedtests-minapi16-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.0
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/minapi16/debug/automatedtests-minapi16-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/minapi16/debug/automatedtests-minapi16-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.0
   label: Test TheoPlayer minapi16 on Pixel device
   retry:
     automatic:
@@ -28,7 +28,7 @@ steps:
           - "automatedtests/buildout/outputs/apk/androidTest/minapi16/debug/automatedtests-minapi16-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/minapi21/debug/automatedtests-minapi21-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/minapi21/debug/automatedtests-minapi21-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.0
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/minapi21/debug/automatedtests-minapi21-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/minapi21/debug/automatedtests-minapi21-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.0
   label: Test TheoPlayer minapi21 on Pixel device
   retry:
     automatic:
