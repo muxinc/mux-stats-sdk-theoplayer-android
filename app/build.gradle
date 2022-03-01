@@ -12,7 +12,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders.theoLicencse = System.getenv("THEO_LICENSE")
+        manifestPlaceholders.theoLicense = "YOUR_THEOPLAYER_LICENSE_HERE"
     }
 
     lintOptions {
