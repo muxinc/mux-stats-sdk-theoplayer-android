@@ -28,6 +28,8 @@ android {
     }
 
     lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
         abortOnError false
         disable "GradleCompatible"
         // exoplayer 2.8.1 workaround
