@@ -61,7 +61,6 @@ android {
     productFlavors {
         minapi16 {
             dimension "api"
-            minSdkVersion 16
         }
         minapi21 {
             dimension "api"
@@ -69,7 +68,6 @@ android {
         }
         minapi16ads {
             dimension "api"
-            minSdkVersion 16
         }
         minapi21ads {
             dimension "api"
