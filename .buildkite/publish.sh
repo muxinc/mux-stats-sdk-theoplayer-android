@@ -22,7 +22,6 @@ docker run -it -v --rm  \
     -e ORG_GRADLE_PROJECT_signingKey="$ORG_GRADLE_PROJECT_signingKey" \
     -e ORG_GRADLE_PROJECT_artifactory_user=$ORG_GRADLE_PROJECT_artifactory_user \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
-    -e THEOPLAYER_KEY=$THEOPLAYER_KEY \
     -w /data \
     muxinc/mux-exoplayer:20220112 \
     bash -c "./gradlew --stacktrace muxstatssdktheoplayer:publish muxstatssdktheoplayer:artifactoryPublish"
