@@ -32,7 +32,7 @@ android {
         disable "GradleCompatible"
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
-        lintConfig file("../checker-framework-lint.xml")
+        //lintConfig file("../checker-framework-lint.xml")
     }
 
     testOptions {
@@ -58,6 +58,7 @@ android {
     productFlavors {
         minapi16 {
             dimension "api"
+            minSdkVersion 16
         }
         minapi21 {
             dimension "api"
@@ -65,6 +66,7 @@ android {
         }
         minapi16ads {
             dimension "api"
+            minSdkVersion 16
         }
         minapi21ads {
             dimension "api"
