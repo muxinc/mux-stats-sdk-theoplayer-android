@@ -27,16 +27,19 @@ allprojects {
 ```
 
 ### Add the SDK as a Dependency in your application
-Add the following line to the `dependencies` block in your app module's `build.gradle`
+Add one the following lines to the `dependencies` block in your app module's `build.gradle`, depending on which THEOPlayer library you are using:
 ```groovy
-    implementation ''
+// Use this line for the minApi 16 version of Theoplayer
+implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer:[CurrentVersion]'
+// Use this line for the minApi 21 version of Theoplayer
+implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer:[CurrentVersion]'
 ```
+The current version can be found in our [Integration Guide](https://docs.mux.com/docs/theoplayer-integration-guide)
 
 ### Theoplayer Version Support
-Version `0.1.0` of the Mux THEOPlayer SDK supports all THEOPlayer versions `2.x.x`. Support for other versions is not guaranteed
+Version `0.1.0` of the Mux THEOPlayer SDK supports all THEOPlayer versions `2.x.x`. Support for other versions is not guaranteed. Flavors supporting `3.x.x` will be available with Mux THEOPlayer SDK `v1.0.0`
 
 ## Releases
-
 See full integration instructions here: https://docs.mux.com/docs/theoplayer-integration-guide.
 
 #### v0.1.0
