@@ -40,6 +40,10 @@ steps:
           - "automatedtests/buildout/outputs/apk/minapi21/debug/automatedtests-minapi21-debug.apk"
           - "automatedtests/buildout/outputs/apk/androidTest/minapi21/debug/automatedtests-minapi21-debug-androidTest.apk"
 - wait
+- block: ":rocket: Deploy and release!"
+  blocked_state: failed
+  branches: "master"
+- wait
 - agents: [ dind=true,queue=beta ]
   command: ./.buildkite/deploy.sh
   label: Deploy artifacts to release maven if it all worked
