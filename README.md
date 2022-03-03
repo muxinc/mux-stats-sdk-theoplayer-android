@@ -33,9 +33,9 @@ Add one the following lines to the `dependencies` block in your app module's `bu
 
 ```groovy
 // Use this line for the minApi 16 version of Theoplayer
-implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer:[CurrentVersion]'
+implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi16:[CurrentVersion]'
 // Use this line for the minApi 21 version of Theoplayer
-implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer:[CurrentVersion]'
+implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi21:[CurrentVersion]'
 ```
 
 The current version can be found in our [Integration Guide](https://docs.mux.com/docs/theoplayer-integration-guide)
