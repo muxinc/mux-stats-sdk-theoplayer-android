@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.kezong:fat-aar:1.3.6'
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath 'com.android.tools.build:gradle:7.0.4'
         classpath 'com.novoda:bintray-release:0.9.1'
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
@@ -104,9 +104,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        flatDir {
-            dirs 'libs', "../common_libs"
-        }
 
         // Both our release and dev repos are imported
         maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }
@@ -133,6 +130,8 @@ allprojects {
         releaseWebsite = 'https://github.com/muxinc/mux-stats-sdk-theoplayer-android'
 
         inLocalDevMode = inLocalDevModeFlag
+        theoplayerVersion = "2.92.0"
+        muxCoreVersion = "7.0.9"
     }
 }
 

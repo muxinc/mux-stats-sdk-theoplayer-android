@@ -12,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.mux.stats.sdk.core.CustomOptions;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -34,15 +35,15 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.events.playback.VideoChangeEvent;
 import com.mux.stats.sdk.core.model.CustomerData;
-import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.model.ViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.IDevice;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.IPlayerListener;
+import com.mux.stats.sdk.muxstats.LogPriority;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
+import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.EventListener;
@@ -57,7 +58,6 @@ import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Timer;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
@@ -135,7 +135,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         // MuxCore asserts non-null inputs
         options = options == null ? new CustomOptions() : options;
 
-        MuxStats.setHostDevice(new MuxStatsSDKTHEOplayer.MuxDevice(ctx, player.getVersion()));
+        MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, player.getVersion()));
         resetInternalStats();
         if ( networkRequest == null ) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -238,7 +238,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
-            inAdBreak = true;
             // Dispatch pause event because pause callback will not be called
             dispatch(new PauseEvent(null));
             // Record that we're in an ad break so we can supress standard play/playing/pause events
@@ -295,7 +294,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void internalError(Exception error) {
-        Log.d(TAG, "Internal error");
         if (error instanceof MuxErrorException) {
             MuxErrorException muxError = (MuxErrorException) error;
             dispatch(new InternalErrorEvent(muxError.getCode(), muxError.getMessage()));
@@ -315,6 +313,14 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     // State Transitions
     public PlayerState getState() {
         return state;
+    }
+
+    public void orientationChange(MuxSDKViewOrientation orientation) {
+        muxStats.orientationChange(orientation);
+    }
+
+    public void presentationChange(MuxSDKViewPresentation presentation) {
+        muxStats.presentationChange(presentation);
     }
 
     // IPlayerListener
@@ -382,6 +388,60 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return pxToDp(player.get().getMeasuredHeight());
         }
         return 0;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getPlayerProgramTime() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getPlayerManifestNewestTime() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoHoldback() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoPartHoldback() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoPartTargetDuration() {
+        return null;
+    }
+
+    /**
+     * This method is not supported for THEOPlayer
+     * @return null in all cases
+     */
+    @Override
+    public Long getVideoTargetDuration() {
+        return null;
     }
 
     @Override
@@ -671,6 +731,28 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         @Override
         public long getElapsedRealtime() {
             return elapsedRealtime();
+        }
+
+        @Override
+        public void outputLog(LogPriority logPriority, String tag, String msg) {
+            switch (logPriority) {
+                case ERROR:
+                    Log.e(tag, msg);
+                    break;
+                case WARN:
+                    Log.w(tag, msg);
+                    break;
+                case INFO:
+                    Log.i(tag, msg);
+                    break;
+                case DEBUG:
+                    Log.d(tag, msg);
+                    break;
+                case VERBOSE:
+                default: // fall-through
+                    Log.v(tag, msg);
+                    break;
+            }
         }
 
         @Override

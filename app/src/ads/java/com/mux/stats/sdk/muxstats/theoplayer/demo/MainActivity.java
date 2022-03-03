@@ -18,7 +18,7 @@ import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOplayer;
+import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOPlayer;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     ListView adTypeList;
     double currentPlaybackTime = -1;
     ArrayList<AdSample> adSamples = new ArrayList<>();
-    MuxStatsSDKTHEOplayer muxStatsSDKTHEOplayer;
+    MuxStatsSDKTHEOPlayer muxStatsSDKTHEOplayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
         customerData.setCustomData(customData);
 
-        muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOplayer(this,
+        muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOPlayer(this,
                 theoPlayerView, "demo-view-player",
                 customerData);
 
@@ -134,12 +134,12 @@ public class MainActivity extends AppCompatActivity {
                 // Reset player playback
                 theoPlayerView.getPlayer().stop();
                 AdSample selectedAd = (AdSample) adTypeList.getAdapter().getItem(position);
-                 setupVASTAd("http://mux-justin-test.s3.amazonaws.com/vast.xml"); // Statiic test ad
-//                if (selectedAd.getName().startsWith("VMAP")) {
-//                    setupVMAPAd(selectedAd.getAdTagUri());
-//                } else {
-//                    setupVASTAd(selectedAd.getAdTagUri());
-//                }
+                setupVASTAd("http://mux-justin-test.s3.amazonaws.com/vast.xml"); // Static test ad
+                //if (selectedAd.getName().startsWith("VMAP")) {
+                //    setupVMAPAd(selectedAd.getAdTagUri());
+                //} else {
+                //    setupVASTAd(selectedAd.getAdTagUri());
+                //}
             });
             adTypeList.performItemClick(
                     adTypeList.findViewWithTag(
@@ -187,8 +187,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupVMAPAd(String adTagUri) {
+        adTagUri = "https://cdn.theoplayer.com/demos/ads/vmap/vmap.xml";
+        Log.d(TAG, "VMAP AD: " + adTagUri);
         TypedSource.Builder typedSource = typedSource(getString(R.string.defaultSourceUrl));
-        AdDescription ad = THEOplayerAdDescription.Builder.adDescription(adTagUri).build();
+        AdDescription ad = THEOplayerAdDescription.Builder
+                .adDescription(adTagUri)
+                //.timeOffset("start")
+                .build();
         SourceDescription sourceDescription = SourceDescription.Builder
                 .sourceDescription(typedSource.build())
                 .ads(ad)
@@ -197,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupVASTAd(String adTagUri) {
+        adTagUri = "https://cdn.theoplayer.com/demos/ads/vast/vast.xml";
+        Log.d(TAG, "VAST AD: " + adTagUri);
         TypedSource.Builder typedSource = typedSource(getString(R.string.defaultSourceUrl));
         SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
                     sourceDescription.ads(
