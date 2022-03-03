@@ -17,8 +17,6 @@ android {
 
         buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
         buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR_ENVIRONMENT_KEY_HERE\"")
-        System.out.println("============<<<<>><<><><>< THEOPLAYER LICENSE " + System.getenv("THEOPLAYER_LICENSE"))
-        System.out.println("============<<<<>><<><><>< THEO LICENSE " + System.getenv("THEO_LICENSE"))
         var theoLicense = System.getenv("THEOPLAYER_LICENSE") == null ? "NOT_CONFIGURED" : System.getenv("THEOPLAYER_LICENSE")
         manifestPlaceholders.theoLicense = theoLicense
     }
