@@ -23,6 +23,10 @@
             android:name=".ui.SimplePlayerTestActivity"
             android:configChanges="keyboardHidden"
             android:theme="@style/Theme.AppCompat" />
+
+        <meta-data
+            android:name="THEOPLAYER_LICENSE"
+            android:value="${theoLicense}" />
     </application>
 
 </manifest>

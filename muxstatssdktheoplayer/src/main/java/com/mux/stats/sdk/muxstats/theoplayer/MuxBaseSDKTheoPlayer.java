@@ -35,9 +35,7 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.events.playback.VideoChangeEvent;
 import com.mux.stats.sdk.core.model.CustomerData;
-import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.model.ViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.IDevice;
@@ -60,7 +58,6 @@ import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Timer;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
@@ -138,7 +135,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         // MuxCore asserts non-null inputs
         options = options == null ? new CustomOptions() : options;
 
-        MuxStats.setHostDevice(new MuxStatsSDKTHEOplayer.MuxDevice(ctx, player.getVersion()));
+        MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, player.getVersion()));
         resetInternalStats();
         if ( networkRequest == null ) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -241,7 +238,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
-            inAdBreak = true;
             // Dispatch pause event because pause callback will not be called
             dispatch(new PauseEvent(null));
             // Record that we're in an ad break so we can supress standard play/playing/pause events
@@ -298,7 +294,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void internalError(Exception error) {
-        Log.d(TAG, "Internal error");
         if (error instanceof MuxErrorException) {
             MuxErrorException muxError = (MuxErrorException) error;
             dispatch(new InternalErrorEvent(muxError.getCode(), muxError.getMessage()));

@@ -17,6 +17,8 @@ android {
 
         buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
         buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR_ENVIRONMENT_KEY_HERE\"")
+        var theoLicense = System.getenv("THEOPLAYER_LICENSE") == null ? "NOT_CONFIGURED" : System.getenv("THEOPLAYER_LICENSE")
+        manifestPlaceholders.theoLicense = theoLicense
     }
 
     buildTypes {
@@ -31,7 +33,7 @@ android {
         disable "GradleCompatible"
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
-        lintConfig file("../checker-framework-lint.xml")
+        //lintConfig file("../checker-framework-lint.xml")
     }
 
     testOptions {
@@ -99,10 +101,12 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
 
     implementation project(":muxstatssdktheoplayer")
-    minapi16Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
-    minapi16adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi16:${project.ext.theoplayerVersion}"
-    minapi21Implementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
-    minapi21adsImplementation "com.theoplayer.theoplayer-sdk-android:basic-minapi21:${project.ext.theoplayerVersion}"
+
+    minapi16Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
+    minapi21Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
+    minapi16adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
+    minapi21adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
+
     implementation "com.google.android.gms:play-services-auth:17.0.0"
     implementation "com.google.android.gms:play-services-ads-identifier:17.0.0"
 }
