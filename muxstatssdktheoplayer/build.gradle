@@ -96,3 +96,5 @@ dependencies {
 
     api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }
+
+apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
