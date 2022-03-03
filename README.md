@@ -36,6 +36,41 @@ implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi16:[Curre
 implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi21:[CurrentVersion]'
 ```
 
+### Monitor THEOPlayer using Mux Data
+The Mux Data SDK for THEOPlayer can be used by creating a new instance of `MuxStatsSDKTHEOPlayer` with the desired configuration. The constructor requires a `THEOplayerView`, which Mux will observe for data events.
+
+```java
+// Initialize with data about you, your video, and your app
+CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
+CustomerVideoData customerVideoData = new CustomerVideoData();
+customerVideoData.setVideoTitle("VIDEO_TITLE_HERE");
+CustomData customData = new CustomData();
+customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+customerData.setCustomData(customData);
+
+// Create a new Mux Stats monitor 
+muxStatsSDKTHEOplayer = new MuxStatsSDKTHEOPlayer(this,
+        theoPlayerView, "demo-view-player",
+        customerData);
+
+// Set the size of the screen
+Point size = new Point();
+getWindowManager().getDefaultDisplay().getSize(size);
+muxStatsSDKTHEOplayer.setScreenSize(size.x, size.y);
+```
+
+You must also release the `MuxStatsTHEOPlayer` object when your component's lifecycle is ending. For example:
+
+```java
+@Override
+public void onDestroy() {
+    muxStatsTHEOplayer.release();
+    super.onDestroy();
+}
+```
+
 ### Further Reading
 See full integration instructions here: https://docs.mux.com/docs/theoplayer-integration-guide.
 
