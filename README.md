@@ -5,8 +5,6 @@ providing Mux Data performance analytics for applications utilizing
 [THEOPlayer](https://www.theoplayer.com/sdk/android).
 
 ## Setup and Usage 
-See full integration instructions here: https://docs.mux.com/docs/theoplayer-integration-guide.
-
 ### Add the Mux THEOPlayer SDK to your build 
 #### Using `settings.gradle`
 Add the following lines to your `dependencyResolutionManagement {...}` block
@@ -29,7 +27,7 @@ allprojects {
 ```
 
 ### Add the SDK as a Dependency in your application
-Add one the following lines to the `dependencies` block in your app module's `build.gradle`, depending on which THEOPlayer library you are using:
+Add one the following lines to the `dependencies` block in your app module's `build.gradle`, depending on which THEOPlayer library you are using. The current version can be found in our [Integration Guide](https://docs.mux.com/docs/theoplayer-integration-guide)
 
 ```groovy
 // Use this line for the minApi 16 version of Theoplayer
@@ -38,9 +36,10 @@ implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi16:[Curre
 implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi21:[CurrentVersion]'
 ```
 
-The current version can be found in our [Integration Guide](https://docs.mux.com/docs/theoplayer-integration-guide)
+### Further Reading
+See full integration instructions here: https://docs.mux.com/docs/theoplayer-integration-guide.
 
-### Theoplayer Version Support
+## Theoplayer Version Support
 Version `0.1.0` of the Mux THEOPlayer SDK has been tested against `3.x` and `2.x` versions of the THEOPlayer SDK
 
 ## Releases
