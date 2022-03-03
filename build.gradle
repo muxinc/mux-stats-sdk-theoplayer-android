@@ -189,8 +189,8 @@ task muxReleaseDeploy {
 
             def stdout = new ByteArrayOutputStream()
             exec {
-                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/muxstatssdktheoplayer/"
-                + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/muxstatssdktheoplayer/" + packageVersionName
+                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", ("https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/muxstatssdktheoplayer/"
+                  + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/muxstatssdktheoplayer/" + packageVersionName)
                 standardOutput = stdout
             }
             def msg = stdout.toString()
