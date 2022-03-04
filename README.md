@@ -78,13 +78,9 @@ See full integration instructions here: https://docs.mux.com/docs/theoplayer-int
 Version `0.1.0` of the Mux THEOPlayer SDK has been tested against `3.x` and `2.x` versions of the THEOPlayer SDK
 
 ## Releases
-#### v0.1.1
-First public release 
-#### Fixes
-Fix publication issues in 0.1.0
+The current version of the SDK is `v0.1.1`, as of 3/3/2022
 
-#### v0.1.0
-Initial Release 
+All release notes can be found in our [changelog](RELEASENOTES.md)
 
 ## Contributing
 ### Developer Quick Start
