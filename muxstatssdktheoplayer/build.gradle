@@ -85,10 +85,10 @@ android {
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 
-    minapi16adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.90.1'
-    minapi16CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.90.1'
-    minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.90.1'
-    minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.90.1'
+    minapi16adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
+    minapi16CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
+    minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
+    minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
 
     //minapi16adsCompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
     //minapi21adsCompileOnly files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
