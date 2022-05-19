@@ -1,4 +1,8 @@
 # Release notes
+## v0.1.3
+### Fixes
+* Update THEOplayer to 2.92.0 (#18)
+
 ## v0.1.2
 ### Fixes
 * Update to MuxCore 7.0.10 (#15)
