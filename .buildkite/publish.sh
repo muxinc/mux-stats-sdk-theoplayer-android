@@ -2,7 +2,7 @@
 #
 # Accessing the secret containing env vars in here prevents buildkite from capturing them
 
-docker run -it -v --rm  \
+docker run -it --rm  \
     -v $(pwd):/data \
     -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
     -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
@@ -14,7 +14,7 @@ docker run -it -v --rm  \
     docker.io/muxinc/mux-exoplayer:20220112 \
     bash -c "./gradlew --stacktrace muxstatssdktheoplayer:clean muxstatssdktheoplayer:build"
 
-docker run -it -v --rm  \
+docker run -it --rm  \
     -v $(pwd):/data \
     -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
     -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
@@ -26,7 +26,7 @@ docker run -it -v --rm  \
     docker.io/muxinc/mux-exoplayer:20220112 \
     bash -c "./gradlew --stacktrace muxstatssdktheoplayer:publish muxstatssdktheoplayer:artifactoryPublish"
 
-docker run -it -v --rm  \
+docker run -it --rm  \
     -v $(pwd):/data \
     -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
     -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
