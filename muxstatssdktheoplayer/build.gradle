@@ -46,6 +46,10 @@ android {
       dimension 'api'
       minSdkVersion 21
     }
+    v5 {
+      dimension 'api'
+      minSdkVersion 21
+    }
   }
 
   compileOptions {
@@ -78,12 +82,16 @@ muxDistribution {
 dependencies {
   implementation 'com.android.support:multidex:1.0.3'
 
+  // Legacy versions use `compileOnly` to avoid binary incompatibility issues.
   //noinspection GradleDependency
   minapi16adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
   //noinspection GradleDependency
   minapi16CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
   minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
   minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
+
+  v5Api 'com.theoplayer.theoplayer-sdk-android:core:3'
+  v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6'
 
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.30.0'
   compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
