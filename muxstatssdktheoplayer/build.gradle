@@ -11,8 +11,7 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
 
-        versionName project.ext.versionName
-        multiDexEnabled true
+      multiDexEnabled true
 
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
@@ -20,11 +19,8 @@ android {
         testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
-    buildTypes {
+  buildTypes {
         debug {
             minifyEnabled false
         }
@@ -79,6 +75,10 @@ android {
             }
         }
     }
+  lint {
+    abortOnError false
+  }
+  namespace 'com.mux.stats.sdk.muxstats.theoplayer'
 }
 
 dependencies {

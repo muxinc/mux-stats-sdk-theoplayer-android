@@ -15,24 +15,14 @@ android {
         manifestPlaceholders.theoLicense = "YOUR_THEOPLAYER_LICENSE_HERE"
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
-    buildTypes {
+  buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
-    lintOptions {
-        // The demo app does not have translations.
-        disable "MissingTranslation", "GradleCompatible"
-        // exoplayer 2.8.1 workaround
-        // https://github.com/google/ExoPlayer/issues/4234
-        lintConfig file("../checker-framework-lint.xml")
-    }
-    sourceSets {
+  sourceSets {
         minapi16 {
             java.srcDirs = ["./src/no_ads/java"]
             res.srcDirs = ["./src/no_ads/res"]
@@ -78,6 +68,12 @@ android {
         sourceCompatibility = "1.8"
         targetCompatibility = "1.8"
     }
+  lint {
+    abortOnError false
+    disable 'MissingTranslation', 'GradleCompatible'
+    lintConfig file('../checker-framework-lint.xml')
+  }
+  namespace 'com.mux.stats.sdk.muxstats.theoplayer.demo'
 }
 
 dependencies {
