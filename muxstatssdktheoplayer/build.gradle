@@ -2,100 +2,93 @@ apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-apply plugin: 'com.kezong.fat-aar'
+apply plugin: 'com.mux.gradle.android.mux-android-distribution'
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
+  compileSdkVersion project.ext.compileSdkVersion
 
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
+  defaultConfig {
+    minSdkVersion project.ext.minSdkVersion
+    targetSdkVersion project.ext.targetSdkVersion
 
-      multiDexEnabled true
+    multiDexEnabled true
 
-        buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
-        buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
+    buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
+    buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
 
-        testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
-    }
+    testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
+  }
 
 
   buildTypes {
-        debug {
-            minifyEnabled false
-        }
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+    debug {
+      minifyEnabled false
     }
-    flavorDimensions 'api'
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+  flavorDimensions 'api'
 
-    productFlavors {
-        minapi16 {
-            dimension 'api'
-        }
-        minapi21 {
-            dimension 'api'
-            minSdkVersion 21
-        }
-        minapi16ads {
-            dimension 'api'
-        }
-        minapi21ads {
-            dimension 'api'
-            minSdkVersion 21
-        }
+  productFlavors {
+    minapi16 {
+      dimension 'api'
     }
+    minapi21 {
+      dimension 'api'
+      minSdkVersion 21
+    }
+    minapi16ads {
+      dimension 'api'
+    }
+    minapi21ads {
+      dimension 'api'
+      minSdkVersion 21
+    }
+  }
 
-    compileOptions {
-        sourceCompatibility = '1.8'
-        targetCompatibility = '1.8'
-    }
-    build  {
-        doLast {
-            productFlavors.each {
-                flavor ->
-                    def versionName = flavor.name.replaceAll(/_/, ".")
-                    if (!versionName.endsWith(".ads")) {
-                        copy {
-                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
-                            into "${buildDir}/outputs/artifacts/"
-                            rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
-                            rename("mapping.txt", "mapping-${versionName}.txt")
-                            File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
-                            println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
-                            if ( aarFile.length() > 150000 ) {
-                                // Fail
-                                throw new GradleException(
-                                        "${project.name}-${flavor.name}-release.aar exceed 120KB!");
-                            }
-                        }
-                    }
-            }
-        }
-    }
+  compileOptions {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+  }
   lint {
     abortOnError false
   }
   namespace 'com.mux.stats.sdk.muxstats.theoplayer'
 }
 
-dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
+muxDistribution {
+  devVersion versionFromCommitHash('dev-')
+  releaseVersion versionFromTag()
+  artifactIds artifactFromFlavorValue('api')
+  groupIds just("com.mux.stats.sdk.muxstats")
+  publishIf { it.containsIgnoreCase("release") }
+  publicReleaseIf releaseOnTag()
 
-    //noinspection GradleDependency
-    minapi16adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
-    //noinspection GradleDependency
-    minapi16CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
-    minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
-    minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
-
-    compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.30.0'
-    compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    testImplementation 'junit:junit:4.13.2'
-
-    api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+  // TODO: This is kinda clumsy, packageJavadocs should be a function not a property probably
+  packageJavadocs = releaseOnTag().call()
+  artifactoryConfig {
+    contextUrl = "https://muxinc.jfrog.io/artifactory/"
+    releaseRepoKey = 'default-maven-release-local'
+    devRepoKey = 'default-maven-local'
+  }
 }
 
-apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
+dependencies {
+  implementation 'com.android.support:multidex:1.0.3'
+
+  //noinspection GradleDependency
+  minapi16adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
+  //noinspection GradleDependency
+  minapi16CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
+  minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
+  minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
+
+  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.30.0'
+  compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+  testImplementation 'junit:junit:4.13.2'
+
+  api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+}
+
