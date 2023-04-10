@@ -43,6 +43,11 @@ android {
       res.srcDirs = ["./src/ads/res"]
       assets.srcDirs = ["./src/ads/assets"]
     }
+    v5 {
+      java.srcDirs = ["./src/no_ads/java"]
+      res.srcDirs = ["./src/no_ads/res"]
+      assets.srcDirs = ["./src/no_ads/assets"]
+    }
   }
 
   flavorDimensions "api"
@@ -95,8 +100,8 @@ dependencies {
   implementation "com.google.code.gson:gson:2.9.1"
   implementation "androidx.constraintlayout:constraintlayout:2.2.0-alpha09"
   implementation "androidx.appcompat:appcompat:1.6.1"
-  minapi16adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.18.1"
-  minapi16adsImplementation "com.google.android.gms:play-services-ads-identifier:17.0.0"
-  minapi21adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.18.1"
-  minapi21adsImplementation "com.google.android.gms:play-services-ads-identifier:17.0.0"
+  minapi16adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.30.0"
+  minapi16adsImplementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
+  minapi21adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.30.0"
+  minapi21adsImplementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
 }

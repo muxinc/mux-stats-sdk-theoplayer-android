@@ -19,9 +19,6 @@ import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.source.SourceDescription;
 import com.theoplayer.android.api.source.TypedSource;
 
-import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
-import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
-
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = "MainActivity";
@@ -88,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
         // Creating a TypedSource builder that defines the location of a single stream source.
-        TypedSource.Builder typedSource =  typedSource(getString(R.string.defaultSourceUrl));
+        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl));
 
         // Creating a SourceDescription builder that contains the settings to be applied as a new
         // THEOplayer source.
-        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+        SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
         // Skip the default poster
 //                .poster(getString(R.string.defaultPosterUrl));
 
@@ -112,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         theoPlayer.addEventListener(PlayerEventTypes.ERROR, event ->
-                txtPlayStatus.setText("Error: " + event.getError())
+                txtPlayStatus.setText("Error: " + event.getErrorObject().getLocalizedMessage())
         );
 
         theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->

@@ -146,14 +146,13 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
 
         // TODO test this
-        player.getPlayer().requestCurrentTime(aCurrentTime -> {
-            if (aCurrentTime > 0) {
-                // playback started before muxStats was initialized
-                play();
-                buffering();
-                playing();
-            }
-        });
+        double aCurrentTime = player.getPlayer().getCurrentTime();
+        if (aCurrentTime > 0) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+            playing();
+        }
 
         player.getPlayer().getVideoTracks()
                 .addEventListener(VideoTrackListEventTypes.ADDTRACK, handleAddTrackEvent);
@@ -166,9 +165,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE,
                 timeUpdateEvent -> {
                     if (!inAdBreak && this.player != null && this.player.get() != null) {
-                        this.player.get().getPlayer()
-                            .requestCurrentTime(time -> playbackPosition = time);
-                        dispatch(new TimeUpdateEvent(null));
+                      playbackPosition = this.player.get().getPlayer().getCurrentTime();
+                      dispatch(new TimeUpdateEvent(null));
                     }
                 });
 
@@ -187,14 +185,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             playing();
             if (sourceChanged && this.player != null && this.player.get() != null) {
-                this.player.get().getPlayer().requestVideoWidth((playerSourceWidth -> {
-                    sourceWidth = playerSourceWidth;
-                    this.player.get().getPlayer().requestVideoHeight((playerSourceHeight -> {
-                        sourceHeight = playerSourceHeight;
-                        dispatch(new VideoChangeEvent(null));
-                    }));
-                }));
-                sourceChanged = false;
+              sourceWidth = this.player.get().getPlayer().getVideoWidth();
+              sourceHeight = this.player.get().getPlayer().getVideoHeight();
+              dispatch(new VideoChangeEvent(null));
+              sourceChanged = false;
             }
         }));
 
@@ -229,7 +223,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
-                internalError(new MuxErrorException(0, errorEvent.getError()))
+                internalError(new MuxErrorException(0, errorEvent.getErrorObject().getLocalizedMessage()))
         ));
 
         // Ads listeners
