@@ -91,9 +91,9 @@ dependencies {
     minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
     minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
 
-    compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.18.0'
-    compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-    testImplementation 'junit:junit:4.12'
+    compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.30.0'
+    compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+    testImplementation 'junit:junit:4.13.2'
 
     api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }

@@ -22,7 +22,6 @@ allprojects {
         jcenter()
         maven { url 'https://jitpack.io' }
 
-      // Both our release and dev repos are imported
         maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }
         maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-local' }
     }
@@ -38,7 +37,7 @@ allprojects {
         releaseWebsite = 'https://github.com/muxinc/mux-stats-sdk-theoplayer-android'
 
         theoplayerVersion = "2.92.0"
-        muxCoreVersion = "7.0.10"
+        muxCoreVersion = "7.8.0"
     }
 }
 

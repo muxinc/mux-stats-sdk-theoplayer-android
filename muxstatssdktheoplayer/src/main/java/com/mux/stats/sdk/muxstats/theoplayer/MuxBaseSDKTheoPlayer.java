@@ -643,22 +643,62 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return "Android";
         }
 
-        @Override
+      @Override
+      public String getMuxOSFamily() {
+        return null;
+      }
+
+      @Override
         public String getOSVersion() {
             return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
         }
 
-        @Override
+      @Override
+      public String getMuxOSVersion() {
+        return null;
+      }
+
+      @Override
+      public String getDeviceName() {
+        return null;
+      }
+
+      @Override
+      public String getMuxDeviceName() {
+        return null;
+      }
+
+      @Override
+      public String getDeviceCategory() {
+        return null;
+      }
+
+      @Override
+      public String getMuxDeviceCategory() {
+        return null;
+      }
+
+      @Override
         public String getManufacturer() {
             return Build.MANUFACTURER;
         }
 
-        @Override
+      @Override
+      public String getMuxManufacturer() {
+        return null;
+      }
+
+      @Override
         public String getModelName() {
             return Build.MODEL;
         }
 
-        @Override
+      @Override
+      public String getMuxModelName() {
+        return null;
+      }
+
+      @Override
         public String getPlayerVersion() {
             return this.theoVersion;
         }
@@ -733,7 +773,29 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return elapsedRealtime();
         }
 
-        @Override
+      @Override
+      public void outputLog(LogPriority logPriority, String tag, String msg, Throwable throwable) {
+        switch (logPriority) {
+          case ERROR:
+            Log.e(tag, msg, throwable);
+            break;
+          case WARN:
+            Log.w(tag, msg, throwable);
+            break;
+          case INFO:
+            Log.i(tag, msg, throwable);
+            break;
+          case DEBUG:
+            Log.d(tag, msg, throwable);
+            break;
+          case VERBOSE:
+          default: // fall-through
+            Log.v(tag, msg, throwable);
+            break;
+        }
+      }
+
+      @Override
         public void outputLog(LogPriority logPriority, String tag, String msg) {
             switch (logPriority) {
                 case ERROR:
