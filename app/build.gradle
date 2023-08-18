@@ -1,5 +1,14 @@
 apply plugin: "com.android.application"
 
+def theo_licence = "unknown";
+
+Properties properties = new Properties()
+def propertiesFile = project.rootProject.file('local.properties')
+if (propertiesFile.exists()) {
+    properties.load(propertiesFile.newDataInputStream())
+    theo_licence = properties.getProperty("theo_licence")
+}
+
 android {
   compileSdkVersion project.ext.compileSdkVersion
 
@@ -12,8 +21,13 @@ android {
     versionName "1.0"
     testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
 
+<<<<<<< Updated upstream
     manifestPlaceholders.theoLicense = "YOUR_THEOPLAYER_LICENSE_HERE"
   }
+=======
+        manifestPlaceholders.theoLicense = "${theo_licence}"
+    }
+>>>>>>> Stashed changes
 
 
   buildTypes {
