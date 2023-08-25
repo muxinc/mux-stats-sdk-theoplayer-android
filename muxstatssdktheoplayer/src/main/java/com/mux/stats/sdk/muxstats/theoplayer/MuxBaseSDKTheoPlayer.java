@@ -11,6 +11,7 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.google.ads.interactivemedia.v3.api.AdError;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -46,7 +47,9 @@ import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
+import com.theoplayer.android.api.event.Event;
 import com.theoplayer.android.api.event.EventListener;
+import com.theoplayer.android.api.event.EventType;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTypes;
@@ -57,6 +60,8 @@ import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality;
 import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -157,7 +162,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().getVideoTracks()
                 .addEventListener(VideoTrackListEventTypes.ADDTRACK, handleAddTrackEvent);
 
-        // Setup listeners
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////// Setup listeners //////////////////////////////////////////////////////////////////
         player.getPlayer().addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
             this.sourceChanged = true;
         }));
@@ -222,12 +228,13 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             ended();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
-                internalError(new MuxErrorException(0, errorEvent.getErrorObject().getLocalizedMessage()))
-        ));
-
-        // Ads listeners
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
+        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent -> {
+            internalError(
+                new MuxErrorException(0, errorEvent.getErrorObject().getLocalizedMessage()));
+        }));
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, (event) -> {
             dispatch(new AdErrorEvent(null));
         });
 
@@ -580,8 +587,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeked() {
+        Log.e(TAG, "Seeked called");
         if ( state != PlayerState.SEEKING ) {
             // Seeked can come only after seeking
+            Log.e(TAG, "Seeked abborted, current state: " + state);
             return;
         }
         state = PlayerState.SEEKED;

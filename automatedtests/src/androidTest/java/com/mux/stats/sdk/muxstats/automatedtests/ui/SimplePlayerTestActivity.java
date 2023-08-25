@@ -15,11 +15,18 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+import com.theoplayer.android.api.event.Event;
+import com.theoplayer.android.api.event.ads.AdErrorEvent;
+import com.theoplayer.android.api.event.ads.AdEvent;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
+import com.theoplayer.android.api.event.player.ErrorEvent;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
+import com.theoplayer.android.api.event.player.ReadyStateChangeEvent;
+import com.theoplayer.android.api.event.player.TimeUpdateEvent;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.player.ReadyState;
 import com.theoplayer.android.api.source.SourceDescription;
+import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 import com.theoplayer.android.api.source.addescription.AdDescription;
 import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
@@ -30,9 +37,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
-import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
-import static com.theoplayer.android.api.source.addescription.THEOplayerAdDescription.Builder.adDescription;
 
 public class SimplePlayerTestActivity extends AppCompatActivity
 {
@@ -46,6 +50,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
 
     String videoTitle = "Test Video";
     String urlToPlay;
+    SourceType sourceType;
     THEOplayerView theoPlayerView;
     Player player;
     SourceDescription testMediaSource;
@@ -72,49 +77,8 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         disableUserActions();
 
         theoPlayerView = findViewById(R.id.player_view);
+        theoPlayerView.showContextMenu();
         player = theoPlayerView.getPlayer();
-
-
-        player.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
-            Log.e(TAG, "Ads error: " + event.getError());
-        });
-
-        player.addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
-            ReadyState state = stateChange.getReadyState();
-            if (state != null) {
-                if (previousReadyState != null
-                    && (state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
-                    || (state.ordinal() < previousReadyState.ordinal()))
-                ) {
-                    signalPlaybackBuffering();
-                }
-                previousReadyState = state;
-            }
-        }));
-
-        player.addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
-            signalPlaybackStarted();
-        }));
-
-        player.addEventListener(PlayerEventTypes.ERROR, (errorEvent -> {
-            Log.e(TAG, "Got error: " + errorEvent.getError());
-        }));
-
-        player.addEventListener(PlayerEventTypes.TIMEUPDATE, (timeEvent -> {
-            synchronized ( SimplePlayerTestActivity.this ) {
-                currentPosition = timeEvent.getCurrentTime();
-            }
-        }));
-
-        // See if we need this
-//        player.addEventListener(PlayerEventTypes., (playEvent -> {
-//            signalPlaybackBuffering();
-//        });
-
-        player.addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
-            signalPlaybackEnded();
-        }));
-
     }
 
     public double getCurrentPosition() {
@@ -156,9 +120,11 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         if ( loadedAdTagUri != null ) {
             setupVMAPAd( loadedAdTagUri.toString() );
         } else {
-            TypedSource.Builder typedSource = typedSource( urlToPlay );
-            testMediaSource = SourceDescription.Builder
-                    .sourceDescription(typedSource.build())
+            TypedSource.Builder typedSource =  new TypedSource.Builder(urlToPlay);
+            typedSource.type(sourceType);
+            SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
+
+            testMediaSource = sourceDescription
                     .build();
             player.setSource(testMediaSource);
             player.setCurrentTime(playbackStartPosition);
@@ -167,12 +133,13 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     void setupVMAPAd(String adTagUri) {
-        TypedSource.Builder typedSource = typedSource( urlToPlay );
-        AdDescription ad = THEOplayerAdDescription.Builder.adDescription(adTagUri).build();
-        testMediaSource = SourceDescription.Builder
-                .sourceDescription(typedSource.build())
-                .ads(ad)
-                .build();
+        TypedSource.Builder typedSource = new TypedSource.Builder(urlToPlay);
+        typedSource.type(sourceType);
+        THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
+        AdDescription ads = adBuilder.build();
+        SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
+        sourceDescription.ads(ads);
+        testMediaSource = sourceDescription.build();
         player.setSource(testMediaSource);
     }
 
@@ -198,6 +165,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         urlToPlay = url;
     }
 
+    public void setSourceType(SourceType type) {
+        sourceType = type;
+    }
+
 //    public DefaultTrackSelector getTrackSelector() {
 //        return trackSelector;
 //    }
@@ -217,6 +188,46 @@ public class SimplePlayerTestActivity extends AppCompatActivity
 
     public MuxStatsSDKTHEOPlayer getMuxStats() {
         return muxStats;
+    }
+
+    private void registerListeners() {
+        player.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
+            Log.e(TAG, "Ads error: " + event.getError());
+        });
+
+        player.addEventListener(PlayerEventTypes.READYSTATECHANGE, stateChange -> {
+            ReadyState state = stateChange.getReadyState();
+            if (state != null) {
+                if (previousReadyState != null
+                    && (state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
+                    || (state.ordinal() < previousReadyState.ordinal()))
+                ) {
+                    signalPlaybackBuffering();
+                }
+                previousReadyState = state;
+            }
+        });
+
+        player.addEventListener(PlayerEventTypes.PLAYING, (Event event) -> {
+            Log.e(TAG, "Playback started");
+            signalPlaybackStarted();
+        });
+
+        player.addEventListener(PlayerEventTypes.ERROR, (Event event) -> {
+            ErrorEvent errorEvent = (ErrorEvent)event;
+            Log.e(TAG, "Got error: " + errorEvent.getErrorObject().getLocalizedMessage());
+        });
+
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE, (Event event) -> {
+            TimeUpdateEvent timeEvent = (TimeUpdateEvent)event;
+            synchronized ( SimplePlayerTestActivity.this ) {
+                currentPosition = timeEvent.getCurrentTime();
+            }
+        });
+
+        player.addEventListener(PlayerEventTypes.ENDED, (Event event) -> {
+            signalPlaybackEnded();
+        });
     }
 
     public void initMuxSats() {
@@ -244,6 +255,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStats.setScreenSize(size.x, size.y);
         muxStats.enableMuxCoreDebug(true, false);
+        registerListeners();
     }
 
     public SourceDescription getTestMediaSource() {

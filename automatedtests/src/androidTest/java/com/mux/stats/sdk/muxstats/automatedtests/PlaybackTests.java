@@ -11,6 +11,13 @@ import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 
+import com.theoplayer.android.api.timerange.TimeRange;
+import com.theoplayer.android.api.timerange.TimeRanges;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +35,17 @@ import static org.junit.Assert.fail;
 public class PlaybackTests extends TestBase {
 
     public static final String TAG = "playbackTest";
+
+    @Before
+    public void init(){
+        if (currentTestName.getMethodName().equalsIgnoreCase("testVodPlayback")) {
+            // When testing seeking the player will not seek unless the seek point is already in the buffer.
+            // This is a player bug so we will increase the video bandwidth so that it can preload entire video before
+            // any player requests are made (playt/ pause/ seek/ etc)
+            bandwidthLimitInBitsPerSecond = 17000000;
+        }
+        super.init();
+    }
 
     /*
      * Test Seeking, event order
@@ -81,17 +99,22 @@ public class PlaybackTests extends TestBase {
 
             // Play another x seconds, stage 5
             Thread.sleep(PLAY_PERIOD_IN_MS);
-
+            final AtomicBoolean seekCompleted = new AtomicBoolean(false);
             // seek forward in the video, stage 6
             testActivity.runOnUiThread(() -> {
                 double currentPlaybackPosition = testActivity.getCurrentPosition();
                 double videoDuration = pView.getPlayer().getDuration();
                 double seekToInFuture = currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
-                pView.getPlayer().setCurrentTime( seekToInFuture );
+                TimeRanges onBuffer = pView.getPlayer().getBuffered();
+                TimeRanges seekable = pView.getPlayer().getSeekable();
+                pView.getPlayer().setCurrentTime( seekToInFuture, () -> {
+                    Log.w(TAG, "Seek in the future completed");
+                    seekCompleted.set(true);
+                } );
             });
 
             // Play another x seconds, stage 7
-            Thread.sleep(PLAY_PERIOD_IN_MS * 2);
+            Thread.sleep(PLAY_PERIOD_IN_MS);
 
             CheckupResult result;
             int viewStartEventIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
@@ -116,7 +139,11 @@ public class PlaybackTests extends TestBase {
                     PLAY_PERIOD_IN_MS - result.seekPeriod);
 
             // check seeking, stage 6
-            result = checkSeekAtIndex(result.eventIndex);
+            if (seekCompleted.get()) {
+                result = checkSeekAtIndex(result.eventIndex);
+            } else {
+                Log.w(TAG, "Player failed to seek in the future, not good.");
+            }
 
             // Exit the player with back button
 //            testScenario.close();
