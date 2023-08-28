@@ -129,6 +129,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
             player.setSource(testMediaSource);
             player.setCurrentTime(playbackStartPosition);
         }
+        // Version 5.9.1 do not work very well with dash and HLS, only MP4
         player.setAutoplay(playWhenReady);
     }
 

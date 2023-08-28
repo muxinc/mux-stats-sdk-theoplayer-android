@@ -20,14 +20,8 @@ android {
     versionCode 1
     versionName "1.0"
     testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
-
-<<<<<<< Updated upstream
-    manifestPlaceholders.theoLicense = "YOUR_THEOPLAYER_LICENSE_HERE"
+    manifestPlaceholders.theoLicense = "${theo_licence}"
   }
-=======
-        manifestPlaceholders.theoLicense = "${theo_licence}"
-    }
->>>>>>> Stashed changes
 
 
   buildTypes {
@@ -37,26 +31,6 @@ android {
     }
   }
   sourceSets {
-    minapi16 {
-      java.srcDirs = ["./src/no_ads/java"]
-      res.srcDirs = ["./src/no_ads/res"]
-      assets.srcDirs = ["./src/no_ads/assets"]
-    }
-    minapi21 {
-      java.srcDirs = ["./src/no_ads/java"]
-      res.srcDirs = ["./src/no_ads/res"]
-      assets.srcDirs = ["./src/no_ads/assets"]
-    }
-    minapi16ads {
-      java.srcDirs = ["./src/ads/java"]
-      res.srcDirs = ["./src/ads/res"]
-      assets.srcDirs = ["./src/ads/assets"]
-    }
-    minapi21ads {
-      java.srcDirs = ["./src/ads/java"]
-      res.srcDirs = ["./src/ads/res"]
-      assets.srcDirs = ["./src/ads/assets"]
-    }
     v5 {
       java.srcDirs = ["./src/no_ads/java"]
       res.srcDirs = ["./src/no_ads/res"]
@@ -67,20 +41,6 @@ android {
   flavorDimensions "api"
 
   productFlavors {
-    minapi16 {
-      dimension "api"
-    }
-    minapi21 {
-      dimension "api"
-      minSdkVersion 21
-    }
-    minapi16ads {
-      dimension "api"
-    }
-    minapi21ads {
-      dimension "api"
-      minSdkVersion 21
-    }
     v5 {
       dimension 'api'
       minSdkVersion 21
@@ -106,16 +66,7 @@ dependencies {
   api "org.checkerframework:checker-qual:3.32.0"
   implementation project(":muxstatssdktheoplayer")
 
-  minapi16adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
-  minapi21adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-  minapi16Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
-  minapi21Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-
   implementation "com.google.code.gson:gson:2.9.1"
   implementation "androidx.constraintlayout:constraintlayout:2.2.0-alpha09"
   implementation "androidx.appcompat:appcompat:1.6.1"
-  minapi16adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.30.0"
-  minapi16adsImplementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
-  minapi21adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.30.0"
-  minapi21adsImplementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
 }

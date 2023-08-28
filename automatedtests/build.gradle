@@ -16,7 +16,7 @@ android {
     testInstrumentationRunnerArguments clearPackageData: "true"
 
     buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
-    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR_ENVIRONMENT_KEY_HERE\"")
+    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR KEY HERE\"")
     var theoLicense = System.getenv("THEOPLAYER_LICENSE") == null ? "NOT_CONFIGURED" : System.getenv("THEOPLAYER_LICENSE")
     manifestPlaceholders.theoLicense = theoLicense
   }
@@ -50,20 +50,6 @@ android {
   flavorDimensions "api"
 
   productFlavors {
-    minapi16 {
-      dimension "api"
-    }
-    minapi21 {
-      dimension "api"
-      minSdkVersion 21
-    }
-    minapi16ads {
-      dimension "api"
-    }
-    minapi21ads {
-      dimension "api"
-      minSdkVersion 21
-    }
     v5 {
       dimension 'api'
       minSdkVersion 21
@@ -103,12 +89,6 @@ dependencies {
   androidTestImplementation "androidx.test.ext:junit:1.1.5"
 
   implementation project(":muxstatssdktheoplayer")
-
-  minapi16Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
-  minapi21Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-  minapi16adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
-  minapi21adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-
   implementation "com.google.android.gms:play-services-auth:20.5.0"
   implementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
 }

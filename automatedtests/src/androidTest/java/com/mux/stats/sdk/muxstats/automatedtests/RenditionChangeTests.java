@@ -26,20 +26,26 @@ public class RenditionChangeTests extends TestBase {
 
     @Before
     public void init(){
-//        urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
-        urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
+        urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+//        urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
+//        urlToPlay = "https://cdn.theoplayer.com/video/dash/big_buck_bunny/BigBuckBunny_10s_simple_2014_05_09.mpd";
 
         // These video have larger bitrate, make sure we do not cause any
         // rebuffering due to low bandwith
         bandwidthLimitInBitsPerSecond = 12000000;
-//        sourceType = SourceType.HLS;
-        sourceType = SourceType.DASH;
+        sourceType = SourceType.HLS;
+//        sourceType = SourceType.DASH;
         super.init();
     }
 
     @Test
     public void testRenditionChange() {
         try {
+            if (playWhenReady) {
+                testActivity.runOnUiThread(() -> {
+                    pView.getPlayer().play();
+                });
+            }
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
             }

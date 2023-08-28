@@ -17,6 +17,7 @@ import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.source.SourceDescription;
+import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 
 public class MainActivity extends AppCompatActivity {
@@ -85,7 +86,10 @@ public class MainActivity extends AppCompatActivity {
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
         // Creating a TypedSource builder that defines the location of a single stream source.
-        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl));
+//        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl));
+        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd");
+
+        typedSource.type(SourceType.DASH);
 
         // Creating a SourceDescription builder that contains the settings to be applied as a new
         // THEOplayer source.
@@ -95,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Configuring THEOplayer with defined SourceDescription object.
         theoPlayer.setSource(sourceDescription.build());
+        theoPlayer.setAutoplay(true);
 
         theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
                 txtPlayStatus.setText("Playing")

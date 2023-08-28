@@ -32,20 +32,6 @@ android {
   flavorDimensions 'api'
 
   productFlavors {
-    minapi16 {
-      dimension 'api'
-    }
-    minapi21 {
-      dimension 'api'
-      minSdkVersion 21
-    }
-    minapi16ads {
-      dimension 'api'
-    }
-    minapi21ads {
-      dimension 'api'
-      minSdkVersion 21
-    }
     v5 {
       dimension 'api'
       minSdkVersion 21
@@ -81,17 +67,8 @@ muxDistribution {
 
 dependencies {
   implementation 'com.android.support:multidex:1.0.3'
-
-  // Legacy versions use `compileOnly` to avoid binary incompatibility issues.
-  //noinspection GradleDependency
-  minapi16adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
-  //noinspection GradleDependency
-  minapi16CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi16:2.92.0'
-  minapi21CompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
-  minapi21adsCompileOnly 'com.theoplayer.theoplayer-sdk-android:basic-minapi21:2.92.0'
-
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
-  v5Api 'com.theoplayer.theoplayer-sdk-android:core:+'
+  v5Api 'com.theoplayer.theoplayer-sdk-android:core:5.9.1'
   //noinspection GradleDependency,GradleDynamicVersion // Old kotlin asked for by name in docs
   v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
 
