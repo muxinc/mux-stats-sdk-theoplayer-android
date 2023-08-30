@@ -1,0 +1,26 @@
+apiVersion: v1alpha
+kind: espresso
+sauce:
+  region: us-west-1
+  concurrency: 0
+  metadata:
+    name: Runs from GHA
+    tags:
+      - saucectrl-runner
+    build: Release r2_18_1
+espresso:
+  app: automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
+  testApp: automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
+suites:
+  - name: 'r2_18_1 automation'
+    devices:
+      device_type: PHONE
+
+artifacts:
+  download:
+    when: always
+    match:
+      - junit.xml
+      - device.log
+    directory: ./data/artifacts/
+
