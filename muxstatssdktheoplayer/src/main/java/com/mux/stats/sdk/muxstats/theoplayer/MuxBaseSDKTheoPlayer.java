@@ -92,7 +92,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected ReadyState previousReadyState;
     /**
      * Set to true if the player is currently seeking. This also include all necessary network
-     * buffering to start the playback from new position.
+     * buffering to start the playback from new position
      */
     boolean seekingInProgress;
     protected int numberOfEventsSent = 0;
