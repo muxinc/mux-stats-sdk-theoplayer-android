@@ -45,7 +45,6 @@ jobs:
 
     strategy:
       max-parallel: 1
-      #max-parallel: 2
       matrix:
         # only run v5 for now, the v2 versions are very old
         player_version: [ 'v5' ]
