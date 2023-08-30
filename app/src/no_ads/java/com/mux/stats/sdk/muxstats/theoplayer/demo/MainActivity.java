@@ -17,10 +17,8 @@ import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.source.SourceDescription;
+import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
-
-import static com.theoplayer.android.api.source.SourceDescription.Builder.sourceDescription;
-import static com.theoplayer.android.api.source.TypedSource.Builder.typedSource;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -59,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         txtPlayStatus = findViewById(R.id.txt_playstatus);
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
-        configureMuxSdk();
+//        configureMuxSdk();
     }
 
     private void configureMuxSdk() {
@@ -87,17 +85,22 @@ public class MainActivity extends AppCompatActivity {
         // and will also exit fullscreen when the device is rotated back to portrait.
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
-        // Creating a TypedSource builder that defines the location of a single stream source.
-        TypedSource.Builder typedSource =  typedSource(getString(R.string.defaultSourceUrl));
+         //Creating a TypedSource builder that defines the location of a single stream source.
+//        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl));
+//        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd");
+        TypedSource.Builder typedSource =  new TypedSource.Builder("http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8");
+
+        typedSource.type(SourceType.DASH);
 
         // Creating a SourceDescription builder that contains the settings to be applied as a new
         // THEOplayer source.
-        SourceDescription.Builder sourceDescription = sourceDescription(typedSource.build());
+        SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
         // Skip the default poster
 //                .poster(getString(R.string.defaultPosterUrl));
 
         // Configuring THEOplayer with defined SourceDescription object.
         theoPlayer.setSource(sourceDescription.build());
+        theoPlayer.setAutoplay(true);
 
         theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->
                 txtPlayStatus.setText("Playing")
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         theoPlayer.addEventListener(PlayerEventTypes.ERROR, event ->
-                txtPlayStatus.setText("Error: " + event.getError())
+                txtPlayStatus.setText("Error: " + event.getErrorObject().getLocalizedMessage())
         );
 
         theoPlayer.addEventListener(PlayerEventTypes.TIMEUPDATE, event ->
