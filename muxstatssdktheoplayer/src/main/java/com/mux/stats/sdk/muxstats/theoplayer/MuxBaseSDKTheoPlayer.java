@@ -84,7 +84,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
     protected Double sourceAdvertisedFramerate;
-    protected long sourceDuration;
+    protected double sourceDuration = -1D;
     protected boolean isPlaying;
     protected boolean sourceChanged;
     protected boolean inAdBreak;
@@ -171,10 +171,17 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE,
                 timeUpdateEvent -> {
                     if (!inAdBreak && this.player != null && this.player.get() != null) {
-                      playbackPosition = this.player.get().getPlayer().getCurrentTime();
+                      playbackPosition = timeUpdateEvent.getCurrentTime();
                       dispatch(new TimeUpdateEvent(null));
                     }
                 });
+
+        player.getPlayer().addEventListener(PlayerEventTypes.DURATIONCHANGE,
+            durationChangeEvent -> {
+              if (!inAdBreak && this.player != null && this.player.get() != null) {
+                sourceDuration = durationChangeEvent.getDuration();
+              }
+            });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
             if (this.player != null && this.player.get() != null
@@ -356,9 +363,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Long getSourceDuration() {
         if (player != null && player.get() != null) {
-            return secondsToMs(player.get().getPlayer().getDuration());
+            return (long)sourceDuration;
         }
-        return -1l;
+        return -1L;
     }
 
     @Override

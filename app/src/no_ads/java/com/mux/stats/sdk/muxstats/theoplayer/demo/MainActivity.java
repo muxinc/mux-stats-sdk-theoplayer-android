@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         txtPlayStatus = findViewById(R.id.txt_playstatus);
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
-        configureMuxSdk();
+//        configureMuxSdk();
     }
 
     private void configureMuxSdk() {
@@ -85,9 +85,10 @@ public class MainActivity extends AppCompatActivity {
         // and will also exit fullscreen when the device is rotated back to portrait.
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
-        // Creating a TypedSource builder that defines the location of a single stream source.
+         //Creating a TypedSource builder that defines the location of a single stream source.
 //        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl));
-        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd");
+//        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd");
+        TypedSource.Builder typedSource =  new TypedSource.Builder("http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8");
 
         typedSource.type(SourceType.DASH);
 

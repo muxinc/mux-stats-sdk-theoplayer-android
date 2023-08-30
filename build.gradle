@@ -27,6 +27,7 @@ allprojects {
 
         maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }
         maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-local' }
+        mavenLocal()
     }
 
     tasks.withType(JavaCompile) {
