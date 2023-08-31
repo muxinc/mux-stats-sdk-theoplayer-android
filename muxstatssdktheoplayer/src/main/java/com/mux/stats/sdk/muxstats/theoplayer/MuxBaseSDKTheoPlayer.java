@@ -11,6 +11,7 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.google.ads.interactivemedia.v3.api.AdError;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -46,7 +47,9 @@ import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
+import com.theoplayer.android.api.event.Event;
 import com.theoplayer.android.api.event.EventListener;
+import com.theoplayer.android.api.event.EventType;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTypes;
@@ -57,6 +60,8 @@ import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality;
 import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -79,7 +84,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
     protected Double sourceAdvertisedFramerate;
-    protected long sourceDuration;
+    protected double sourceDuration = -1D;
     protected boolean isPlaying;
     protected boolean sourceChanged;
     protected boolean inAdBreak;
@@ -87,7 +92,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected ReadyState previousReadyState;
     /**
      * Set to true if the player is currently seeking. This also include all necessary network
-     * buffering to start the playback from new position.
+     * buffering to start the playback from new position
      */
     boolean seekingInProgress;
     protected int numberOfEventsSent = 0;
@@ -146,19 +151,19 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
 
         // TODO test this
-        player.getPlayer().requestCurrentTime(aCurrentTime -> {
-            if (aCurrentTime > 0) {
-                // playback started before muxStats was initialized
-                play();
-                buffering();
-                playing();
-            }
-        });
+        double aCurrentTime = player.getPlayer().getCurrentTime();
+        if (aCurrentTime > 0) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+            playing();
+        }
 
         player.getPlayer().getVideoTracks()
                 .addEventListener(VideoTrackListEventTypes.ADDTRACK, handleAddTrackEvent);
 
-        // Setup listeners
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////// Setup listeners //////////////////////////////////////////////////////////////////
         player.getPlayer().addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
             this.sourceChanged = true;
         }));
@@ -166,11 +171,17 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE,
                 timeUpdateEvent -> {
                     if (!inAdBreak && this.player != null && this.player.get() != null) {
-                        this.player.get().getPlayer()
-                            .requestCurrentTime(time -> playbackPosition = time);
-                        dispatch(new TimeUpdateEvent(null));
+                      playbackPosition = timeUpdateEvent.getCurrentTime();
+                      dispatch(new TimeUpdateEvent(null));
                     }
                 });
+
+        player.getPlayer().addEventListener(PlayerEventTypes.DURATIONCHANGE,
+            durationChangeEvent -> {
+              if (!inAdBreak && this.player != null && this.player.get() != null) {
+                sourceDuration = durationChangeEvent.getDuration();
+              }
+            });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
             if (this.player != null && this.player.get() != null
@@ -187,14 +198,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             playing();
             if (sourceChanged && this.player != null && this.player.get() != null) {
-                this.player.get().getPlayer().requestVideoWidth((playerSourceWidth -> {
-                    sourceWidth = playerSourceWidth;
-                    this.player.get().getPlayer().requestVideoHeight((playerSourceHeight -> {
-                        sourceHeight = playerSourceHeight;
-                        dispatch(new VideoChangeEvent(null));
-                    }));
-                }));
-                sourceChanged = false;
+              sourceWidth = this.player.get().getPlayer().getVideoWidth();
+              sourceHeight = this.player.get().getPlayer().getVideoHeight();
+              dispatch(new VideoChangeEvent(null));
+              sourceChanged = false;
             }
         }));
 
@@ -228,12 +235,13 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             ended();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent ->
-                internalError(new MuxErrorException(0, errorEvent.getError()))
-        ));
-
-        // Ads listeners
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
+        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent -> {
+            internalError(
+                new MuxErrorException(0, errorEvent.getErrorObject().getLocalizedMessage()));
+        }));
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, (event) -> {
             dispatch(new AdErrorEvent(null));
         });
 
@@ -355,9 +363,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Long getSourceDuration() {
         if (player != null && player.get() != null) {
-            return secondsToMs(player.get().getPlayer().getDuration());
+            return (long)sourceDuration;
         }
-        return -1l;
+        return -1L;
     }
 
     @Override
@@ -586,8 +594,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeked() {
+        Log.e(TAG, "Seeked called");
         if ( state != PlayerState.SEEKING ) {
             // Seeked can come only after seeking
+            Log.e(TAG, "Seeked abborted, current state: " + state);
             return;
         }
         state = PlayerState.SEEKED;
@@ -643,22 +653,62 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return "Android";
         }
 
-        @Override
+      @Override
+      public String getMuxOSFamily() {
+        return null;
+      }
+
+      @Override
         public String getOSVersion() {
             return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
         }
 
-        @Override
+      @Override
+      public String getMuxOSVersion() {
+        return null;
+      }
+
+      @Override
+      public String getDeviceName() {
+        return null;
+      }
+
+      @Override
+      public String getMuxDeviceName() {
+        return null;
+      }
+
+      @Override
+      public String getDeviceCategory() {
+        return null;
+      }
+
+      @Override
+      public String getMuxDeviceCategory() {
+        return null;
+      }
+
+      @Override
         public String getManufacturer() {
             return Build.MANUFACTURER;
         }
 
-        @Override
+      @Override
+      public String getMuxManufacturer() {
+        return null;
+      }
+
+      @Override
         public String getModelName() {
             return Build.MODEL;
         }
 
-        @Override
+      @Override
+      public String getMuxModelName() {
+        return null;
+      }
+
+      @Override
         public String getPlayerVersion() {
             return this.theoVersion;
         }
@@ -733,7 +783,29 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return elapsedRealtime();
         }
 
-        @Override
+      @Override
+      public void outputLog(LogPriority logPriority, String tag, String msg, Throwable throwable) {
+        switch (logPriority) {
+          case ERROR:
+            Log.e(tag, msg, throwable);
+            break;
+          case WARN:
+            Log.w(tag, msg, throwable);
+            break;
+          case INFO:
+            Log.i(tag, msg, throwable);
+            break;
+          case DEBUG:
+            Log.d(tag, msg, throwable);
+            break;
+          case VERBOSE:
+          default: // fall-through
+            Log.v(tag, msg, throwable);
+            break;
+        }
+      }
+
+      @Override
         public void outputLog(LogPriority logPriority, String tag, String msg) {
             switch (logPriority) {
                 case ERROR:

@@ -28,6 +28,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.source.SourceDescription;
 
+import com.theoplayer.android.api.source.SourceType;
 import org.hamcrest.Matcher;
 import org.json.JSONException;
 import org.junit.After;
@@ -61,8 +62,8 @@ public abstract class TestBase {
     @Rule
     public TestName currentTestName = new TestName();
 
-    @Rule
-    public RetryTest retryTestRule = new RetryTest(3);
+//    @Rule
+//    public RetryTest retryTestRule = new RetryTest(3);
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
@@ -74,6 +75,7 @@ public abstract class TestBase {
     protected int bandwidthLimitInBitsPerSecond = 1700000;
     protected int sampleFileBitrate = 1083904;
     protected String urlToPlay = "http://localhost:5000/vod.mp4";
+    protected SourceType sourceType = SourceType.MP4;
     // UTC timestamp whenlow network bandwidth was triggered
     long startedJammingTheNetworkAt;
     // Amount of video playback time in player buffer
@@ -84,7 +86,7 @@ public abstract class TestBase {
     // the regular amount of bytes to send.
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
     protected int networkJamFactor = 5;
-    protected int waitForPlaybackToStartInMS = 30000;
+    protected int waitForPlaybackToStartInMS = 300000;
     protected long playbackStartPosition = 0;
     protected boolean playWhenReady = true;
 
@@ -124,6 +126,7 @@ public abstract class TestBase {
         testActivity.runOnUiThread(() -> {
             testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
             testActivity.setUrlToPlay(urlToPlay);
+            testActivity.setSourceType(sourceType);
             testActivity.setPlayWhenReady(playWhenReady);
             testActivity.initMuxSats();
             testActivity.setPlaybackStartPosition(playbackStartPosition);

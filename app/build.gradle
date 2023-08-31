@@ -1,102 +1,72 @@
 apply plugin: "com.android.application"
 
+def theo_licence = "unknown";
+
+Properties properties = new Properties()
+def propertiesFile = project.rootProject.file('local.properties')
+if (propertiesFile.exists()) {
+    properties.load(propertiesFile.newDataInputStream())
+    theo_licence = properties.getProperty("theo_licence")
+}
+
 android {
-    compileSdkVersion project.ext.compileSdkVersion
+  compileSdkVersion project.ext.compileSdkVersion
 
-    defaultConfig {
-        applicationId "com.mux.stats.sdk.muxstats.theoplayer"
-        multiDexEnabled true
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
+  defaultConfig {
+    applicationId "com.mux.stats.sdk.muxstats.theoplayer"
+    multiDexEnabled true
+    minSdkVersion project.ext.minSdkVersion
+    targetSdkVersion project.ext.targetSdkVersion
+    versionCode 1
+    versionName "1.0"
+    testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
+    manifestPlaceholders.theoLicense = "${theo_licence}"
+  }
 
-        manifestPlaceholders.theoLicense = "YOUR_THEOPLAYER_LICENSE_HERE"
-    }
 
-    lintOptions {
-        abortOnError false
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
     }
+  }
+  sourceSets {
+    v5 {
+      java.srcDirs = ["./src/no_ads/java"]
+      res.srcDirs = ["./src/no_ads/res"]
+      assets.srcDirs = ["./src/no_ads/assets"]
+    }
+  }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-        }
-    }
-    lintOptions {
-        // The demo app does not have translations.
-        disable "MissingTranslation", "GradleCompatible"
-        // exoplayer 2.8.1 workaround
-        // https://github.com/google/ExoPlayer/issues/4234
-        lintConfig file("../checker-framework-lint.xml")
-    }
-    sourceSets {
-        minapi16 {
-            java.srcDirs = ["./src/no_ads/java"]
-            res.srcDirs = ["./src/no_ads/res"]
-            assets.srcDirs = ["./src/no_ads/assets"]
-        }
-        minapi21 {
-            java.srcDirs = ["./src/no_ads/java"]
-            res.srcDirs = ["./src/no_ads/res"]
-            assets.srcDirs = ["./src/no_ads/assets"]
-        }
-        minapi16ads {
-            java.srcDirs = ["./src/ads/java"]
-            res.srcDirs = ["./src/ads/res"]
-            assets.srcDirs = ["./src/ads/assets"]
-        }
-        minapi21ads {
-            java.srcDirs = ["./src/ads/java"]
-            res.srcDirs = ["./src/ads/res"]
-            assets.srcDirs = ["./src/ads/assets"]
-        }
-    }
+  flavorDimensions "api"
 
-    flavorDimensions "api"
-
-    productFlavors {
-        minapi16 {
-            dimension "api"
-        }
-        minapi21 {
-            dimension "api"
-            minSdkVersion 21
-        }
-        minapi16ads {
-            dimension "api"
-        }
-        minapi21ads {
-            dimension "api"
-            minSdkVersion 21
-        }
+  productFlavors {
+    v5 {
+      dimension 'api'
+      minSdkVersion 21
     }
+  }
 
-    compileOptions {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
-    }
+  compileOptions {
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+  }
+  lint {
+    abortOnError false
+    disable 'MissingTranslation', 'GradleCompatible'
+    lintConfig file('../checker-framework-lint.xml')
+  }
+  namespace 'com.mux.stats.sdk.muxstats.theoplayer.demo'
 }
 
 dependencies {
-    implementation "androidx.multidex:multidex:2.0.1"
-    implementation "com.android.support:multidex:1.0.3"
-    implementation "com.google.android.material:material:1.4.0"
-    api "org.checkerframework:checker-qual:2.5.2"
-    implementation project(":muxstatssdktheoplayer")
+  implementation "androidx.multidex:multidex:2.0.1"
+  implementation "com.android.support:multidex:1.0.3"
+  implementation "com.google.android.material:material:1.8.0"
+  api "org.checkerframework:checker-qual:3.32.0"
+  implementation project(":muxstatssdktheoplayer")
 
-    minapi16adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
-    minapi21adsImplementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-    minapi16Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi16-release.aar")
-    minapi21Implementation files("../common_libs/theoplayer-android-dist-56d3a9e5-4252-4bca-b650-180c8f16ce52-2.80.0-minapi21-release.aar")
-
-    implementation "com.google.code.gson:gson:2.8.5"
-    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
-    implementation "androidx.appcompat:appcompat:1.1.0"
-    minapi16adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.18.1"
-    minapi16adsImplementation "com.google.android.gms:play-services-ads-identifier:17.0.0"
-    minapi21adsImplementation "com.google.ads.interactivemedia.v3:interactivemedia:3.18.1"
-    minapi21adsImplementation "com.google.android.gms:play-services-ads-identifier:17.0.0"
+  implementation "com.google.code.gson:gson:2.9.1"
+  implementation "androidx.constraintlayout:constraintlayout:2.2.0-alpha09"
+  implementation "androidx.appcompat:appcompat:1.6.1"
 }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mux.stats.sdk.muxstats.theoplayer.demo">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +15,8 @@
         <activity
             android:name="com.mux.stats.sdk.muxstats.theoplayer.demo.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -24,7 +27,5 @@
             android:name="THEOPLAYER_LICENSE"
             android:value="${theoLicense}" />
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
