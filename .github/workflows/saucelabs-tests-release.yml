@@ -1,6 +1,5 @@
 name: Test with Sauce Labs (All Versions)
 
-# TODO: This one doesn't
 on:
   push:
 #    branches:
@@ -10,6 +9,7 @@ on:
 env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+  MUX_DATA_KEY: ${{ secrets.MUX_DATA_ENV }}
 
 concurrency:
   group: sauce-labs
