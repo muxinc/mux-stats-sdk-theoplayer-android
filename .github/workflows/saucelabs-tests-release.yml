@@ -1,10 +1,11 @@
 name: Test with Sauce Labs (All Versions)
 
+# TODO: This one doesn't
 on:
   push:
-    branches:
-      - 'releases/**'
-      - 'master'
+#    branches:
+#      - 'releases/**'
+#      - 'master'
 
 env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}

@@ -1,10 +1,13 @@
 name: Test with Sauce Labs (Only Latest)
 
+# TODO: Doesn't run when it's supposed to (but both sauce w/f test the same thing atm so
+# TODO(Continued): come back to this later
 on:
-  push:
-    branches:
-      - '!releases/**'
-      - '!master'
+  workflow_dispatch:
+#  push:
+    #branches:
+    #  - '!releases/**'
+    #  - '!master'
 
 env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
