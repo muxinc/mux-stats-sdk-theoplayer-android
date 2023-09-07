@@ -198,7 +198,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
-          Log.i("MuxBaseSDKTheoPlayer", "Playing");
+          Log.i("MuxBaseSDKTheoPlayer", "Playing: player cb");
             playing();
             if (sourceChanged && this.player != null && this.player.get() != null) {
               sourceWidth = this.player.get().getPlayer().getVideoWidth();
@@ -574,6 +574,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
+      Log.i("MuxBaseSDKTheoPlayer", "Playing: in mux state " + state);
         isPlaying = true;
         if (state ==  PlayerState.PLAYING || seekingInProgress) {
             // ignore
