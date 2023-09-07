@@ -126,7 +126,7 @@ public abstract class TestBase {
         }
         testActivityFinished = false;
         testActivity.runOnUiThread(() -> {
-            testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
+            testActivity.setVideoTitle("THEOPlayer CI: " + BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
             testActivity.setUrlToPlay(urlToPlay);
             testActivity.setSourceType(sourceType);
             testActivity.setPlayWhenReady(playWhenReady);
