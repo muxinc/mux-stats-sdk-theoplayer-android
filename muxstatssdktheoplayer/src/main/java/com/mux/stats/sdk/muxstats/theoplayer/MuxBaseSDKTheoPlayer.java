@@ -173,6 +173,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 timeUpdateEvent -> {
                     if (!inAdBreak && this.player != null && this.player.get() != null) {
                       playbackPosition = timeUpdateEvent.getCurrentTime();
+                      Log.v("MuxBaseSDK", "Time Updated: " +playbackPosition);
                       dispatch(new TimeUpdateEvent(null));
                     }
                 });
@@ -522,6 +523,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void rebufferingEnded() {
+      Log.i("MuxBaseTheoPlayer", "rebufferingEnded");
         dispatch(new RebufferEndEvent(null));
     }
 
