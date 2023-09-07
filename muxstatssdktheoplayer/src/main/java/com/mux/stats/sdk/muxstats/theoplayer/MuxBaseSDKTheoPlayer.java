@@ -69,7 +69,7 @@ import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
 
 public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
-    public static final String TAG = "MuxStatsEventQueue";
+    public static final String TAG = "MuxBaseSDKTheoPlayer";
 
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -214,7 +214,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
           String logMsg = String.format(Locale.ROOT,
             "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
           );
-          Log.v("MuxBaseSDKTheoPlayer", logMsg);
+//          Log.v("MuxBaseSDKTheoPlayer", logMsg);
             ReadyState state = stateChange.getReadyState();
             // Leave this null-check. Despite the annotation this *can* be null during startup
             if (state != null) {
@@ -489,13 +489,14 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     @Override
     public void dispatch(IEvent event) {
         if (player != null && player.get() != null && muxStats != null) {
+          Log.v(TAG, "dispatch" + event.getType());
             numberOfEventsSent ++;
             if (event instanceof PlayEvent) {
                 numberOfPlayEventsSent++;
             }
             super.dispatch(event);
         } else {
-          Log.e(TAG, "DISPATCH CALLED BEFORE CONDITIONS WERE RIGHT");
+          Log.e(TAG, "DISPATCH " + event.getType() + " CALLED BEFORE CONDITIONS WERE RIGHT");
         }
     }
 

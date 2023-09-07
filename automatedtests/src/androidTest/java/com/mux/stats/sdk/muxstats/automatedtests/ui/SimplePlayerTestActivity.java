@@ -213,7 +213,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         });
 
         player.addEventListener(PlayerEventTypes.PLAYING, (Event event) -> {
-            Log.e(TAG, "Playback started");
+            Log.e(TAG, "Player: Playback started");
             signalPlaybackStarted();
         });
 
@@ -336,8 +336,9 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     public void signalPlaybackStarted() {
-        Log.d("MuxBase", "SignalPlaybackStarted");
+        Log.d("MuxBase", "SignalPlaybackStarted: Called");
         activityLock.lock();
+        Log.d("MuxBase", "SignalPlaybackStarted: After lock, signalingMuxBaseSDKTheoPlayer.");
         playbackStarted.signalAll();
         activityLock.unlock();
     }

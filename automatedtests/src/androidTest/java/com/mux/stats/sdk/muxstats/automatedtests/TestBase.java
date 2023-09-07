@@ -67,7 +67,7 @@ public abstract class TestBase {
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
-    static final int WAIT_FOR_NETWORK_PERIOD_IN_MS = 12000;
+    static final int WAIT_FOR_NETWORK_PERIOD_IN_MS = 12 * 1000;
 
     // I could not make this work as expected
 //    static final int SEEK_PERIOD_IN_MS = 5000;
