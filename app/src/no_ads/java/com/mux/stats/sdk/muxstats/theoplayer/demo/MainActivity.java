@@ -57,12 +57,12 @@ public class MainActivity extends AppCompatActivity {
         txtPlayStatus = findViewById(R.id.txt_playstatus);
         txtTimeUpdate = findViewById(R.id.txt_timeupdate);
 
-//        configureMuxSdk();
+        configureMuxSdk();
     }
 
     private void configureMuxSdk() {
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
+        customerPlayerData.setEnvironmentKey("rhhn9fph0nog346n4tqb6bqda");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("VIDEO_TITLE_HERE");
         CustomData customData = new CustomData();
@@ -86,11 +86,10 @@ public class MainActivity extends AppCompatActivity {
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
 
          //Creating a TypedSource builder that defines the location of a single stream source.
-//        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl));
-//        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd");
-        TypedSource.Builder typedSource =  new TypedSource.Builder("http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8");
-
-        typedSource.type(SourceType.DASH);
+//        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl)).type(SourceType.DASH);
+//        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd").type(SourceType.DASH);
+//        TypedSource.Builder typedSource =  new TypedSource.Builder("http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8").type(SourceType.HLS);
+      TypedSource.Builder typedSource =  new TypedSource.Builder("https://test-streams.mux.dev/tos_ismc/main.m3u8").type(SourceType.HLS);
 
         // Creating a SourceDescription builder that contains the settings to be applied as a new
         // THEOplayer source.
