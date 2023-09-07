@@ -75,8 +75,9 @@ public abstract class TestBase {
     protected int bandwidthLimitInBitsPerSecond = 1700000;
     protected int sampleFileBitrate = 1083904;
     //protected String urlToPlay = "http://localhost:5000/vod.mp4";
-    protected String urlToPlay = "http://localhost:5000/vod.mp4";
-    protected SourceType sourceType = SourceType.MP4;
+    protected String urlToPlay = "https://test-streams.mux.dev/tos_ismc/main.m3u8";
+    //protected SourceType sourceType = SourceType.MP4;
+    protected SourceType sourceType = SourceType.HLS;
     // UTC timestamp whenlow network bandwidth was triggered
     long startedJammingTheNetworkAt;
     // Amount of video playback time in player buffer
