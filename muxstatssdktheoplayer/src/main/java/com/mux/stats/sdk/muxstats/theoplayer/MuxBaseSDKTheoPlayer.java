@@ -63,6 +63,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
@@ -184,6 +185,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
+          Log.i("MuxBaseSDKTheoPlayer", "Play");
             if (this.player != null && this.player.get() != null
                 && this.player.get().getPlayer() != null
                 && !this.player.get().getPlayer().isAutoplay()
@@ -196,6 +198,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
+          Log.i("MuxBaseSDKTheoPlayer", "Playing");
             playing();
             if (sourceChanged && this.player != null && this.player.get() != null) {
               sourceWidth = this.player.get().getPlayer().getVideoWidth();
@@ -206,11 +209,23 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
+          // TODO: I think you can actually play from FUTURE_DATA and we can trigger rebuffering
+          //  due to that state changing. Time to test that
+          //  Yep. So this gets called as segments come in, even if playback doesn't stop
+          String logMsg = String.format(Locale.ROOT,
+            "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), stateChange.getReadyState(), previousReadyState
+          );
+          Log.v("MuxBaseSDKTheoPlayer", logMsg);
             ReadyState state = stateChange.getReadyState();
             if (state != null) {
+              // Playback starts when the state is HAVE_ENOUGH_DATA, and can continue in
+              //  HAVE_FUTURE_DATA. With HLS/DASH, HAVE_FUTURE_DATA means that the player is
+              //  downloading new segments but the current segment is not yet over.
+              // TODO: Try to provoke REBUFFERING and see what state casues playabck to stop
+              // TODO:  Test the case when playback ends
                 if (previousReadyState != null
-                    && (state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
-                    || (state.ordinal() < previousReadyState.ordinal()))
+                    && (state.ordinal() < ReadyState.HAVE_FUTURE_DATA.ordinal()
+                    && (state.ordinal() < previousReadyState.ordinal()))
                 ) {
                     buffering();
                 }
@@ -296,8 +311,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void release() {
-        muxStats.release();
-        muxStats = null;
+        if (muxStats != null) {
+            muxStats.release();
+            muxStats = null;
+        }
         player = null;
     }
 
@@ -482,6 +499,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     // Internal methods to change stats
     protected void buffering() {
+      Log.i("MuxBaseTheoPlayer", "buffering");
         if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
                 || state == PlayerState.SEEKED ) {
             // ignore
@@ -498,6 +516,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void rebufferingStarted() {
+      Log.i("MuxBaseTheoPlayer", "rebufferingStarted");
         state = PlayerState.REBUFFERING;
         dispatch(new RebufferStartEvent(null));
     }

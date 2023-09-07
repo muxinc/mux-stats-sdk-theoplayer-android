@@ -74,6 +74,7 @@ public abstract class TestBase {
     protected int runHttpServerOnPort = 5000;
     protected int bandwidthLimitInBitsPerSecond = 1700000;
     protected int sampleFileBitrate = 1083904;
+    //protected String urlToPlay = "http://localhost:5000/vod.mp4";
     protected String urlToPlay = "http://localhost:5000/vod.mp4";
     protected SourceType sourceType = SourceType.MP4;
     // UTC timestamp whenlow network bandwidth was triggered
