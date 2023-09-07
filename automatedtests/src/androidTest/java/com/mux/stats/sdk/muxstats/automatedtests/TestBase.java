@@ -88,7 +88,8 @@ public abstract class TestBase {
     // the regular amount of bytes to send.
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
     protected int networkJamFactor = 5;
-    protected int waitForPlaybackToStartInMS = 300000;
+    /** @noinspection PointlessArithmeticExpression*/
+    protected int waitForPlaybackToStartInMS = 1 * 60 * 1000;
     protected long playbackStartPosition = 0;
     protected boolean playWhenReady = true;
 
