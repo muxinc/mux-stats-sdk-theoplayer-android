@@ -218,14 +218,15 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
           );
           Log.v("MuxBaseSDKTheoPlayer", logMsg);
             ReadyState state = stateChange.getReadyState();
+            // Leave this null-check. Despite the annotation this *can* be null during startup
             if (state != null) {
               // Playback starts when the state is HAVE_ENOUGH_DATA, and can continue in
-              // HAVE_FUTURE_DATA or HAVE_CURRENT_DATA.
-              // With HLS/DASH, HAVE_FUTURE_DATA and HAVE_CURRENT_DATA both coincide with the player
-              // buffering new segments in response to starvation, but in these states there's at
-              // least some of a segment left in the buffer
+              // HAVE_FUTURE_DATA, HAVE_ENOUGH_DATA.
+              // (https://html.spec.whatwg.org/multipage/media.html#ready-states)
+              // With HLS/DASH, HAVE_FUTURE_DATA indicates that the player is currently buffering
+              // new segments in response to starvation, but it can still currently play
                 if (previousReadyState != null
-                    && (state.ordinal() < ReadyState.HAVE_CURRENT_DATA.ordinal()
+                    && (state.ordinal() < ReadyState.HAVE_FUTURE_DATA.ordinal()
                     && (state.ordinal() < previousReadyState.ordinal()))
                 ) {
                     buffering();
