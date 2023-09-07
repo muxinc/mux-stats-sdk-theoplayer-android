@@ -153,10 +153,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         // TODO test this
         double aCurrentTime = player.getPlayer().getCurrentTime();
+        Log.d("MuxBaseSDKTheoPlayer", "init with aCurrentTime: " + aCurrentTime);
         if (aCurrentTime > 0) {
             // playback started before muxStats was initialized
             play();
-            buffering();
+            //buffering();
             playing();
         }
 
@@ -173,7 +174,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 timeUpdateEvent -> {
                     if (!inAdBreak && this.player != null && this.player.get() != null) {
                       playbackPosition = timeUpdateEvent.getCurrentTime();
-                      Log.v("MuxBaseSDK", "Time Updated: " +playbackPosition);
+                      //Log.v("MuxBaseSDK", "Time Updated: " +playbackPosition);
                       dispatch(new TimeUpdateEvent(null));
                     }
                 });
@@ -210,9 +211,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
-          // TODO: I think you can actually play from FUTURE_DATA and we can trigger rebuffering
-          //  due to that state changing. Time to test that
-          //  Yep. So this gets called as segments come in, even if playback doesn't stop
           String logMsg = String.format(Locale.ROOT,
             "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
           );
@@ -496,6 +494,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 numberOfPlayEventsSent++;
             }
             super.dispatch(event);
+        } else {
+          Log.e(TAG, "DISPATCH CALLED BEFORE CONDITIONS WERE RIGHT");
         }
     }
 
@@ -548,6 +548,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void play() {
+      Log.i(TAG, "play()");
         isPlaying = true;
         if (inAdBreak) {
             if (inAdPlayback) {

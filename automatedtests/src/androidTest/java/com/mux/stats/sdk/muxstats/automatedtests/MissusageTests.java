@@ -77,6 +77,7 @@ public class MissusageTests extends TestBase {
             testActivity.runOnUiThread(() -> {
                 testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
                 testActivity.setUrlToPlay(urlToPlay);
+                testActivity.setSourceType(sourceType);
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();
                 testMediaSource = testActivity.getTestMediaSource();

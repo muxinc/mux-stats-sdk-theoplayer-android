@@ -41,7 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SimplePlayerTestActivity extends AppCompatActivity
 {
-    static final String TAG = "SimplePlayerActivity";
+    static final String TAG = "MuxBase";
 
     protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
     protected static final int PLAYBACK_NOTIFICATION_ID = 1;
@@ -81,6 +81,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         theoPlayerView = findViewById(R.id.player_view);
         theoPlayerView.showContextMenu();
         player = theoPlayerView.getPlayer();
+        registerListeners();
     }
 
     public double getCurrentPosition() {
@@ -258,7 +259,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStats.setScreenSize(size.x, size.y);
         muxStats.enableMuxCoreDebug(true, false);
-        registerListeners();
+        //registerListeners();
     }
 
     public SourceDescription getTestMediaSource() {
@@ -335,6 +336,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     public void signalPlaybackStarted() {
+        Log.d("MuxBase", "SignalPlaybackStarted");
         activityLock.lock();
         playbackStarted.signalAll();
         activityLock.unlock();
