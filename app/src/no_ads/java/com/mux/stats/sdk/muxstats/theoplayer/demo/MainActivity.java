@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow().addFlags(View.KEEP_SCREEN_ON);
+
         theoPlayerView = findViewById(R.id.theoplayer);
         theoPlayer = theoPlayerView.getPlayer();
 

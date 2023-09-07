@@ -214,18 +214,18 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
           //  due to that state changing. Time to test that
           //  Yep. So this gets called as segments come in, even if playback doesn't stop
           String logMsg = String.format(Locale.ROOT,
-            "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), stateChange.getReadyState(), previousReadyState
+            "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
           );
           Log.v("MuxBaseSDKTheoPlayer", logMsg);
             ReadyState state = stateChange.getReadyState();
             if (state != null) {
               // Playback starts when the state is HAVE_ENOUGH_DATA, and can continue in
-              //  HAVE_FUTURE_DATA. With HLS/DASH, HAVE_FUTURE_DATA means that the player is
-              //  downloading new segments but the current segment is not yet over.
-              // TODO: Try to provoke REBUFFERING and see what state casues playabck to stop
-              // TODO:  Test the case when playback ends
+              // HAVE_FUTURE_DATA or HAVE_CURRENT_DATA.
+              // With HLS/DASH, HAVE_FUTURE_DATA and HAVE_CURRENT_DATA both coincide with the player
+              // buffering new segments in response to starvation, but in these states there's at
+              // least some of a segment left in the buffer
                 if (previousReadyState != null
-                    && (state.ordinal() < ReadyState.HAVE_FUTURE_DATA.ordinal()
+                    && (state.ordinal() < ReadyState.HAVE_CURRENT_DATA.ordinal()
                     && (state.ordinal() < previousReadyState.ordinal()))
                 ) {
                     buffering();

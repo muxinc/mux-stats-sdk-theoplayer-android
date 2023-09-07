@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -74,6 +75,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_player_test);
+        getWindow().addFlags(View.KEEP_SCREEN_ON);
         disableUserActions();
 
         theoPlayerView = findViewById(R.id.player_view);
