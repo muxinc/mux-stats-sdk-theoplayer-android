@@ -40,7 +40,7 @@ public class SeekingTests extends SeekingTestBase {
     testSeekingWhilePlaying();
   }
 
-  @Test
+  //@Test // Test is not actually implemented, nothing asks test activity to seek
   public void testSeekWhilePlayWhenReadyIsFalse() {
     try {
       testActivity.waitForActivityToInitialize();
