@@ -75,51 +75,26 @@ public class RenditionChangeTests extends TestBase {
                 pView.getPlayer().getVideoTracks().getItem(0).setTargetQuality(changedQuality);
             });
 
-            // It takes a long time for this beacon for some reason
+            // Wait for beacon + time it takes for player to actually change renditions
             Thread.sleep(WAIT_FOR_NETWORK_PERIOD_IN_MS * 3);
 
             int renditionChangeIndex = 0;
             int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             JSONArray receivedRenditionChangeEvents = new JSONArray();
 
-            // There should should be 3: 1 initial, 1 for 1st change, 1 for 2nd change
-//            final int EXPECTED_RENDITION_CHANGES = 3;
-//            while (true) {
-//                renditionChangeIndex = networkRequest
-//                        .getIndexForNextEvent(renditionChangeIndex + 1, RenditionChangeEvent.TYPE);
-//                long lastRenditionChangeAt = networkRequest
-//                        .getCreationTimeForEvent(renditionChangeIndex) - networkRequest
-//                        .getCreationTimeForEvent(playingIndex);
-//                if (renditionChangeIndex == -1) {
-//                    fail("Failed to find RenditionChangeEvent dispatched after: "
-//                            + PLAY_PERIOD_IN_MS + " ms since playback started, with valid data"
-//                            + ", received events: " + receivedRenditionChangeEvents.toString());
-//                }
-//                JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
-//                receivedRenditionChangeEvents.put(jo);
-//                if ( lastRenditionChangeAt > ( PLAY_PERIOD_IN_MS + PAUSE_PERIOD_IN_MS ) ) {
-//                    // We found rendition change index we ware looking for, there may be more after,
-//                    // because I dont know how to controll the player bitadaptive settings
-//                    if ( !jo.has(VideoData.VIDEO_SOURCE_WIDTH) || ! jo.has(VideoData.VIDEO_SOURCE_HEIGHT)) {
-//                        Log.w(TAG, "Missing video width and/or video height parameters on Rendition change event, "
-//                                + " json: " + jo.toString());
-//                        continue;
-//                    }
-//                    if (renditionChangeIndex >= EXPECTED_RENDITION_CHANGES) {
-//                      break;
-//                    }
-//                }
-//            }
-
             for (int i =0; i < networkRequest.getNumberOfReceivedEvents(); i++) {
               JSONObject jo = networkRequest.getEventForIndex(i);
               if (jo.getString("e").equals(RenditionChangeEvent.TYPE)) {
-                Log.i(TAG, "Recorded Rendition Change:");
+                if (!jo.has(VideoData.VIDEO_SOURCE_HEIGHT) || !jo.has(VideoData.VIDEO_SOURCE_WIDTH)) {
+                  Log.d(TAG, "Skipped renditionchange without dimensions");
+                  continue;
+                }
                 int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
                 int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
+                Log.i(TAG, "Recorded Rendition Change ");
                 Log.v(TAG, "\tDimensions " + videoWidth + "x" + videoHeight);
+                receivedRenditionChangeEvents.put(jo);
               }
-              receivedRenditionChangeEvents.put(jo);
             }
 
             JSONObject jo = receivedRenditionChangeEvents.getJSONObject(
