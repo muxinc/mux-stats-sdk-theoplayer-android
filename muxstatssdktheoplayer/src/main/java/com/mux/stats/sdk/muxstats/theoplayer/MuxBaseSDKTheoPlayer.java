@@ -159,6 +159,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 sourceWidth = vQuality.getWidth();
                 sourceHeight = vQuality.getHeight();
                 RenditionChangeEvent event = new RenditionChangeEvent(null);
+                String msg = String.format(Locale.ROOT,
+                    "Rendition: %d x %d at %ffps", sourceWidth, sourceHeight, sourceAdvertisedFramerate
+                );
+                Log.d(TAG, "RenditionChange: " + msg);
                 dispatch(event);
               }
             });
