@@ -69,10 +69,10 @@ public class RenditionChangeTests extends TestBase {
                 pView.getPlayer().getVideoTracks().getItem(0).setTargetQuality(changedQuality);
             });
 
+            Thread.sleep(WAIT_FOR_NETWORK_PERIOD_IN_MS);
             int renditionChangeIndex = 0;
             int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             JSONArray receivedRenditionChangeEvents = new JSONArray();
-            while (true) {
                 renditionChangeIndex = networkRequest
                         .getIndexForNextEvent(renditionChangeIndex + 1, RenditionChangeEvent.TYPE);
                 long lastRenditionChangeAt = networkRequest
@@ -85,19 +85,7 @@ public class RenditionChangeTests extends TestBase {
                 }
                 JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
                 receivedRenditionChangeEvents.put(jo);
-                if ( lastRenditionChangeAt > ( PLAY_PERIOD_IN_MS + PAUSE_PERIOD_IN_MS ) ) {
-                    // We found rendition change index we ware looking for, there may be more after,
-                    // because I dont know how to controll the player bitadaptive settings
-                    if ( !jo.has(VideoData.VIDEO_SOURCE_WIDTH) || ! jo.has(VideoData.VIDEO_SOURCE_HEIGHT)) {
-                        Log.w(TAG, "Missing video width and/or video height parameters on Rendition change event, "
-                                + " json: " + jo.toString());
-                        continue;
-                    }
-                    break;
-                }
-            }
-
-            JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
+                
             int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
             int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
             if (videoWidth != changedQuality.getWidth() && videoHeight != changedQuality.getHeight()) {
