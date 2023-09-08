@@ -40,7 +40,7 @@ public class SeekingTests extends SeekingTestBase {
     testSeekingWhilePlaying();
   }
 
-  //@Test // Test is not actually implemented, nothing asks test activity to seek
+  @Test // todo - is this test implemented? It doesn't seem to do any seeking
   public void testSeekWhilePlayWhenReadyIsFalse() {
     try {
       testActivity.waitForActivityToInitialize();
