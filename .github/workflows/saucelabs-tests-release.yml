@@ -10,6 +10,7 @@ env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
   MUX_DATA_KEY: ${{ secrets.MUX_DATA_ENV }}
+  THEOPLAYER_LICENSE: ${{ secrets.THEO_LICENSE }}
 
 concurrency:
   group: sauce-labs
@@ -71,7 +72,7 @@ jobs:
           .sauce/template.yml > .sauce/conf.yml
       - name: Dump Generated Sauce Conf
         run: cat .sauce/conf.yml
-      - name: Run Saucelabs Test (2.18.1)
+      - name: Run Saucelabs Test
         uses: saucelabs/saucectl-run-action@v3
         env:
           GITHUB_TOKEN: ${{ github.token }}
