@@ -26,7 +26,7 @@ public class SeekingTestBase extends TestBase {
         double duration = pView.getPlayer().getDuration();
         pView.getPlayer().setCurrentTime(duration - PLAY_PERIOD_IN_MS/1000.0);
       });
-      Thread.sleep(PLAY_PERIOD_IN_MS);
+      Thread.sleep(WAIT_FOR_NETWORK_PERIOD_IN_MS);
       finishActivity();
       // Expected events play, playing, pause, seeking, seeked
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
