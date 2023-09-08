@@ -78,13 +78,10 @@ public class RenditionChangeTests extends TestBase {
             // Wait for beacon + time it takes for player to actually change renditions
             Thread.sleep(WAIT_FOR_NETWORK_PERIOD_IN_MS * 3);
 
-            int renditionChangeIndex = 0;
             int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             JSONArray receivedRenditionChangeEvents = new JSONArray();
 
-            for (int i =0; i < networkRequest.getNumberOfReceivedEvents(); i++) {
-              JSONObject jo = networkRequest.getEventForIndex(i);
-              if (jo.getString("e").equals(RenditionChangeEvent.TYPE)) {
+            for (JSONObject jo : networkRequest.getAllEventsOfType(RenditionChangeEvent.TYPE)) {
                 if (!jo.has(VideoData.VIDEO_SOURCE_HEIGHT) || !jo.has(VideoData.VIDEO_SOURCE_WIDTH)) {
                   Log.d(TAG, "Skipped renditionchange without dimensions");
                   continue;
@@ -94,7 +91,6 @@ public class RenditionChangeTests extends TestBase {
                 Log.i(TAG, "Recorded Rendition Change ");
                 Log.v(TAG, "\tDimensions " + videoWidth + "x" + videoHeight);
                 receivedRenditionChangeEvents.put(jo);
-              }
             }
 
             JSONObject jo = receivedRenditionChangeEvents.getJSONObject(
