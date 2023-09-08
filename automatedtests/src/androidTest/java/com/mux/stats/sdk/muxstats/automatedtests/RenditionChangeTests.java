@@ -85,7 +85,7 @@ public class RenditionChangeTests extends TestBase {
                 }
                 JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
                 receivedRenditionChangeEvents.put(jo);
-                
+
             int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
             int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
             if (videoWidth != changedQuality.getWidth() && videoHeight != changedQuality.getHeight()) {
