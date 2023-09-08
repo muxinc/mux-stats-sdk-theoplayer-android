@@ -26,7 +26,7 @@ public class RenditionChangeTests extends TestBase {
 
     @Before
     public void init(){
-        urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+        //urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
 //        urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
 //        urlToPlay = "https://cdn.theoplayer.com/video/dash/big_buck_bunny/BigBuckBunny_10s_simple_2014_05_09.mpd";
 
@@ -69,7 +69,6 @@ public class RenditionChangeTests extends TestBase {
                 pView.getPlayer().getVideoTracks().getItem(0).setTargetQuality(changedQuality);
             });
 
-            Thread.sleep(PLAY_PERIOD_IN_MS);
             int renditionChangeIndex = 0;
             int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             JSONArray receivedRenditionChangeEvents = new JSONArray();

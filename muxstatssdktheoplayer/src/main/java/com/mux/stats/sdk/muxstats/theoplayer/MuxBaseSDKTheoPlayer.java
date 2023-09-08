@@ -112,26 +112,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         FINISHED_PLAYING_ADS, INIT, ENDED
     }
 
-    private EventListener<AddTrackEvent> handleAddTrackEvent = addTrackEvent -> {
-        addTrackEvent.getTrack().addEventListener(
-                VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT,
-                activeQualityChangedEvent -> {
-                    VideoQuality vQuality = activeQualityChangedEvent.getQuality();
-                    if (vQuality != null) {
-                        // Nop idea how to get bitrate
-//                        sourceAdvertisedBitrate = vQuality.;
-                        if (vQuality.getFrameRate() > 0) {
-                            sourceAdvertisedFramerate = vQuality.getFrameRate();
-                        }
-                        sourceWidth = vQuality.getWidth();
-                        sourceHeight = vQuality.getHeight();
-                        RenditionChangeEvent event = new RenditionChangeEvent(null);
-                        dispatch(event);
-                    }
-                });
-    };
-
-    MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView player, String playerName,
+  MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView player, String playerName,
         CustomerData data, CustomOptions options,
         INetworkRequest networkRequest) {
         super();
@@ -161,8 +142,47 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             playing();
         }
 
-        player.getPlayer().getVideoTracks()
+    // Nop idea how to get bitrate
+    //                        sourceAdvertisedBitrate = vQuality.;
+    EventListener<AddTrackEvent> handleAddTrackEvent = addTrackEvent -> {
+        addTrackEvent.getTrack().addEventListener(
+            VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT,
+            activeQualityChangedEvent -> {
+              Log.d(TAG, "Track Added");
+              VideoQuality vQuality = activeQualityChangedEvent.getQuality();
+              if (vQuality != null) {
+                // Nop idea how to get bitrate
+//                        sourceAdvertisedBitrate = vQuality.;
+                if (vQuality.getFrameRate() > 0) {
+                  sourceAdvertisedFramerate = vQuality.getFrameRate();
+                }
+                sourceWidth = vQuality.getWidth();
+                sourceHeight = vQuality.getHeight();
+                RenditionChangeEvent event = new RenditionChangeEvent(null);
+                dispatch(event);
+              }
+            });
+      };
+      player.getPlayer().getVideoTracks()
                 .addEventListener(VideoTrackListEventTypes.ADDTRACK, handleAddTrackEvent);
+
+//      player.getPlayer().getVideoTracks().addEventListener(VideoTrackListEventTypes.TRACKLISTCHANGE,
+//          trackListChangeEvent -> {
+//            Log.d(TAG, "Tracklist Changed");
+//            VideoQuality vQuality = trackListChangeEvent.getTrack().getActiveQuality();
+//            if (vQuality != null) {
+//              // Nop idea how to get bitrate
+////                        sourceAdvertisedBitrate = vQuality.;
+//              if (vQuality.getFrameRate() > 0) {
+//                sourceAdvertisedFramerate = vQuality.getFrameRate();
+//              }
+//              sourceWidth = vQuality.getWidth();
+//              sourceHeight = vQuality.getHeight();
+//              RenditionChangeEvent event = new RenditionChangeEvent(null);
+//              dispatch(event);
+//            }
+//          }
+//      );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////// Setup listeners //////////////////////////////////////////////////////////////////
@@ -489,14 +509,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     @Override
     public void dispatch(IEvent event) {
         if (player != null && player.get() != null && muxStats != null) {
-          Log.v(TAG, "dispatch" + event.getType());
             numberOfEventsSent ++;
             if (event instanceof PlayEvent) {
                 numberOfPlayEventsSent++;
             }
             super.dispatch(event);
-        } else {
-          Log.e(TAG, "DISPATCH " + event.getType() + " CALLED BEFORE CONDITIONS WERE RIGHT");
         }
     }
 
