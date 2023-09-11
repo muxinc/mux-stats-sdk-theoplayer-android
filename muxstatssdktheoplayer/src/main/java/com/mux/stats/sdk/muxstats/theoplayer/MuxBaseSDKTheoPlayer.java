@@ -281,10 +281,12 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, (event) -> {
+          Log.d("ADSBROKE", "ad error: " + event.getError());
             dispatch(new AdErrorEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
+          Log.d("ADSBROKE", "adbreak begin: ");
             // Dispatch pause event because pause callback will not be called
             dispatch(new PauseEvent(null));
             // Record that we're in an ad break so we can supress standard play/playing/pause events
@@ -301,17 +303,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
+          Log.d("ADSBROKE", "ad begin: ");
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
+          Log.d("ADSBROKE", "ad end: ");
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
 
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
+          Log.d("ADSBROKE", "adbreak end: ");
             inAdBreak = false;
             // Reset all of our state correctly for getting out of ads
             dispatch(new AdBreakEndEvent(null));
