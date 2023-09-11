@@ -16,6 +16,7 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory;
 import com.theoplayer.android.api.event.Event;
 import com.theoplayer.android.api.event.ads.AdErrorEvent;
 import com.theoplayer.android.api.event.ads.AdEvent;
@@ -30,6 +31,7 @@ import com.theoplayer.android.api.source.SourceDescription;
 import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 import com.theoplayer.android.api.source.addescription.AdDescription;
+import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription;
 import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
 
 import java.util.concurrent.TimeUnit;
@@ -139,8 +141,8 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     void setupVMAPAd(String adTagUri) {
         TypedSource.Builder typedSource = new TypedSource.Builder(urlToPlay);
         typedSource.type(sourceType);
-        THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
-        AdDescription ads = adBuilder.build();
+        //THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
+        AdDescription ads = new GoogleImaAdDescription.Builder(adTagUri).build();
         SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
         sourceDescription.ads(ads);
         testMediaSource = sourceDescription.build();
@@ -195,6 +197,8 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     private void registerListeners() {
+        player.addIntegration(GoogleImaIntegrationFactory.createGoogleImaIntegration(theoPlayerView));
+
         player.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
             Log.e(TAG, "Ads error: " + event.getError());
         });
