@@ -14,11 +14,15 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.theoplayer.MuxStatsSDKTHEOPlayer;
 import com.theoplayer.android.api.THEOplayerView;
+import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.source.SourceDescription;
 import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
+import com.theoplayer.android.api.source.addescription.AdDescription;
+import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription;
+import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,21 +90,26 @@ public class MainActivity extends AppCompatActivity {
         // The player will go fullscreen when the device is rotated to landscape
         // and will also exit fullscreen when the device is rotated back to portrait.
         theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
+        theoPlayer.addIntegration(GoogleImaIntegrationFactory.createGoogleImaIntegration(theoPlayerView));
 
          //Creating a TypedSource builder that defines the location of a single stream source.
 //        TypedSource.Builder typedSource =  new TypedSource.Builder(getString(R.string.defaultSourceUrl)).type(SourceType.DASH);
 //        TypedSource.Builder typedSource =  new TypedSource.Builder("http://192.168.1.121:8000/playlist.mpd").type(SourceType.DASH);
 //        TypedSource.Builder typedSource =  new TypedSource.Builder("http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8").type(SourceType.HLS);
       TypedSource.Builder typedSource =  new TypedSource.Builder("https://test-streams.mux.dev/tos_ismc/main.m3u8").type(SourceType.HLS);
-
+//      String vmapUrl = "http://localhost:5000/preroll_and_bumper_vmap.xml";
+      String vmapUrl = "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpreonlybumper&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&correlator=";
+      AdDescription ads = new GoogleImaAdDescription.Builder(vmapUrl).build();
+      SourceDescription.Builder sdb = new SourceDescription.Builder(typedSource.build());
+      sdb.ads(ads);
         // Creating a SourceDescription builder that contains the settings to be applied as a new
         // THEOplayer source.
-        SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
+        //SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
         // Skip the default poster
 //                .poster(getString(R.string.defaultPosterUrl));
 
         // Configuring THEOplayer with defined SourceDescription object.
-        theoPlayer.setSource(sourceDescription.build());
+        theoPlayer.setSource(sdb.build());
         theoPlayer.setAutoplay(true);
 
         theoPlayer.addEventListener(PlayerEventTypes.PLAYING, event ->

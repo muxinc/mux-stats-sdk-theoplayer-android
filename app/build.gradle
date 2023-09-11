@@ -66,6 +66,10 @@ dependencies {
   api "org.checkerframework:checker-qual:3.32.0"
   implementation project(":muxstatssdktheoplayer")
 
+  // Test against a specific version for consistent tests
+  implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
+  implementation 'com.theoplayer.theoplayer-sdk-android:core:5.9.1'
+
   implementation "com.google.code.gson:gson:2.9.1"
   implementation "androidx.constraintlayout:constraintlayout:2.2.0-alpha09"
   implementation "androidx.appcompat:appcompat:1.6.1"
