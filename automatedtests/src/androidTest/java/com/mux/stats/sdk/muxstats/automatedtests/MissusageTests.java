@@ -77,6 +77,7 @@ public class MissusageTests extends TestBase {
             testActivity.runOnUiThread(() -> {
                 testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
                 testActivity.setUrlToPlay(urlToPlay);
+                testActivity.setSourceType(sourceType);
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();
                 testMediaSource = testActivity.getTestMediaSource();
@@ -91,8 +92,9 @@ public class MissusageTests extends TestBase {
             });
             Thread.sleep(INIT_MUX_STATS_AFTER * 2);
             // This is initialized with the MuxStats, it need to be called after
-            // testActivity.initMuxSats();
             networkRequest = testActivity.getMockNetwork();
+            // Wait for the beacons to go
+            Thread.sleep(WAIT_FOR_NETWORK_PERIOD_IN_MS);
             // Check if play, playing and etc events are sent
             int viewstartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
             int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);

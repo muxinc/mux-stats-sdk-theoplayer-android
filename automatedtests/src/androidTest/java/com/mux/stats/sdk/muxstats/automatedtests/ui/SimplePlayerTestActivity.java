@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,6 +16,7 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory;
 import com.theoplayer.android.api.event.Event;
 import com.theoplayer.android.api.event.ads.AdErrorEvent;
 import com.theoplayer.android.api.event.ads.AdEvent;
@@ -29,6 +31,7 @@ import com.theoplayer.android.api.source.SourceDescription;
 import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 import com.theoplayer.android.api.source.addescription.AdDescription;
+import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription;
 import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
 
 import java.util.concurrent.TimeUnit;
@@ -40,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SimplePlayerTestActivity extends AppCompatActivity
 {
-    static final String TAG = "SimplePlayerActivity";
+    static final String TAG = "MuxBase";
 
     protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
     protected static final int PLAYBACK_NOTIFICATION_ID = 1;
@@ -74,11 +77,13 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_player_test);
+        getWindow().addFlags(View.KEEP_SCREEN_ON);
         disableUserActions();
 
         theoPlayerView = findViewById(R.id.player_view);
         theoPlayerView.showContextMenu();
         player = theoPlayerView.getPlayer();
+        registerListeners();
     }
 
     public double getCurrentPosition() {
@@ -136,8 +141,8 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     void setupVMAPAd(String adTagUri) {
         TypedSource.Builder typedSource = new TypedSource.Builder(urlToPlay);
         typedSource.type(sourceType);
-        THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
-        AdDescription ads = adBuilder.build();
+        //THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
+        AdDescription ads = new GoogleImaAdDescription.Builder(adTagUri).build();
         SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
         sourceDescription.ads(ads);
         testMediaSource = sourceDescription.build();
@@ -192,6 +197,8 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     private void registerListeners() {
+        player.addIntegration(GoogleImaIntegrationFactory.createGoogleImaIntegration(theoPlayerView));
+
         player.getAds().addEventListener(AdsEventTypes.AD_ERROR, event -> {
             Log.e(TAG, "Ads error: " + event.getError());
         });
@@ -210,7 +217,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         });
 
         player.addEventListener(PlayerEventTypes.PLAYING, (Event event) -> {
-            Log.e(TAG, "Playback started");
+            Log.e(TAG, "Player: Playback started");
             signalPlaybackStarted();
         });
 
@@ -256,7 +263,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStats.setScreenSize(size.x, size.y);
         muxStats.enableMuxCoreDebug(true, false);
-        registerListeners();
+        //registerListeners();
     }
 
     public SourceDescription getTestMediaSource() {
@@ -333,7 +340,9 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     }
 
     public void signalPlaybackStarted() {
+        Log.d("MuxBase", "SignalPlaybackStarted: Called");
         activityLock.lock();
+        Log.d("MuxBase", "SignalPlaybackStarted: After lock, signalingMuxBaseSDKTheoPlayer.");
         playbackStarted.signalAll();
         activityLock.unlock();
     }

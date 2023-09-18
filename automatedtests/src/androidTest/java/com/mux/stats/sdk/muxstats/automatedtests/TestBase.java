@@ -67,15 +67,18 @@ public abstract class TestBase {
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
-    static final int WAIT_FOR_NETWORK_PERIOD_IN_MS = 12000;
+    static final int WAIT_FOR_NETWORK_PERIOD_IN_MS = 12 * 1000;
 
     // I could not make this work as expected
 //    static final int SEEK_PERIOD_IN_MS = 5000;
     protected int runHttpServerOnPort = 5000;
     protected int bandwidthLimitInBitsPerSecond = 1700000;
     protected int sampleFileBitrate = 1083904;
-    protected String urlToPlay = "http://localhost:5000/vod.mp4";
-    protected SourceType sourceType = SourceType.MP4;
+    protected String urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+    //protected String urlToPlay = "http://localhost:5000/vod.mp4";
+//    protected String urlToPlay = "https://test-streams.mux.dev/tos_ismc/main.m3u8";
+    //protected SourceType sourceType = SourceType.MP4;
+    protected SourceType sourceType = SourceType.HLS;
     // UTC timestamp whenlow network bandwidth was triggered
     long startedJammingTheNetworkAt;
     // Amount of video playback time in player buffer
@@ -86,7 +89,8 @@ public abstract class TestBase {
     // the regular amount of bytes to send.
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
     protected int networkJamFactor = 5;
-    protected int waitForPlaybackToStartInMS = 300000;
+    /** @noinspection PointlessArithmeticExpression*/
+    protected int waitForPlaybackToStartInMS = 1 * 60 * 1000;
     protected long playbackStartPosition = 0;
     protected boolean playWhenReady = true;
 
@@ -124,7 +128,7 @@ public abstract class TestBase {
         }
         testActivityFinished = false;
         testActivity.runOnUiThread(() -> {
-            testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
+            testActivity.setVideoTitle("THEOPlayer CI: " + BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
             testActivity.setUrlToPlay(urlToPlay);
             testActivity.setSourceType(sourceType);
             testActivity.setPlayWhenReady(playWhenReady);

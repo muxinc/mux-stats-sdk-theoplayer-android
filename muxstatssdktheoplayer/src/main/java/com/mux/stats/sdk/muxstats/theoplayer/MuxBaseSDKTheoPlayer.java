@@ -11,7 +11,6 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.google.ads.interactivemedia.v3.api.AdError;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -21,9 +20,13 @@ import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
 import com.mux.stats.sdk.core.events.playback.AdErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdFirstQuartileEvent;
+import com.mux.stats.sdk.core.events.playback.AdMidpointEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
+import com.mux.stats.sdk.core.events.playback.AdResponseEvent;
+import com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -47,6 +50,7 @@ import com.mux.stats.sdk.muxstats.MuxErrorException;
 import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
+import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType;
 import com.theoplayer.android.api.event.Event;
 import com.theoplayer.android.api.event.EventListener;
 import com.theoplayer.android.api.event.EventType;
@@ -63,12 +67,13 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
 
 public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
-    public static final String TAG = "MuxStatsEventQueue";
+    public static final String TAG = "MuxBaseSDKTheoPlayer";
 
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -111,26 +116,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         FINISHED_PLAYING_ADS, INIT, ENDED
     }
 
-    private EventListener<AddTrackEvent> handleAddTrackEvent = addTrackEvent -> {
-        addTrackEvent.getTrack().addEventListener(
-                VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT,
-                activeQualityChangedEvent -> {
-                    VideoQuality vQuality = activeQualityChangedEvent.getQuality();
-                    if (vQuality != null) {
-                        // Nop idea how to get bitrate
-//                        sourceAdvertisedBitrate = vQuality.;
-                        if (vQuality.getFrameRate() > 0) {
-                            sourceAdvertisedFramerate = vQuality.getFrameRate();
-                        }
-                        sourceWidth = vQuality.getWidth();
-                        sourceHeight = vQuality.getHeight();
-                        RenditionChangeEvent event = new RenditionChangeEvent(null);
-                        dispatch(event);
-                    }
-                });
-    };
-
-    MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView player, String playerName,
+  MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView player, String playerName,
         CustomerData data, CustomOptions options,
         INetworkRequest networkRequest) {
         super();
@@ -155,12 +141,53 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         if (aCurrentTime > 0) {
             // playback started before muxStats was initialized
             play();
-            buffering();
+            //buffering();
             playing();
         }
 
-        player.getPlayer().getVideoTracks()
+    // Nop idea how to get bitrate
+    //                        sourceAdvertisedBitrate = vQuality.;
+    EventListener<AddTrackEvent> handleAddTrackEvent = addTrackEvent -> {
+        addTrackEvent.getTrack().addEventListener(
+            VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT,
+            activeQualityChangedEvent -> {
+              VideoQuality vQuality = activeQualityChangedEvent.getQuality();
+              if (vQuality != null) {
+                // Nop idea how to get bitrate
+//                        sourceAdvertisedBitrate = vQuality.;
+                if (vQuality.getFrameRate() > 0) {
+                  sourceAdvertisedFramerate = vQuality.getFrameRate();
+                }
+                sourceWidth = vQuality.getWidth();
+                sourceHeight = vQuality.getHeight();
+                RenditionChangeEvent event = new RenditionChangeEvent(null);
+                String msg = String.format(Locale.ROOT,
+                    "Rendition: %d x %d at %ffps", sourceWidth, sourceHeight, sourceAdvertisedFramerate
+                );
+                dispatch(event);
+              }
+            });
+      };
+      player.getPlayer().getVideoTracks()
                 .addEventListener(VideoTrackListEventTypes.ADDTRACK, handleAddTrackEvent);
+
+//      player.getPlayer().getVideoTracks().addEventListener(VideoTrackListEventTypes.TRACKLISTCHANGE,
+//          trackListChangeEvent -> {
+//            Log.d(TAG, "Tracklist Changed");
+//            VideoQuality vQuality = trackListChangeEvent.getTrack().getActiveQuality();
+//            if (vQuality != null) {
+//              // Nop idea how to get bitrate
+////                        sourceAdvertisedBitrate = vQuality.;
+//              if (vQuality.getFrameRate() > 0) {
+//                sourceAdvertisedFramerate = vQuality.getFrameRate();
+//              }
+//              sourceWidth = vQuality.getWidth();
+//              sourceHeight = vQuality.getHeight();
+//              RenditionChangeEvent event = new RenditionChangeEvent(null);
+//              dispatch(event);
+//            }
+//          }
+//      );
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////// Setup listeners //////////////////////////////////////////////////////////////////
@@ -172,6 +199,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 timeUpdateEvent -> {
                     if (!inAdBreak && this.player != null && this.player.get() != null) {
                       playbackPosition = timeUpdateEvent.getCurrentTime();
+                      //Log.v("MuxBaseSDK", "Time Updated: " +playbackPosition);
                       dispatch(new TimeUpdateEvent(null));
                     }
                 });
@@ -206,11 +234,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
+          String logMsg = String.format(Locale.ROOT,
+            "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
+          );
             ReadyState state = stateChange.getReadyState();
+            // Leave this null-check. Despite the annotation this *can* be null during startup
             if (state != null) {
+              // Playback starts when the state is HAVE_ENOUGH_DATA, and can continue in
+              // HAVE_FUTURE_DATA, HAVE_ENOUGH_DATA.
+              // (https://html.spec.whatwg.org/multipage/media.html#ready-states)
+              // With HLS/DASH, HAVE_FUTURE_DATA indicates that the player is currently buffering
+              // new segments in response to starvation, but it can still currently play
                 if (previousReadyState != null
-                    && (state.ordinal() < ReadyState.HAVE_ENOUGH_DATA.ordinal()
-                    || (state.ordinal() < previousReadyState.ordinal()))
+                    && (state.ordinal() < ReadyState.HAVE_FUTURE_DATA.ordinal()
+                    && (state.ordinal() < previousReadyState.ordinal()))
                 ) {
                     buffering();
                 }
@@ -241,46 +278,99 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_ERROR, (event) -> {
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_ERROR, (event) -> {
             dispatch(new AdErrorEvent(null));
         });
 
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_BEGIN, event -> {
-            // Dispatch pause event because pause callback will not be called
-            dispatch(new PauseEvent(null));
-            // Record that we're in an ad break so we can supress standard play/playing/pause events
-            AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);
-            // For everything but preroll ads, we need to simulate a pause event
-            ViewData viewData = new ViewData();
-            // TODO get these ids somehow
-            String adId = "";
-            String adCreativeId = "";
-            viewData.setViewPrerollAdId(adId);
-            viewData.setViewPrerollCreativeId(adCreativeId);
-            adBreakEvent.setViewData(viewData);
-            dispatch(adBreakEvent);
+        // SSAI/DAI Ads use AD_BREAK_STARTED/AD_BREAK_END
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_BREAK_STARTED, event -> {
+          // todo - try to get some ids out of this (old version didn't either)
+          handleAdBreakStarted("", "");
         });
-
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BEGIN, event -> {
+        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
+          handleAdBreakEnded();
+        });
+        // CSAI Ads use CONTENT_PAUSE_REQUESTED and CONTENT_RESUME_REQUESTED
+        player.getPlayer().getAds().addEventListener(
+            GoogleImaAdEventType.CONTENT_PAUSE_REQUESTED,
+            googleImaAdEvent -> {
+              // todo - try to get some ids out of this (old version didn't either)
+              handleAdBreakStarted("", "");
+            }
+        );
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+            event -> {
+              handleAdBreakEnded();
+            });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.STARTED, event -> {
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
-            dispatch(new AdPlayEvent(null));
+            dispatch(new AdPlayingEvent(null));
         });
-
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.COMPLETED, event -> {
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
-
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
-            inAdBreak = false;
-            // Reset all of our state correctly for getting out of ads
-            dispatch(new AdBreakEndEvent(null));
-            // For everything but preroll ads, we need to simulate a play event to resume
-            if (getCurrentPosition() == 0) {
-                dispatch(new PlayEvent(null));
-            }
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.LOADED, event -> {
+          dispatch(new AdResponseEvent(null));
         });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
+          // todo <em> these aren't called by theoplayer
+          dispatch(new AdPauseEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.RESUMED, event -> {
+          // todo <em> these aren't called by theoplayer
+          dispatch(new AdPlayingEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
+          dispatch(new AdFirstQuartileEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.MIDPOINT, event -> {
+          dispatch(new AdMidpointEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.THIRD_QUARTILE, event -> {
+          dispatch(new AdThirdQuartileEvent(null));
+        });
+    }
+
+    private void handleAdBreakStarted(String adId, String adCreativeId) {
+      if (player.get() == null) {
+        return;
+      }
+
+      double playheadPos = player.get().getPlayer().getCurrentTime();
+      if (playheadPos > 0) {
+        // Mid/Post-roll
+        // Dispatch pause event because pause callback will not be called
+        dispatch(new PauseEvent(null));
+      } else {
+        // Pre-roll
+        // Dispatch play event because play callback will not be called for auto-play prerolls
+        dispatch(new PlayEvent(null));
+        // also dispatch Pause since this is an ad break starting
+        dispatch(new PauseEvent(null));
+      }
+      // Record that we're in an ad break so we can supress standard play/playing/pause events
+      AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);
+      // For everything but preroll ads, we need to simulate a pause event
+      ViewData viewData = new ViewData();
+      // TODO get these ids somehow
+      viewData.setViewPrerollAdId(adId);
+      viewData.setViewPrerollCreativeId(adCreativeId);
+      adBreakEvent.setViewData(viewData);
+      dispatch(adBreakEvent);
+      // THEO has no specific event for this. The next should be STARTED which is adplaying
+      dispatch(new AdPlayEvent(null));
+    }
+
+    private void handleAdBreakEnded() {
+      inAdBreak = false;
+      // Reset all of our state correctly for getting out of ads
+      dispatch(new AdBreakEndEvent(null));
+      // For everything but preroll ads, we need to simulate a play event to resume
+      if (getCurrentPosition() == 0) {
+        dispatch(new PlayEvent(null));
+      }
     }
 
     /**
@@ -296,8 +386,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void release() {
-        muxStats.release();
-        muxStats = null;
+        if (muxStats != null) {
+            muxStats.release();
+            muxStats = null;
+        }
         player = null;
     }
 
@@ -594,10 +686,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeked() {
-        Log.e(TAG, "Seeked called");
         if ( state != PlayerState.SEEKING ) {
             // Seeked can come only after seeking
-            Log.e(TAG, "Seeked abborted, current state: " + state);
+            MuxLogger.d(TAG, "Seeked abborted, current state: " + state);
             return;
         }
         state = PlayerState.SEEKED;
