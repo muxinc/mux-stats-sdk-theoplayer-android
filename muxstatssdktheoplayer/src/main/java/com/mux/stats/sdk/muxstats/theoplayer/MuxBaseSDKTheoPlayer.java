@@ -138,7 +138,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         // TODO test this
         double aCurrentTime = player.getPlayer().getCurrentTime();
-        Log.d("MuxBaseSDKTheoPlayer", "init with aCurrentTime: " + aCurrentTime);
         if (aCurrentTime > 0) {
             // playback started before muxStats was initialized
             play();
@@ -152,7 +151,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         addTrackEvent.getTrack().addEventListener(
             VideoTrackEventTypes.ACTIVEQUALITYCHANGEDEVENT,
             activeQualityChangedEvent -> {
-              Log.d(TAG, "Track Added");
               VideoQuality vQuality = activeQualityChangedEvent.getQuality();
               if (vQuality != null) {
                 // Nop idea how to get bitrate
@@ -166,7 +164,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 String msg = String.format(Locale.ROOT,
                     "Rendition: %d x %d at %ffps", sourceWidth, sourceHeight, sourceAdvertisedFramerate
                 );
-                Log.d(TAG, "RenditionChange: " + msg);
                 dispatch(event);
               }
             });
@@ -215,7 +212,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             });
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
-          Log.i("MuxBaseSDKTheoPlayer", "Play");
             if (this.player != null && this.player.get() != null
                 && this.player.get().getPlayer() != null
                 && !this.player.get().getPlayer().isAutoplay()
@@ -228,7 +224,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
-          Log.i("MuxBaseSDKTheoPlayer", "Playing: player cb");
             playing();
             if (sourceChanged && this.player != null && this.player.get() != null) {
               sourceWidth = this.player.get().getPlayer().getVideoWidth();
@@ -242,7 +237,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
           String logMsg = String.format(Locale.ROOT,
             "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
           );
-//          Log.v("MuxBaseSDKTheoPlayer", logMsg);
             ReadyState state = stateChange.getReadyState();
             // Leave this null-check. Despite the annotation this *can* be null during startup
             if (state != null) {
@@ -285,18 +279,15 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_ERROR, (event) -> {
-          Log.e("ADSBROKE", "ad error: " + event);
             dispatch(new AdErrorEvent(null));
         });
 
         // SSAI/DAI Ads use AD_BREAK_STARTED/AD_BREAK_END
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_BREAK_STARTED, event -> {
-          Log.i("ADSBROKE", "adbreak begin: " + event);
           // todo - try to get some ids out of this (old version didn't either)
           handleAdBreakStarted("", "");
         });
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
-          Log.i("ADSBROKE", "adbreak end: ");
           handleAdBreakEnded();
         });
         // CSAI Ads use CONTENT_PAUSE_REQUESTED and CONTENT_RESUME_REQUESTED
@@ -304,50 +295,40 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             GoogleImaAdEventType.CONTENT_PAUSE_REQUESTED,
             googleImaAdEvent -> {
               // todo - try to get some ids out of this (old version didn't either)
-              Log.i("ADSBROKE", "abreak start " + googleImaAdEvent);
               handleAdBreakStarted("", "");
             }
         );
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
             event -> {
-              Log.i("ADSBROKE", "abreak end " + event);
               handleAdBreakEnded();
             });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.STARTED, event -> {
-          Log.d("ADSBROKE", "ad begin: " + event);
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayingEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.COMPLETED, event -> {
-          Log.d("ADSBROKE", "ad end: " + event);
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.LOADED, event -> {
-          Log.d("ADSBROKE", "ad loaded: " + event);
           dispatch(new AdResponseEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
-          Log.d("ADSBROKE", "ad pause: " + event);
           // todo <em> these aren't called by theoplayer
           dispatch(new AdPauseEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.RESUMED, event -> {
-          Log.d("ADSBROKE", "ad resumed " + event);
           // todo <em> these aren't called by theoplayer
           dispatch(new AdPlayingEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
-          Log.d("ADSBROKE", "first quartile " + event);
           dispatch(new AdFirstQuartileEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.MIDPOINT, event -> {
-          Log.d("ADBROKE", "midpoint " + event);
           dispatch(new AdMidpointEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.THIRD_QUARTILE, event -> {
-          Log.d("ADBROKE", "third quartile");
           dispatch(new AdThirdQuartileEvent(null));
         });
     }
@@ -593,7 +574,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     // Internal methods to change stats
     protected void buffering() {
-      Log.i("MuxBaseTheoPlayer", "buffering");
         if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
                 || state == PlayerState.SEEKED ) {
             // ignore
@@ -610,13 +590,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void rebufferingStarted() {
-      Log.i("MuxBaseTheoPlayer", "rebufferingStarted");
         state = PlayerState.REBUFFERING;
         dispatch(new RebufferStartEvent(null));
     }
 
     protected void rebufferingEnded() {
-      Log.i("MuxBaseTheoPlayer", "rebufferingEnded");
         dispatch(new RebufferEndEvent(null));
     }
 
@@ -640,7 +618,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void play() {
-      Log.i(TAG, "play()");
         isPlaying = true;
         if (inAdBreak) {
             if (inAdPlayback) {
@@ -670,7 +647,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-      Log.i("MuxBaseSDKTheoPlayer", "Playing: in mux state " + state);
         isPlaying = true;
         if (state ==  PlayerState.PLAYING || seekingInProgress) {
             // ignore
@@ -710,10 +686,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeked() {
-        Log.e(TAG, "Seeked called");
         if ( state != PlayerState.SEEKING ) {
             // Seeked can come only after seeking
-            Log.e(TAG, "Seeked abborted, current state: " + state);
+            MuxLogger.d(TAG, "Seeked abborted, current state: " + state);
             return;
         }
         state = PlayerState.SEEKED;
