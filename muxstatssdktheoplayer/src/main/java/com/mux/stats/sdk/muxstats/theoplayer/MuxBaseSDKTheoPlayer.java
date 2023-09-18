@@ -285,18 +285,18 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_ERROR, (event) -> {
-          Log.d("ADSBROKE", "ad error: " + event);
+          Log.e("ADSBROKE", "ad error: " + event);
             dispatch(new AdErrorEvent(null));
         });
 
         // SSAI/DAI Ads use AD_BREAK_STARTED/AD_BREAK_END
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_BREAK_STARTED, event -> {
-          Log.d("ADSBROKE", "adbreak begin: " + event);
+          Log.i("ADSBROKE", "adbreak begin: " + event);
           // todo - try to get some ids out of this (old version didn't either)
           handleAdBreakStarted("", "");
         });
         player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
-          Log.d("ADSBROKE", "adbreak end: ");
+          Log.i("ADSBROKE", "adbreak end: ");
           handleAdBreakEnded();
         });
         // CSAI Ads use CONTENT_PAUSE_REQUESTED and CONTENT_RESUME_REQUESTED
@@ -304,21 +304,23 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             GoogleImaAdEventType.CONTENT_PAUSE_REQUESTED,
             googleImaAdEvent -> {
               // todo - try to get some ids out of this (old version didn't either)
+              Log.i("ADSBROKE", "abreak start " + googleImaAdEvent);
               handleAdBreakStarted("", "");
             }
         );
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
             event -> {
+              Log.i("ADSBROKE", "abreak end " + event);
               handleAdBreakEnded();
             });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.STARTED, event -> {
-          Log.d("ADSBROKE", "ad begin: ");
+          Log.d("ADSBROKE", "ad begin: " + event);
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayingEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.COMPLETED, event -> {
-          Log.d("ADSBROKE", "ad end: ");
+          Log.d("ADSBROKE", "ad end: " + event);
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
@@ -329,6 +331,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
           Log.d("ADSBROKE", "ad pause: " + event);
           dispatch(new AdPauseEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.RESUMED, event -> {
+          Log.d("ADSBROKE", "ad resumed " + event);
+          dispatch(new AdPlayingEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
           Log.d("ADSBROKE", "first quartile " + event);
