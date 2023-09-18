@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.fail;
 
@@ -81,6 +82,8 @@ public class AdsPlaybackTests extends TestBase {
             int adBreakstartIndex = networkRequest.getIndexForFirstEvent(AdBreakStartEvent.TYPE);
             int adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
             int adPlayingIndex = networkRequest.getIndexForFirstEvent(AdPlayingEvent.TYPE);
+
+            List<String> names = networkRequest.getReceivedEventNames();
 
             if (playIndex == -1 || pauseIndex == -1
                     || adBreakstartIndex == -1 || adPlayIndex == -1 || adPlayingIndex == -1) {

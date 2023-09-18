@@ -351,8 +351,20 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     private void handleAdBreakStarted(String adId, String adCreativeId) {
-      // Dispatch pause event because pause callback will not be called
-      dispatch(new PauseEvent(null));
+      if (player.get() == null) {
+        return;
+      }
+
+      double playheadPos = player.get().getPlayer().getCurrentTime();
+      if (playheadPos > 0) {
+        // Mid/Post-roll
+        // Dispatch pause event because pause callback will not be called
+        dispatch(new PauseEvent(null));
+      } else {
+        // Pre-roll
+        // Dispatch play event because play callback will not be called
+        dispatch(new PlayEvent(null));
+      }
       // Record that we're in an ad break so we can supress standard play/playing/pause events
       AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);
       // For everything but preroll ads, we need to simulate a pause event
