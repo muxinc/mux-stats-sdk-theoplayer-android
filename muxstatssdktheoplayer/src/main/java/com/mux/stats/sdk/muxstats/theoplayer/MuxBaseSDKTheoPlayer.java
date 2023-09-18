@@ -20,9 +20,13 @@ import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
 import com.mux.stats.sdk.core.events.playback.AdErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdFirstQuartileEvent;
+import com.mux.stats.sdk.core.events.playback.AdMidpointEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
+import com.mux.stats.sdk.core.events.playback.AdResponseEvent;
+import com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -313,12 +317,31 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             inAdPlayback = true;
             dispatch(new AdPlayingEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_END, event -> {
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.COMPLETED, event -> {
           Log.d("ADSBROKE", "ad end: ");
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
-
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.LOADED, event -> {
+          Log.d("ADSBROKE", "ad loaded: " + event);
+          dispatch(new AdResponseEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
+          Log.d("ADSBROKE", "ad pause: " + event);
+          dispatch(new AdPauseEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
+          Log.d("ADSBROKE", "first quartile " + event);
+          dispatch(new AdFirstQuartileEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.MIDPOINT, event -> {
+          Log.d("ADBROKE", "midpoint " + event);
+          dispatch(new AdMidpointEvent(null));
+        });
+        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.THIRD_QUARTILE, event -> {
+          Log.d("ADBROKE", "third quartile");
+          dispatch(new AdThirdQuartileEvent(null));
+        });
     }
 
     private void handleAdBreakStarted(String adId, String adCreativeId) {
@@ -345,7 +368,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
       if (getCurrentPosition() == 0) {
         dispatch(new PlayEvent(null));
       }
-
     }
 
     /**
