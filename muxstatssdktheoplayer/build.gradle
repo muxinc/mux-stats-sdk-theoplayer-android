@@ -68,7 +68,8 @@ muxDistribution {
 dependencies {
   implementation 'com.android.support:multidex:1.0.3'
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
-  v5Api 'com.theoplayer.theoplayer-sdk-android:core:5.9.1'
+  v5Api "com.theoplayer.theoplayer-sdk-android:core:5.9.1"
+  v5Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
   //noinspection GradleDependency,GradleDynamicVersion // Old kotlin asked for by name in docs
   v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
 
