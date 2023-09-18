@@ -40,7 +40,7 @@ public class SeekingTests extends SeekingTestBase {
     testSeekingWhilePlaying();
   }
 
-//  @Test // todo - this test doesn't actually do anything
+//  @Test // todo - is this test relevant to theo's current behavior
   public void testSeekWhilePlayWhenReadyIsFalse() {
     try {
       testActivity.waitForActivityToInitialize();
