@@ -330,10 +330,12 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
           Log.d("ADSBROKE", "ad pause: " + event);
+          // todo <em> these aren't called by theoplayer
           dispatch(new AdPauseEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.RESUMED, event -> {
           Log.d("ADSBROKE", "ad resumed " + event);
+          // todo <em> these aren't called by theoplayer
           dispatch(new AdPlayingEvent(null));
         });
         player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
@@ -362,8 +364,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         dispatch(new PauseEvent(null));
       } else {
         // Pre-roll
-        // Dispatch play event because play callback will not be called
+        // Dispatch play event because play callback will not be called for auto-play prerolls
         dispatch(new PlayEvent(null));
+        // also dispatch Pause since this is an ad break starting
+        dispatch(new PauseEvent(null));
       }
       // Record that we're in an ad break so we can supress standard play/playing/pause events
       AdBreakStartEvent adBreakEvent = new AdBreakStartEvent(null);

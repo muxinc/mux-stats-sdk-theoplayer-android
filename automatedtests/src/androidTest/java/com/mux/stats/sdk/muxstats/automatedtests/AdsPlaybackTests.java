@@ -100,28 +100,31 @@ public class AdsPlaybackTests extends TestBase {
                         + adPlayingIndex);
             }
 
+            // em - theo doesnt report ad play/pause
             // Check first ad play period
-            int adPauseIndex = networkRequest.getIndexForFirstEvent(AdPauseEvent.TYPE);
-            long firstAdPlayPeriod = networkRequest.getCreationTimeForEvent(adPauseIndex) -
-                    networkRequest.getCreationTimeForEvent(adPlayingIndex);
-            long expectedFirstAdPlayPeriod = PREROLL_AD_PERIOD / 2;
-            if (Math.abs(firstAdPlayPeriod - expectedFirstAdPlayPeriod) > 500) {
-                fail("First ad play period do not match expected play period, reported: " +
-                        firstAdPlayPeriod + ", expected ad play period: " + expectedFirstAdPlayPeriod);
-            }
+//            int adPauseIndex = networkRequest.getIndexForFirstEvent(AdPauseEvent.TYPE);
+//            long firstAdPlayPeriod = networkRequest.getCreationTimeForEvent(adPauseIndex) -
+//                    networkRequest.getCreationTimeForEvent(adPlayingIndex);
+//            long expectedFirstAdPlayPeriod = PREROLL_AD_PERIOD / 2;
+//            if (Math.abs(firstAdPlayPeriod - expectedFirstAdPlayPeriod) > 500) {
+//                fail("First ad play period do not match expected play period, reported: " +
+//                        firstAdPlayPeriod + ", expected ad play period: " + expectedFirstAdPlayPeriod);
+//            }
 
+            // em - theo doesnt report ad play/pause
             // Check ad Pause
-            adPlayingIndex = networkRequest.getIndexForNextEvent(adPauseIndex, AdPlayingEvent.TYPE);
-            long firstAdPausePeriod = networkRequest.getCreationTimeForEvent(adPlayingIndex) -
-                    networkRequest.getCreationTimeForEvent(adPauseIndex);
-            if (Math.abs(firstAdPausePeriod - PAUSE_PERIOD_IN_MS) > 500) {
-                fail("First ad pause period do not match expected pause period, reported pause period: " +
-                        firstAdPausePeriod + ", expected ad pause period: " + PAUSE_PERIOD_IN_MS);
-            }
+//            adPlayingIndex = networkRequest.getIndexForNextEvent(adPauseIndex, AdPlayingEvent.TYPE);
+//            long firstAdPausePeriod = networkRequest.getCreationTimeForEvent(adPlayingIndex) -
+//                    networkRequest.getCreationTimeForEvent(adPauseIndex);
+//            if (Math.abs(firstAdPausePeriod - PAUSE_PERIOD_IN_MS) > 500) {
+//                fail("First ad pause period do not match expected pause period, reported pause period: " +
+//                        firstAdPausePeriod + ", expected ad pause period: " + PAUSE_PERIOD_IN_MS);
+//            }
 
+            long expectedFirstAdPlayPeriod = PREROLL_AD_PERIOD;
             // Check rest of the first ad playback
             int adEndedIndex = networkRequest.getIndexForNextEvent(adPlayingIndex, AdEndedEvent.TYPE);
-            firstAdPlayPeriod = networkRequest.getCreationTimeForEvent(adEndedIndex) -
+            long firstAdPlayPeriod = networkRequest.getCreationTimeForEvent(adEndedIndex) -
                     networkRequest.getCreationTimeForEvent(adPlayingIndex);
             if (Math.abs(firstAdPlayPeriod - expectedFirstAdPlayPeriod) > 500) {
                 fail("First ad play period do not match expected play period, reported: " +
