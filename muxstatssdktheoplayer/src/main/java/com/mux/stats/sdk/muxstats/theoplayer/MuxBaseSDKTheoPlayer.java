@@ -334,7 +334,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     private void handleAdBreakStarted(String adId, String adCreativeId) {
-      if (player.get() == null) {
+      if (player == null || player.get() == null) {
         return;
       }
 
@@ -669,6 +669,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeking() {
+        if (player == null || player.get() == null) {
+            return;
+        }
         if ((state ==  PlayerState.INIT && player.get().getPlayer().isAutoplay())
             || (isPaused() && numberOfPlayEventsSent < 2 && state == PlayerState.PLAY )
             || state == PlayerState.SEEKING
