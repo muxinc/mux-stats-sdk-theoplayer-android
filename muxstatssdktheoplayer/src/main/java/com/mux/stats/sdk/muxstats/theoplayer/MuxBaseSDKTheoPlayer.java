@@ -51,26 +51,28 @@ import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType;
-import com.theoplayer.android.api.event.Event;
 import com.theoplayer.android.api.event.EventListener;
-import com.theoplayer.android.api.event.EventType;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
 import com.theoplayer.android.api.event.track.mediatrack.video.VideoTrackEventTypes;
 import com.theoplayer.android.api.event.track.mediatrack.video.list.AddTrackEvent;
 import com.theoplayer.android.api.event.track.mediatrack.video.list.VideoTrackListEventTypes;
+import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.player.ReadyState;
 import com.theoplayer.android.api.player.track.mediatrack.quality.VideoQuality;
+import com.theoplayer.android.api.source.SourceDescription;
+import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static com.mux.stats.sdk.muxstats.theoplayer.Util.secondsToMs;
+
+import androidx.annotation.Nullable;
 
 public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     public static final String TAG = "MuxBaseSDKTheoPlayer";
@@ -80,11 +82,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected WeakReference<THEOplayerView> player;
     protected WeakReference<Context> contextRef;
 
-    protected static final int ERROR_UNKNOWN = -1;
-    protected static final int ERROR_DRM = -2;
-    protected static final int ERROR_IO = -3;
+    private final Lock releaseMutex = new ReentrantLock();
 
-    protected String mimeType;
+    protected static final int ERROR_UNKNOWN = -1;
+
     protected int sourceWidth;
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
@@ -107,26 +108,22 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     public int streamType = -1;
 
-    public enum PlaybackState {
-        PLAYING, PAUSED, UNDEFINED
-    }
-
     public enum PlayerState {
         BUFFERING, REBUFFERING, SEEKING, SEEKED, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS,
         FINISHED_PLAYING_ADS, INIT, ENDED
     }
 
-  MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView player, String playerName,
+    MuxBaseSDKTheoPlayer(Context ctx, THEOplayerView playerView, String playerName,
         CustomerData data, CustomOptions options,
         INetworkRequest networkRequest) {
         super();
 
-        this.player = new WeakReference<>(player);
+        this.player = new WeakReference<>(playerView);
         contextRef = new WeakReference<>(ctx);
         // MuxCore asserts non-null inputs
         options = options == null ? new CustomOptions() : options;
 
-        MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, player.getVersion()));
+        MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, playerView.getVersion()));
         resetInternalStats();
         if ( networkRequest == null ) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -136,8 +133,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         muxStats = new MuxStats(this, playerName, data, options);
         addListener(muxStats);
 
+        Player player = playerView.getPlayer();
+
         // TODO test this
-        double aCurrentTime = player.getPlayer().getCurrentTime();
+        double aCurrentTime = player.getCurrentTime();
         if (aCurrentTime > 0) {
             // playback started before muxStats was initialized
             play();
@@ -161,16 +160,15 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 sourceWidth = vQuality.getWidth();
                 sourceHeight = vQuality.getHeight();
                 RenditionChangeEvent event = new RenditionChangeEvent(null);
-                String msg = String.format(Locale.ROOT,
+                /*String msg = String.format(Locale.ROOT,
                     "Rendition: %d x %d at %ffps", sourceWidth, sourceHeight, sourceAdvertisedFramerate
-                );
+                );*/
                 dispatch(event);
               }
             });
       };
-      player.getPlayer().getVideoTracks()
+      player.getVideoTracks()
                 .addEventListener(VideoTrackListEventTypes.ADDTRACK, handleAddTrackEvent);
-
 //      player.getPlayer().getVideoTracks().addEventListener(VideoTrackListEventTypes.TRACKLISTCHANGE,
 //          trackListChangeEvent -> {
 //            Log.d(TAG, "Tracklist Changed");
@@ -191,52 +189,51 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////// Setup listeners //////////////////////////////////////////////////////////////////
-        player.getPlayer().addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
+        player.addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
             this.sourceChanged = true;
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.TIMEUPDATE,
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE,
                 timeUpdateEvent -> {
-                    if (!inAdBreak && this.player != null && this.player.get() != null) {
+                    if (!inAdBreak && getCurrentPlayer() != null) {
                       playbackPosition = timeUpdateEvent.getCurrentTime();
                       //Log.v("MuxBaseSDK", "Time Updated: " +playbackPosition);
                       dispatch(new TimeUpdateEvent(null));
                     }
                 });
 
-        player.getPlayer().addEventListener(PlayerEventTypes.DURATIONCHANGE,
+        player.addEventListener(PlayerEventTypes.DURATIONCHANGE,
             durationChangeEvent -> {
-              if (!inAdBreak && this.player != null && this.player.get() != null) {
+              if (!inAdBreak && getCurrentPlayer() != null) {
                 sourceDuration = durationChangeEvent.getDuration();
               }
             });
 
-        player.getPlayer().addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
-            if (this.player != null && this.player.get() != null
-                && this.player.get().getPlayer() != null
-                && !this.player.get().getPlayer().isAutoplay()
-                && numberOfPlayEventsSent == 0
-            ) {
+        player.addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
+            Player currentPlayer = getCurrentPlayer();
+            if (currentPlayer != null && !currentPlayer.isAutoplay()
+                    && numberOfPlayEventsSent == 0) {
                 // This is first play event in autoplay = false sequence, ignore this
                 return;
             }
             play();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
+        player.addEventListener(PlayerEventTypes.PLAYING, (playEvent -> {
             playing();
-            if (sourceChanged && this.player != null && this.player.get() != null) {
-              sourceWidth = this.player.get().getPlayer().getVideoWidth();
-              sourceHeight = this.player.get().getPlayer().getVideoHeight();
+            Player currentPlayer = getCurrentPlayer();
+            if (sourceChanged && currentPlayer != null) {
+              sourceWidth = currentPlayer.getVideoWidth();
+              sourceHeight = currentPlayer.getVideoHeight();
               dispatch(new VideoChangeEvent(null));
               sourceChanged = false;
             }
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
-          String logMsg = String.format(Locale.ROOT,
-            "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
-          );
+        player.addEventListener(PlayerEventTypes.READYSTATECHANGE, (stateChange -> {
+            /*String logMsg = String.format(Locale.ROOT,
+              "[tid %d] Ready State Changed: %s -> %s", Thread.currentThread().getId(), previousReadyState, stateChange.getReadyState()
+            );*/
             ReadyState state = stateChange.getReadyState();
             // Leave this null-check. Despite the annotation this *can* be null during startup
             if (state != null) {
@@ -255,90 +252,91 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             }
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.PAUSE, (playEvent -> {
+        player.addEventListener(PlayerEventTypes.PAUSE, (playEvent -> {
             pause();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.SEEKING, (playEvent -> {
+        player.addEventListener(PlayerEventTypes.SEEKING, (playEvent -> {
             seeking();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.SEEKED, (playEvent -> {
+        player.addEventListener(PlayerEventTypes.SEEKED, (playEvent -> {
             seeked();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
+        player.addEventListener(PlayerEventTypes.ENDED, (playEvent -> {
             state = PlayerState.ENDED;
             ended();
         }));
 
-        player.getPlayer().addEventListener(PlayerEventTypes.ERROR, (errorEvent -> {
+        player.addEventListener(PlayerEventTypes.ERROR, (errorEvent -> {
             internalError(
                 new MuxErrorException(0, errorEvent.getErrorObject().getLocalizedMessage()));
         }));
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////   Ads listeners  /////////////////////////////////////////////////////////////
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_ERROR, (event) -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.AD_ERROR, (event) -> {
             dispatch(new AdErrorEvent(null));
         });
 
         // SSAI/DAI Ads use AD_BREAK_STARTED/AD_BREAK_END
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.AD_BREAK_STARTED, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.AD_BREAK_STARTED, event -> {
           // todo - try to get some ids out of this (old version didn't either)
           handleAdBreakStarted("", "");
         });
-        player.getPlayer().getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
+        player.getAds().addEventListener(AdsEventTypes.AD_BREAK_END, event -> {
           handleAdBreakEnded();
         });
         // CSAI Ads use CONTENT_PAUSE_REQUESTED and CONTENT_RESUME_REQUESTED
-        player.getPlayer().getAds().addEventListener(
+        player.getAds().addEventListener(
             GoogleImaAdEventType.CONTENT_PAUSE_REQUESTED,
             googleImaAdEvent -> {
               // todo - try to get some ids out of this (old version didn't either)
               handleAdBreakStarted("", "");
             }
         );
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
+        player.getAds().addEventListener(GoogleImaAdEventType.CONTENT_RESUME_REQUESTED,
             event -> {
               handleAdBreakEnded();
             });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.STARTED, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.STARTED, event -> {
             // Play listener is called before AD_BREAK_END event, this is a problem
             inAdPlayback = true;
             dispatch(new AdPlayingEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.COMPLETED, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.COMPLETED, event -> {
             inAdPlayback = false;
             dispatch(new AdEndedEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.LOADED, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.LOADED, event -> {
           dispatch(new AdResponseEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.PAUSED, event -> {
           // todo <em> these aren't called by theoplayer
           dispatch(new AdPauseEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.RESUMED, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.RESUMED, event -> {
           // todo <em> these aren't called by theoplayer
           dispatch(new AdPlayingEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.FIRST_QUARTILE, event -> {
           dispatch(new AdFirstQuartileEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.MIDPOINT, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.MIDPOINT, event -> {
           dispatch(new AdMidpointEvent(null));
         });
-        player.getPlayer().getAds().addEventListener(GoogleImaAdEventType.THIRD_QUARTILE, event -> {
+        player.getAds().addEventListener(GoogleImaAdEventType.THIRD_QUARTILE, event -> {
           dispatch(new AdThirdQuartileEvent(null));
         });
     }
 
     private void handleAdBreakStarted(String adId, String adCreativeId) {
-      if (player == null || player.get() == null) {
+      Player currentPlayer = getCurrentPlayer();
+      if (currentPlayer == null) {
         return;
       }
 
-      double playheadPos = player.get().getPlayer().getCurrentTime();
+      double playheadPos = currentPlayer.getCurrentTime();
       if (playheadPos > 0) {
         // Mid/Post-roll
         // Dispatch pause event because pause callback will not be called
@@ -386,11 +384,17 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void release() {
-        if (muxStats != null) {
+        try {
+          releaseMutex.lock();
+
+          if (muxStats != null) {
             muxStats.release();
             muxStats = null;
+          }
+          player.clear();
+        } finally {
+          releaseMutex.unlock();
         }
-        player = null;
     }
 
     protected void internalError(Exception error) {
@@ -454,7 +458,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public Long getSourceDuration() {
-        if (player != null && player.get() != null) {
+        if (getCurrentPlayer() != null) {
             return (long)sourceDuration;
         }
         return -1L;
@@ -467,25 +471,27 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isBuffering() {
-        if (player != null && player.get() != null) {
-            return getState() == PlayerState.BUFFERING ||
-                    getState() == PlayerState.REBUFFERING;
+        if (getCurrentPlayer() != null) {
+          PlayerState state = getState();
+          return state == PlayerState.BUFFERING || state == PlayerState.REBUFFERING;
         }
         return false;
     }
 
     @Override
     public int getPlayerViewWidth() {
-        if(player != null && player.get() != null) {
-            return pxToDp(player.get().getMeasuredWidth());
+        THEOplayerView currentPlayer = getCurrentPlayerView();
+        if(currentPlayer != null) {
+            return pxToDp(currentPlayer.getMeasuredWidth());
         }
         return 0;
     }
 
     @Override
     public int getPlayerViewHeight() {
-        if(player != null && player.get() != null) {
-            return pxToDp(player.get().getMeasuredHeight());
+        THEOplayerView currentPlayer = getCurrentPlayerView();
+        if(currentPlayer != null) {
+            return pxToDp(currentPlayer.getMeasuredHeight());
         }
         return 0;
     }
@@ -546,35 +552,44 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public String getMimeType() {
-        if (player != null &&
-                player.get() != null &&
-                player.get().getPlayer().getSource() != null &&
-                player.get().getPlayer().getSource().getSources() != null) {
-            List<TypedSource> sources = player.get().getPlayer().getSource().getSources();
-            if (sources.size() > 0 && sources.get(0).getType() != null) {
-                return sources.get(0).getType().toString();
+        TypedSource firstSource = getFirstSource();
+        if (firstSource != null) {
+            SourceType type = firstSource.getType();
+            if (type != null) {
+              // @url https://docs.mux.com/guides/make-your-data-actionable-with-metadata
+              return type.getMimeType();
             } else {
-                return "";
+              return "";
             }
+        } else {
+            return null;
         }
-        return null;
     }
 
     // EventBus
     @Override
     public void dispatch(IEvent event) {
-        if (player != null && player.get() != null && muxStats != null) {
-            numberOfEventsSent ++;
-            if (event instanceof PlayEvent) {
-                numberOfPlayEventsSent++;
-            }
-            super.dispatch(event);
+      // We also perform a lock to be sure we don't dispatch events when the player is being
+      // released
+      try {
+        releaseMutex.lock();
+
+        if (getCurrentPlayer() != null && muxStats != null) {
+          numberOfEventsSent++;
+          if (event instanceof PlayEvent) {
+            numberOfPlayEventsSent++;
+          }
+          super.dispatch(event);
         }
+      } finally {
+        releaseMutex.unlock();
+      }
     }
 
     // Internal methods to change stats
     protected void buffering() {
-        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+        if (state == PlayerState.REBUFFERING
+                || state == PlayerState.SEEKING
                 || state == PlayerState.SEEKED ) {
             // ignore
             return;
@@ -610,7 +625,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         if (inAdBreak) {
             dispatch(new AdPauseEvent(null));
-            return;
         } else {
             state = PlayerState.PAUSED;
             dispatch(new PauseEvent(null));
@@ -636,8 +650,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return;
         }
         // Update the videoSource url
-        if (player != null && player.get() != null) {
-            String videoUrl = player.get().getPlayer().getSrc();
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer != null && muxStats != null) {
+            String videoUrl = currentPlayer.getSrc();
             CustomerVideoData videoData = muxStats.getCustomerVideoData();
             videoData.setVideoSourceUrl(videoUrl);
             muxStats.updateCustomerData(null, videoData);
@@ -669,10 +684,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeking() {
-        if (player == null || player.get() == null) {
+        Player currentPlayer = getCurrentPlayer();
+        if (currentPlayer == null) {
             return;
         }
-        if ((state ==  PlayerState.INIT && player.get().getPlayer().isAutoplay())
+        if ((state ==  PlayerState.INIT && currentPlayer.isAutoplay())
             || (isPaused() && numberOfPlayEventsSent < 2 && state == PlayerState.PLAY )
             || state == PlayerState.SEEKING
         ) {
@@ -718,10 +734,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         static final String CONNECTION_TYPE_OTHER = "other";
 
         protected WeakReference<Context> contextRef;
-        private String deviceId;
+        private final String deviceId;
         private String appName = "";
         private String appVersion = "";
-        private String theoVersion = "";
+        private final String theoVersion;
 
         MuxDevice(Context ctx, String theoVersion) {
             this.contextRef = new WeakReference<>(ctx);
@@ -939,4 +955,39 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return (int)Math.ceil(px / displayMetrics.density);
     }
+
+  @Nullable
+  private Player getCurrentPlayer() {
+      THEOplayerView playerView = getCurrentPlayerView();
+      if (playerView != null) {
+        return playerView.getPlayer();
+      } else {
+        return null;
+      }
+  }
+
+  @Nullable
+  private THEOplayerView getCurrentPlayerView() {
+      WeakReference<THEOplayerView> player = this.player;
+      if (player != null) {
+        return player.get();
+      } else {
+        return null;
+      }
+  }
+
+  @Nullable
+  private TypedSource getFirstSource() {
+      Player currentPlayer = getCurrentPlayer();
+      if (currentPlayer == null) { return null; }
+
+      SourceDescription source = currentPlayer.getSource();
+      if (source == null) { return null; }
+
+      // Normally non-null, but null check to be sure
+      List<TypedSource> sources = source.getSources();
+      if (sources == null || sources.isEmpty()) { return null; }
+
+      return sources.get(0);
+  }
 }
