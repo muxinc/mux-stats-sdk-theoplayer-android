@@ -55,7 +55,7 @@ android {
   flavorDimensions "api"
 
   productFlavors {
-    v5 {
+    v7 {
       dimension 'api'
       minSdkVersion 21
     }

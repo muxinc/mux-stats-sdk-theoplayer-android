@@ -48,8 +48,8 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        # only run v5 for now, the v2 versions are very old
-        player_version: [ 'v5' ]
+        # only run v7 for now, the v2 versions are very old
+        player_version: [ 'v7' ]
 
     env:
       app_artifact: automatedtests\/buildout\/outputs\/apk\/${{ matrix.player_version }}\/debug\/automatedtests-${{ matrix.player_version }}-debug.apk
