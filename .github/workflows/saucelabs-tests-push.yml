@@ -49,7 +49,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        player_version: [ 'v5' ]
+        player_version: [ 'v7' ]
 
     env:
       app_artifact: automatedtests\/buildout\/outputs\/apk\/${{ matrix.player_version }}\/debug\/automatedtests-${{ matrix.player_version }}-debug.apk

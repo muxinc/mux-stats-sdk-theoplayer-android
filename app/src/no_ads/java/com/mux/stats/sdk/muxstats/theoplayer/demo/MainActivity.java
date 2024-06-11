@@ -22,7 +22,6 @@ import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
 import com.theoplayer.android.api.source.addescription.AdDescription;
 import com.theoplayer.android.api.source.addescription.GoogleImaAdDescription;
-import com.theoplayer.android.api.source.addescription.THEOplayerAdDescription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         // Coupling the orientation of the device with the fullscreen state.
         // The player will go fullscreen when the device is rotated to landscape
         // and will also exit fullscreen when the device is rotated back to portrait.
-        theoPlayerView.getSettings().setFullScreenOrientationCoupled(true);
+        theoPlayerView.getFullScreenManager().setFullScreenOrientationCoupled(true);
         theoPlayer.addIntegration(GoogleImaIntegrationFactory.createGoogleImaIntegration(theoPlayerView));
 
          //Creating a TypedSource builder that defines the location of a single stream source.
