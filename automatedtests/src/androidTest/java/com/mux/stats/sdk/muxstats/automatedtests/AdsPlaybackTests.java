@@ -27,6 +27,9 @@ public class AdsPlaybackTests extends TestBase {
     static final int BUMPER_AD_PERIOD =  5000;
     static final int CAN_SKIP_AD_AFTER =  5000;
 
+    // Take some extra time then 500ms because it is sometimes slower (e.g. 780ms) on emulator
+    static final int ALLOWED_DELAY_WINDOW = 1000;
+
 
     @Before
     public void init(){
@@ -74,7 +77,10 @@ public class AdsPlaybackTests extends TestBase {
             Thread.sleep(PAUSE_PERIOD_IN_MS);
             // resume the ad playback
             resumePlayer();
-            Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD * 2);
+            // Wait until ads are played
+            Thread.sleep(PREROLL_AD_PERIOD / 2 + BUMPER_AD_PERIOD + 1000);
+            // Play some main-content
+            Thread.sleep(20 * 1000);
 
             // Check ad start event
             int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
@@ -84,7 +90,6 @@ public class AdsPlaybackTests extends TestBase {
             int adPlayingIndex = networkRequest.getIndexForFirstEvent(AdPlayingEvent.TYPE);
 
             List<String> names = networkRequest.getReceivedEventNames();
-
             if (playIndex == -1 || pauseIndex == -1
                     || adBreakstartIndex == -1 || adPlayIndex == -1 || adPlayingIndex == -1) {
                 fail("Missing basic start events ! playIndex: " + playIndex +
@@ -120,13 +125,13 @@ public class AdsPlaybackTests extends TestBase {
 //                fail("First ad pause period do not match expected pause period, reported pause period: " +
 //                        firstAdPausePeriod + ", expected ad pause period: " + PAUSE_PERIOD_IN_MS);
 //            }
-
-            long expectedFirstAdPlayPeriod = PREROLL_AD_PERIOD;
+            // We also did pause so also add the pause period
+            long expectedFirstAdPlayPeriod = PREROLL_AD_PERIOD + PAUSE_PERIOD_IN_MS;
             // Check rest of the first ad playback
             int adEndedIndex = networkRequest.getIndexForNextEvent(adPlayingIndex, AdEndedEvent.TYPE);
             long firstAdPlayPeriod = networkRequest.getCreationTimeForEvent(adEndedIndex) -
                     networkRequest.getCreationTimeForEvent(adPlayingIndex);
-            if (Math.abs(firstAdPlayPeriod - expectedFirstAdPlayPeriod) > 500) {
+            if (Math.abs(firstAdPlayPeriod - expectedFirstAdPlayPeriod) > ALLOWED_DELAY_WINDOW) {
                 fail("First ad play period do not match expected play period, reported: " +
                         firstAdPlayPeriod + ", expected ad play period: " + expectedFirstAdPlayPeriod);
             }
@@ -136,7 +141,7 @@ public class AdsPlaybackTests extends TestBase {
             adEndedIndex = networkRequest.getIndexForNextEvent(adPlayingIndex, AdEndedEvent.TYPE);
             long bumperAdPlayPeriod = networkRequest.getCreationTimeForEvent(adEndedIndex) -
                     networkRequest.getCreationTimeForEvent(adPlayingIndex);
-            if (Math.abs(bumperAdPlayPeriod - BUMPER_AD_PERIOD) > 500) {
+            if (Math.abs(bumperAdPlayPeriod - BUMPER_AD_PERIOD) > ALLOWED_DELAY_WINDOW) {
                 fail("Bumper ad period do not match expected bumper period, reported: " +
                         bumperAdPlayPeriod + ", expected ad play period: " + BUMPER_AD_PERIOD);
             }

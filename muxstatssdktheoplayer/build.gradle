@@ -32,7 +32,7 @@ android {
   flavorDimensions 'api'
 
   productFlavors {
-    v5 {
+    v7 {
       dimension 'api'
       minSdkVersion 21
     }
@@ -68,10 +68,9 @@ muxDistribution {
 dependencies {
   implementation 'com.android.support:multidex:1.0.3'
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
-  v5Api "com.theoplayer.theoplayer-sdk-android:core:5.9.1"
-  v5Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
+  v7Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
+  v7Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
   //noinspection GradleDependency,GradleDynamicVersion // Old kotlin asked for by name in docs
-  v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
 
 //  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.31.0'
 //  compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
