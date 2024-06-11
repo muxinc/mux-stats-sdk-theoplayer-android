@@ -41,7 +41,7 @@ allprojects {
         releaseWebsite = 'https://github.com/muxinc/mux-stats-sdk-theoplayer-android'
 
         theoplayerVersion = "7.2.0"
-        muxCoreVersion = "8.0.0"
+        muxCoreVersion = "8.0.2"
     }
 }
 
