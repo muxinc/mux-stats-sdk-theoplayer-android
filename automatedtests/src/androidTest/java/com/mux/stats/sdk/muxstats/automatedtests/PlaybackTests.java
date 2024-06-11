@@ -107,9 +107,10 @@ public class PlaybackTests extends TestBase {
                 double seekToInFuture = currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
                 TimeRanges onBuffer = pView.getPlayer().getBuffered();
                 TimeRanges seekable = pView.getPlayer().getSeekable();
-                pView.getPlayer().setCurrentTime(seekToInFuture);
-                Log.w(TAG, "Seek in the future completed");
-                seekCompleted.set(true);
+                pView.getPlayer().setCurrentTime( seekToInFuture, () -> {
+                    Log.w(TAG, "Seek in the future completed");
+                    seekCompleted.set(true);
+                } );
             });
 
             // Play another x seconds, stage 7
