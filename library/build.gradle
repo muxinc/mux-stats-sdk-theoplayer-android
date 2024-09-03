@@ -39,10 +39,10 @@ android {
       dimension 'api'
       minSdkVersion 21
     }
-    v5 {
-      dimension 'api'
-      minSdkVersion 21
-    }
+//    v5 {
+//      dimension 'api'
+//      minSdkVersion 21
+//    }
   }
 
   compileOptions {
@@ -63,6 +63,11 @@ muxDistribution {
   publishIf { it.containsIgnoreCase("release") }
   publicReleaseIf releaseIfCmdFlag("publicRelease")
 
+  dokkaConfig {
+    moduleName = "Mux Data SDK for THEOplayer"
+    footer = "(c) " + new Date().format("yyyy") + " Mux, Inc. Have questions or need help?" +
+            " Contact support@mux.com"
+  }
 
   // TODO: This is kinda clumsy, packageJavadocs should be a function not a property probably
   packageJavadocs = releaseIfCmdFlag("publicRelease").call()
@@ -79,12 +84,12 @@ dependencies {
   v7Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
   v7Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
 
-  //noinspection GradleDependency // Old kotlin asked for by name in docs
-  v5Api "com.theoplayer.theoplayer-sdk-android:core:5.9.1"
-  //noinspection GradleDependency // Old kotlin asked for by name in docs
-  v5Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
+  //noinspection GradleDependency
+//  v5Api "com.theoplayer.theoplayer-sdk-android:core:5.9.1"
+  //noinspection GradleDependency
+//  v5Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
   //noinspection GradleDependency,GradleDynamicVersion // Old kotlin asked for by name in docs
-  v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
+//  v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
 
   testImplementation 'junit:junit:4.13.2'
 
