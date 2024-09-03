@@ -2,7 +2,7 @@ apply plugin: "com.android.application"
 
 
 android {
-  compileSdkVersion project.ext.compileSdkVersion
+  compileSdk project.ext.compileSdkVersion
 
   defaultConfig {
     namespace "com.mux.stats.sdk.muxstats.automatedtests"
@@ -96,8 +96,8 @@ dependencies {
   // Optional -- UI testing with UI Automator
   androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
   androidTestImplementation "androidx.test.ext:junit:1.1.5"
+    implementation project(':library')
 
-  implementation project(":muxstatssdktheoplayer")
-  implementation "com.google.android.gms:play-services-auth:21.1.1"
+    implementation "com.google.android.gms:play-services-auth:21.1.1"
   implementation "com.google.android.gms:play-services-ads-identifier:18.0.1"
 }
