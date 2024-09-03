@@ -7,6 +7,6 @@
 /captures
 .externalNativeBuild
 
-app/buildout/**
-automatedtests/buildout/**
-muxstatssdktheoplayer/buildout/**
+app/build/**
+automatedtests/build/**
+muxstatssdktheoplayer/build/**

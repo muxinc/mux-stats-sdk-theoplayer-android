@@ -26,6 +26,10 @@ android {
     buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"$muxDataKey\"")
   }
 
+  buildFeatures {
+    buildConfig true
+  }
+
   buildTypes {
     release {
       minifyEnabled false
