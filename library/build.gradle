@@ -39,10 +39,6 @@ android {
       dimension 'api'
       minSdkVersion 21
     }
-//    v5 {
-//      dimension 'api'
-//      minSdkVersion 21
-//    }
   }
 
   compileOptions {
@@ -83,13 +79,6 @@ dependencies {
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
   v7Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
   v7Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
-
-  //noinspection GradleDependency
-//  v5Api "com.theoplayer.theoplayer-sdk-android:core:5.9.1"
-  //noinspection GradleDependency
-//  v5Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
-  //noinspection GradleDependency,GradleDynamicVersion // Old kotlin asked for by name in docs
-//  v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
 
   testImplementation 'junit:junit:4.13.2'
 

@@ -17,9 +17,6 @@ android {
 
     buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
     var theoLicense = System.getenv("THEOPLAYER_LICENSE") == null ? "NOT_CONFIGURED" : System.getenv("THEOPLAYER_LICENSE")
-//    println(">>>>> THEO LICENSE USED IS ${theoLicense.take(50)}...${theoLicense.takeRight(50)}")
-//    theoLicense = "sZP7IYe6T6fzTu5cISAg0mkK0lBkFSaZ0lC-ClXKIOzLClPgCohiClUKCL06FOPlUY3zWokgbgjNIOf9flCkISai0oBcFSac0LR-3uIK0Ok13lfkFSP63KXl0of_CShZTmfVfK4_bQgZCYxNWoryIQXzImf90SbZ3lho3Lfi0u5i0Oi6Io4pIYP1UQgqWgjeCYxgflEc3leL3u0z0Shz0LCcFOPeWok1dDrLYtA1Ioh6TgV6v6fVfKcqCoXVdQjLUOfVfGxEIDjiWQXrIYfpCoj-fgzVfKxqWDXNWG3ybojkbK3gflNWf6E6FOPVWo31WQ1qbta6FOPzdQ4qbQc1sD4ZFK3qWmPUFOPLIQ-LflNWfKXpIwPqdDa6Ymi6bo4pIXjNWYAZIY3LdDjpflNzbG4gFOPKIDXzUYPgbZf9Dkkj"
-//    println(">>>>> THEO LICENSE USED IS ${theoLicense.take(50)}...${theoLicense.takeRight(50)}")
     manifestPlaceholders.theoLicense = theoLicense
     var muxDataKey = System.getenv("MUX_DATA_KEY") == null ? "NOT_CONFIGURED" : System.getenv("MUX_DATA_KEY")
     manifestPlaceholders.muxDataKey = muxDataKey
