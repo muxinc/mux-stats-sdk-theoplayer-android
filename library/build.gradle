@@ -5,7 +5,7 @@ apply plugin: 'signing'
 apply plugin: 'com.mux.gradle.android.mux-android-distribution'
 
 android {
-  compileSdkVersion project.ext.compileSdkVersion
+  compileSdk project.ext.compileSdkVersion
 
   defaultConfig {
     minSdkVersion project.ext.minSdkVersion
@@ -19,6 +19,9 @@ android {
     testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
   }
 
+  buildFeatures {
+    buildConfig true
+  }
 
   buildTypes {
     debug {
@@ -33,10 +36,6 @@ android {
 
   productFlavors {
     v7 {
-      dimension 'api'
-      minSdkVersion 21
-    }
-    v5 {
       dimension 'api'
       minSdkVersion 21
     }
@@ -58,10 +57,16 @@ muxDistribution {
   artifactIds artifactFromFlavorValue('api')
   groupIds just("com.mux.stats.sdk.muxstats")
   publishIf { it.containsIgnoreCase("release") }
-  publicReleaseIf releaseOnTag()
+  publicReleaseIf releaseIfCmdFlag("publicRelease")
+
+  dokkaConfig {
+    moduleName = "Mux Data SDK for THEOplayer"
+    footer = "(c) " + new Date().format("yyyy") + " Mux, Inc. Have questions or need help?" +
+            " Contact support@mux.com"
+  }
 
   // TODO: This is kinda clumsy, packageJavadocs should be a function not a property probably
-  packageJavadocs = releaseOnTag().call()
+  packageJavadocs = releaseIfCmdFlag("publicRelease").call()
   artifactoryConfig {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
     releaseRepoKey = 'default-maven-release-local'
@@ -75,15 +80,6 @@ dependencies {
   v7Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
   v7Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
 
-  //noinspection GradleDependency // Old kotlin asked for by name in docs
-  v5Api "com.theoplayer.theoplayer-sdk-android:core:5.9.1"
-  //noinspection GradleDependency // Old kotlin asked for by name in docs
-  v5Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:5.9.1"
-  //noinspection GradleDependency,GradleDynamicVersion // Old kotlin asked for by name in docs
-  v5Api 'org.jetbrains.kotlin:kotlin-stdlib:1.6.+'
-
-//  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.31.0'
-//  compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
   testImplementation 'junit:junit:4.13.2'
 
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
