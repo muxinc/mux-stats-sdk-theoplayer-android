@@ -742,7 +742,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         private String appName = "";
         private String appVersion = "";
         private final String theoVersion;
-        private String osFamily = "";
+        private String osFamily = "Android";
 
         MuxDevice(Context ctx, String theoVersion) {
             this.contextRef = new WeakReference<>(ctx);
@@ -756,8 +756,6 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                 appVersion = pi.versionName;
                 if (pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
                     osFamily = "Android TV";
-                } else {
-                    osFamily = "Android";
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 MuxLogger.d(TAG, "could not get package info");
