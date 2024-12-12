@@ -54,7 +54,7 @@ android {
 muxDistribution {
   devVersion versionFromCommitHash('dev-')
   releaseVersion versionFromTag()
-  artifactIds artifactFromFlavorValue('api')
+  artifactIds just("muxstatssdktheoplayer")
   groupIds just("com.mux.stats.sdk.muxstats")
   publishIf { it.containsIgnoreCase("release") }
   publicReleaseIf releaseIfCmdFlag("publicRelease")
