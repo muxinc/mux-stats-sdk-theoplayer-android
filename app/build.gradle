@@ -31,7 +31,7 @@ android {
     }
   }
   sourceSets {
-    v7 {
+    v8 {
       java.srcDirs = ["./src/no_ads/java"]
       res.srcDirs = ["./src/no_ads/res"]
       assets.srcDirs = ["./src/no_ads/assets"]
@@ -41,7 +41,7 @@ android {
   flavorDimensions "api"
 
   productFlavors {
-    v7 {
+    v8 {
       dimension 'api'
       minSdkVersion 21
     }

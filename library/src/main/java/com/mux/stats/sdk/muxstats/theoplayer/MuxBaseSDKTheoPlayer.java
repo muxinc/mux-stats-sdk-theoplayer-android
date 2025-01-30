@@ -56,6 +56,7 @@ import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
 import com.theoplayer.android.api.ads.ima.GoogleImaAdEventType;
+import com.theoplayer.android.api.error.THEOplayerException;
 import com.theoplayer.android.api.event.EventListener;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
@@ -270,8 +271,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         }));
 
         player.addEventListener(PlayerEventTypes.ERROR, (errorEvent -> {
-            internalError(
-                    new MuxErrorException(0, errorEvent.getErrorObject().getLocalizedMessage()));
+            THEOplayerException theoError = errorEvent.getErrorObject();
+            internalError(new MuxErrorException(theoError.getCode().getId(), theoError.getMessage()));
         }));
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////   Ads listeners  /////////////////////////////////////////////////////////////

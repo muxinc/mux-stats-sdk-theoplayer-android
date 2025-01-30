@@ -35,7 +35,7 @@ android {
   flavorDimensions 'api'
 
   productFlavors {
-    v7 {
+    v8 {
       dimension 'api'
       minSdkVersion 21
     }
@@ -77,8 +77,8 @@ muxDistribution {
 dependencies {
   implementation 'com.android.support:multidex:1.0.3'
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
-  v7Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
-  v7Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
+  v8Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
+  v8Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
 
   testImplementation 'junit:junit:4.13.2'
 
