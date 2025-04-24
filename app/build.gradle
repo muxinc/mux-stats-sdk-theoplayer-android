@@ -31,7 +31,7 @@ android {
     }
   }
   sourceSets {
-    v8 {
+    v9 {
       java.srcDirs = ["./src/no_ads/java"]
       res.srcDirs = ["./src/no_ads/res"]
       assets.srcDirs = ["./src/no_ads/assets"]
@@ -41,7 +41,7 @@ android {
   flavorDimensions "api"
 
   productFlavors {
-    v8 {
+    v9 {
       dimension 'api'
       minSdkVersion 21
     }
@@ -63,14 +63,14 @@ dependencies {
   implementation "androidx.multidex:multidex:2.0.1"
   implementation "com.android.support:multidex:1.0.3"
   implementation "com.google.android.material:material:1.12.0"
-  api "org.checkerframework:checker-qual:3.33.0"
+  api "org.checkerframework:checker-qual:3.43.0"
   implementation project(':library')
 
   // Test against a specific version for consistent tests
   implementation "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
   implementation "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
 
-  implementation "com.google.code.gson:gson:2.10.1"
-  implementation "androidx.constraintlayout:constraintlayout:2.2.0-alpha13"
-  implementation "androidx.appcompat:appcompat:1.6.1"
+  implementation "com.google.code.gson:gson:2.13.0"
+  implementation "androidx.constraintlayout:constraintlayout:2.2.1"
+  implementation "androidx.appcompat:appcompat:1.7.0"
 }

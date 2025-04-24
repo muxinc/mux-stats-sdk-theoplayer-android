@@ -41,7 +41,7 @@ public class PlaybackTests extends TestBase {
         if (currentTestName.getMethodName().equalsIgnoreCase("testVodPlayback")) {
             // When testing seeking the player will not seek unless the seek point is already in the buffer.
             // This is a player bug so we will increase the video bandwidth so that it can preload entire video before
-            // any player requests are made (playt/ pause/ seek/ etc)
+            // any player requests are made (play/ pause/ seek/ etc)
             bandwidthLimitInBitsPerSecond = 17000000;
         }
         super.init();
