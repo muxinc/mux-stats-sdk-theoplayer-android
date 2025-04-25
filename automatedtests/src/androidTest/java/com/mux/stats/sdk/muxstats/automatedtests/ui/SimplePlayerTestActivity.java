@@ -127,7 +127,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         } else {
             TypedSource.Builder typedSource =  new TypedSource.Builder(urlToPlay);
             typedSource.type(sourceType);
-            typedSource.playbackPipeline(PlaybackPipeline.LEGACY);
+            //typedSource.playbackPipeline(PlaybackPipeline.LEGACY);
             SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
 
             testMediaSource = sourceDescription
@@ -142,7 +142,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     void setupVMAPAd(String adTagUri) {
         TypedSource.Builder typedSource = new TypedSource.Builder(urlToPlay);
         typedSource.type(sourceType);
-        typedSource.playbackPipeline(PlaybackPipeline.LEGACY);
+        //typedSource.playbackPipeline(PlaybackPipeline.LEGACY);
         //THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
         AdDescription ads = new GoogleImaAdDescription.Builder(adTagUri).build();
         SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());

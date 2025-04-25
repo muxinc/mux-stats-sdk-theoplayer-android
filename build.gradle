@@ -36,7 +36,7 @@ allprojects {
         targetSdkVersion=35
         releaseWebsite = 'https://github.com/muxinc/mux-stats-sdk-theoplayer-android'
 
-        theoplayerVersion = "9.1.0"
+        theoplayerVersion = "9.2.0"
         muxCoreVersion = "8.4.1"
     }
 }
