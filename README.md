@@ -26,6 +26,13 @@ allprojects {
 }
 ```
 
+### Add the SDK as a Dependency in your application
+Add one the following lines to the `dependencies` block in your app module's `build.gradle`, depending on which THEOPlayer library you are using. The current version can be found in our [Integration Guide](https://docs.mux.com/docs/theoplayer-integration-guide)
+
+```groovy
+implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer:[CurrentVersion]'
+```
+
 ### Monitor THEOPlayer using Mux Data
 The Mux Data SDK for THEOPlayer can be used by creating a new instance of `MuxStatsSDKTHEOPlayer` with the desired configuration. The constructor requires a `THEOplayerView`, which Mux will observe for data events.
 
@@ -64,25 +71,16 @@ public void onDestroy() {
 ### Further Reading
 See full integration instructions here: https://docs.mux.com/docs/theoplayer-integration-guide.
 
-## Theoplayer Version Support
-Version `0.1.x` of the Mux THEOPlayer SDK has been tested against `3.x` and `2.x` versions of the THEOPlayer SDK
 
-## Releases
-The current version of the SDK is `v0.1.2`, as of 3/7/2022
-
-All release notes can be found in our [changelog](RELEASENOTES.md)
+All release notes can be found in our [changelog](https://github.com/muxinc/mux-stats-sdk-theoplayer-android/releases)
 
 ## Contributing
 ### Developer Quick Start
 - Open this project in Android Studio, and let Gradle run to configure the application.
-- Build variants can be selected to support different versions of THEOPlayer. There is a separate `MuxStatsTHEOPlayer` implementation for each variant, though they inherit from a common base class 
 
 ### Style
 The code in this repo conforms to the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html). Run the reformatter on files before committing.
 The code was formatted in Android Studio/IntelliJ using the [Google Java Style for IntelliJ](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml). The style can be installed via the Java-style section of the IDE preferences (`Editor -> Code Style - >Java`).
-
-## Known Limitations
-- No supported version of THEOPlayer can be specified in the package metatdata. Version-specific library flavors are planned for v1.0.0
 
 ## Documentation
 See [our docs](https://docs.mux.com/docs/theoplayer-integration-guide) for more information.
