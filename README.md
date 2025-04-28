@@ -26,16 +26,6 @@ allprojects {
 }
 ```
 
-### Add the SDK as a Dependency in your application
-Add one the following lines to the `dependencies` block in your app module's `build.gradle`, depending on which THEOPlayer library you are using. The current version can be found in our [Integration Guide](https://docs.mux.com/docs/theoplayer-integration-guide)
-
-```groovy
-// Use this line for the minApi 16 version of Theoplayer
-implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi16:[CurrentVersion]'
-// Use this line for the minApi 21 version of Theoplayer
-implementation 'com.mux.stats.sdk.muxstats:muxstatssdktheoplayer_minapi21:[CurrentVersion]'
-```
-
 ### Monitor THEOPlayer using Mux Data
 The Mux Data SDK for THEOPlayer can be used by creating a new instance of `MuxStatsSDKTHEOPlayer` with the desired configuration. The constructor requires a `THEOplayerView`, which Mux will observe for data events.
 

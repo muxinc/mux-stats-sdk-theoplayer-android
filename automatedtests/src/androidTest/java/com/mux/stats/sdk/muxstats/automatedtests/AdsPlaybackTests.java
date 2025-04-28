@@ -61,6 +61,7 @@ public class AdsPlaybackTests extends TestBase {
                 testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
                 testActivity.initMuxSats();
                 testActivity.setUrlToPlay(urlToPlay);
+                testActivity.setSourceType(sourceType);
                 testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();
