@@ -86,7 +86,7 @@ public class ConnectionSender extends Thread {
     for (String headerName : headers.keySet()) {
       if (headerName.equalsIgnoreCase("Range")) {
         this.serveDataFromPosition =
-            Integer.valueOf(headers.get(headerName).replaceAll("[^0-9]", ""));
+            Long.parseLong(headers.get(headerName).replaceAll("[^0-9]", ""));
         Log.i(TAG, "Got range header value: " + this.serveDataFromPosition);
       }
     }

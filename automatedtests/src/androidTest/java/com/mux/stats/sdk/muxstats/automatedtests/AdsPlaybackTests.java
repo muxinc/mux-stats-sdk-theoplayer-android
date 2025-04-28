@@ -12,6 +12,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -53,6 +54,7 @@ public class AdsPlaybackTests extends TestBase {
 
 
     @Test
+    @Ignore
     public void testPreRollAndBumperAds() {
         // TODO: em - Events are not delivered from theoplayer for this test. The ads do appear to play
         //  See https://app.shortcut.com/androidsdks/story/12424/theoplayer-sdk-ad-events-aren-t-dispatched-from
