@@ -27,7 +27,6 @@ import com.theoplayer.android.api.event.player.ReadyStateChangeEvent;
 import com.theoplayer.android.api.event.player.TimeUpdateEvent;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.player.ReadyState;
-import com.theoplayer.android.api.source.PlaybackPipeline;
 import com.theoplayer.android.api.source.SourceDescription;
 import com.theoplayer.android.api.source.SourceType;
 import com.theoplayer.android.api.source.TypedSource;
@@ -127,7 +126,6 @@ public class SimplePlayerTestActivity extends AppCompatActivity
         } else {
             TypedSource.Builder typedSource =  new TypedSource.Builder(urlToPlay);
             typedSource.type(sourceType);
-            //typedSource.playbackPipeline(PlaybackPipeline.LEGACY);
             SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
 
             testMediaSource = sourceDescription
@@ -142,7 +140,6 @@ public class SimplePlayerTestActivity extends AppCompatActivity
     void setupVMAPAd(String adTagUri) {
         TypedSource.Builder typedSource = new TypedSource.Builder(urlToPlay);
         typedSource.type(sourceType);
-        //typedSource.playbackPipeline(PlaybackPipeline.LEGACY);
         //THEOplayerAdDescription.Builder adBuilder = new THEOplayerAdDescription.Builder(adTagUri);
         AdDescription ads = new GoogleImaAdDescription.Builder(adTagUri).build();
         SourceDescription.Builder sourceDescription = new SourceDescription.Builder(typedSource.build());
