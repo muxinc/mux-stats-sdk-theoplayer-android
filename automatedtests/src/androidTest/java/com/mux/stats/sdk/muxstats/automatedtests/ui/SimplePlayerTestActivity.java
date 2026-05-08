@@ -17,14 +17,8 @@ import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.theoplayer.android.api.ads.ima.GoogleImaIntegrationFactory;
-import com.theoplayer.android.api.event.Event;
-import com.theoplayer.android.api.event.ads.AdErrorEvent;
-import com.theoplayer.android.api.event.ads.AdEvent;
 import com.theoplayer.android.api.event.ads.AdsEventTypes;
-import com.theoplayer.android.api.event.player.ErrorEvent;
 import com.theoplayer.android.api.event.player.PlayerEventTypes;
-import com.theoplayer.android.api.event.player.ReadyStateChangeEvent;
-import com.theoplayer.android.api.event.player.TimeUpdateEvent;
 import com.theoplayer.android.api.player.Player;
 import com.theoplayer.android.api.player.ReadyState;
 import com.theoplayer.android.api.source.SourceDescription;
@@ -215,24 +209,22 @@ public class SimplePlayerTestActivity extends AppCompatActivity
             }
         });
 
-        player.addEventListener(PlayerEventTypes.PLAYING, (Event event) -> {
+        player.addEventListener(PlayerEventTypes.PLAYING,  event -> {
             Log.e(TAG, "Player: Playback started");
             signalPlaybackStarted();
         });
 
-        player.addEventListener(PlayerEventTypes.ERROR, (Event event) -> {
-            ErrorEvent errorEvent = (ErrorEvent)event;
+        player.addEventListener(PlayerEventTypes.ERROR, errorEvent -> {
             Log.e(TAG, "Got error: " + errorEvent.getErrorObject().getLocalizedMessage());
         });
 
-        player.addEventListener(PlayerEventTypes.TIMEUPDATE, (Event event) -> {
-            TimeUpdateEvent timeEvent = (TimeUpdateEvent)event;
+        player.addEventListener(PlayerEventTypes.TIMEUPDATE, timeEvent -> {
             synchronized ( SimplePlayerTestActivity.this ) {
                 currentPosition = timeEvent.getCurrentTime();
             }
         });
 
-        player.addEventListener(PlayerEventTypes.ENDED, (Event event) -> {
+        player.addEventListener(PlayerEventTypes.ENDED, event -> {
             signalPlaybackEnded();
         });
     }

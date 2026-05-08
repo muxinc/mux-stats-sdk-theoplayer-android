@@ -31,7 +31,7 @@ android {
     }
   }
   sourceSets {
-    v10 {
+    v11 {
       java.srcDirs = ["./src/no_ads/java"]
       res.srcDirs = ["./src/no_ads/res"]
       assets.srcDirs = ["./src/no_ads/assets"]
@@ -41,7 +41,7 @@ android {
   flavorDimensions "api"
 
   productFlavors {
-    v10 {
+    v11 {
       dimension 'api'
       minSdkVersion project.ext.minSdkVersion
     }
@@ -50,6 +50,7 @@ android {
   compileOptions {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
+    coreLibraryDesugaringEnabled = true
   }
   lint {
     abortOnError false
@@ -60,6 +61,8 @@ android {
 }
 
 dependencies {
+  coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
+
   implementation "androidx.multidex:multidex:2.0.1"
   implementation "com.android.support:multidex:1.0.3"
   implementation "com.google.android.material:material:1.13.0"
