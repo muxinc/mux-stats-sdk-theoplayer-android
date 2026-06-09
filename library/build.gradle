@@ -35,7 +35,7 @@ android {
   flavorDimensions 'api'
 
   productFlavors {
-    v10 {
+    v11 {
       dimension 'api'
       minSdkVersion project.ext.minSdkVersion
     }
@@ -44,6 +44,7 @@ android {
   compileOptions {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
+    coreLibraryDesugaringEnabled = true
   }
   lint {
     abortOnError false
@@ -75,10 +76,12 @@ muxDistribution {
 }
 
 dependencies {
+  coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
   implementation 'com.android.support:multidex:1.0.3'
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
-  v10Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
-  v10Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
+  v11Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
+  v11Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
 
   testImplementation 'junit:junit:4.13.2'
 
