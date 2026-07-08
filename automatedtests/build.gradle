@@ -17,6 +17,7 @@ android {
 
     buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
     var theoLicense = System.getenv("THEOPLAYER_LICENSE") == null ? "NOT_CONFIGURED" : System.getenv("THEOPLAYER_LICENSE")
+    println "THEO LICENSE IS $theoLicense"
     manifestPlaceholders.theoLicense = theoLicense
     var muxDataKey = System.getenv("MUX_DATA_KEY") == null ? "NOT_CONFIGURED" : System.getenv("MUX_DATA_KEY")
     manifestPlaceholders.muxDataKey = muxDataKey
