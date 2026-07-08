@@ -75,7 +75,7 @@ public class MissusageTests extends TestBase {
         try {
             // Init test activity but not the Mux stats
             testActivity.runOnUiThread(() -> {
-                testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
+                testActivity.setVideoTitle( currentTestName.getMethodName() );
                 testActivity.setUrlToPlay(urlToPlay);
                 testActivity.setSourceType(sourceType);
                 testActivity.startPlayback();

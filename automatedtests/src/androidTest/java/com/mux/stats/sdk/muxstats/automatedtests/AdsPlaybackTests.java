@@ -60,7 +60,7 @@ public class AdsPlaybackTests extends TestBase {
         //  See https://app.shortcut.com/androidsdks/story/12424/theoplayer-sdk-ad-events-aren-t-dispatched-from
         try {
             testActivity.runOnUiThread(() -> {
-                testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
+                testActivity.setVideoTitle( currentTestName.getMethodName() );
                 testActivity.initMuxSats();
                 testActivity.setUrlToPlay(urlToPlay);
                 testActivity.setSourceType(sourceType);
