@@ -32,14 +32,6 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
-  flavorDimensions 'api'
-
-  productFlavors {
-    v11 {
-      dimension 'api'
-      minSdkVersion project.ext.minSdkVersion
-    }
-  }
 
   compileOptions {
     sourceCompatibility = '1.8'
@@ -80,8 +72,8 @@ dependencies {
 
   implementation 'com.android.support:multidex:1.0.3'
   //noinspection GradleDynamicVersion // THEO claims there will be no breaking changes.
-  v11Api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
-  v11Api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
+  api "com.theoplayer.theoplayer-sdk-android:core:${project.ext.theoplayerVersion}"
+  api "com.theoplayer.theoplayer-sdk-android:integration-ads-ima:${project.ext.theoplayerVersion}"
 
   testImplementation 'junit:junit:4.13.2'
 
