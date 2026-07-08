@@ -54,7 +54,7 @@ public class AdsPlaybackTests extends TestBase {
 
 
     @Test
-    @Ignore
+    @Ignore // ads aren't working with our test license
     public void testPreRollAndBumperAds() {
         // TODO: em - Events are not delivered from theoplayer for this test. The ads do appear to play
         //  See https://app.shortcut.com/androidsdks/story/12424/theoplayer-sdk-ad-events-aren-t-dispatched-from
