@@ -31,19 +31,10 @@ android {
     }
   }
   sourceSets {
-    v11 {
+    main {
       java.srcDirs = ["./src/no_ads/java"]
       res.srcDirs = ["./src/no_ads/res"]
       assets.srcDirs = ["./src/no_ads/assets"]
-    }
-  }
-
-  flavorDimensions "api"
-
-  productFlavors {
-    v11 {
-      dimension 'api'
-      minSdkVersion project.ext.minSdkVersion
     }
   }
 

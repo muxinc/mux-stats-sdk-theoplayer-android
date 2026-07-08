@@ -1,0 +1,25 @@
+apiVersion: v1alpha
+kind: espresso
+sauce:
+  region: us-west-1
+  concurrency: 1
+  metadata:
+    tags:
+      - saucectrl-runner
+    build: Release r2_18_1
+espresso:
+  app: automatedtests/build/outputs/apk/debug/automatedtests-debug.apk
+  testApp: automatedtests/build/outputs/apk/androidTest/debug/automatedtests-debug-androidTest.apk
+suites:
+  - name: 'THEOplayer automation'
+    devices:
+      - name: "Google Pixel.*"
+
+artifacts:
+  download:
+    when: always
+    match:
+      - junit.xml
+      - device.log
+    directory: ./data/artifacts/
+
