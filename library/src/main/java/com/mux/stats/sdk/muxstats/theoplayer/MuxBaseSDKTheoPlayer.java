@@ -210,6 +210,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
                     }
                 });
 
+        player.addEventListener(PlayerEventTypes.LOADEDMETADATA) {
+            sourceDuration = playerView.player.duration
+        }
+
         player.addEventListener(PlayerEventTypes.PLAY, (playEvent -> {
             Player currentPlayer = getCurrentPlayer();
             if (currentPlayer != null && !currentPlayer.isAutoplay()
