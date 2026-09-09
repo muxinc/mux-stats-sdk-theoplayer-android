@@ -80,7 +80,7 @@ import java.util.function.Function;
 public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     public static final String TAG = "MuxBaseSDKTheoPlayer";
 
-    protected PlayerState state;
+    protected volatile PlayerState state;
     protected MuxStats muxStats;
     protected WeakReference<THEOplayerView> player;
     protected WeakReference<Context> contextRef;
@@ -94,7 +94,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
     protected Double sourceAdvertisedFramerate;
-    protected double sourceDuration = -1D;
+    protected volatile double sourceDuration = -1D;
+    private volatile String sourceMimeType;
     protected boolean isPlaying;
     protected boolean sourceChanged;
     protected boolean inAdBreak;
@@ -129,6 +130,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, playerView.getVersion()));
         resetInternalStats();
+        sourceMimeType = readMimeType();
         if (networkRequest == null) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         } else {
@@ -194,6 +196,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////// Setup listeners //////////////////////////////////////////////////////////////////
         player.addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
+            sourceMimeType = readMimeType();
             this.sourceChanged = true;
         }));
 
@@ -509,7 +512,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public Long getSourceDuration() {
-        if (getCurrentPlayer() != null) {
+        if (getCurrentPlayerView() != null) {
             return (long) sourceDuration;
         }
         return -1L;
@@ -522,7 +525,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isBuffering() {
-        if (getCurrentPlayer() != null) {
+        if (getCurrentPlayerView() != null) {
             PlayerState state = getState();
             return state == PlayerState.BUFFERING || state == PlayerState.REBUFFERING;
         }
@@ -609,6 +612,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public String getMimeType() {
+        return getCurrentPlayerView() != null ? sourceMimeType : null;
+    }
+
+    private String readMimeType() {
         TypedSource firstSource = getFirstSource();
         if (firstSource != null) {
             SourceType type = firstSource.getType();
