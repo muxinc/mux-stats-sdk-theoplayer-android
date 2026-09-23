@@ -2,6 +2,8 @@ package com.mux.stats.sdk.muxstats.theoplayer;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
+
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerData;
@@ -10,6 +12,7 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxErrorException;
+import com.mux.stats.sdk.muxstats.MuxStats;
 import com.theoplayer.android.api.THEOplayerView;
 
 import java.lang.ref.WeakReference;
@@ -30,48 +33,52 @@ public class MuxStatsSDKTHEOPlayer extends MuxBaseSDKTheoPlayer {
 
     @SuppressWarnings("unused")
     public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerData(customPlayerData, customVideoData);
+        withMuxStats(stats -> stats.updateCustomerData(customPlayerData, customVideoData));
     }
 
     @SuppressWarnings("unused")
     public void updateCustomerData(CustomerPlayerData customerPlayerData,
                                    CustomerVideoData customerVideoData,
                                    CustomerViewData customerViewData) {
-        muxStats.updateCustomerData(customerPlayerData, customerVideoData, customerViewData);
+        withMuxStats(stats -> stats.updateCustomerData(customerPlayerData, customerVideoData, customerViewData));
     }
 
+    @Nullable
     @SuppressWarnings("unused")
     public CustomerVideoData getCustomerVideoData() {
-        return muxStats.getCustomerVideoData();
+        return withMuxStats(MuxStats::getCustomerVideoData, null);
     }
 
+    @Nullable
     @SuppressWarnings("unused")
     public CustomerPlayerData getCustomerPlayerData() {
-        return muxStats.getCustomerPlayerData();
+        return withMuxStats(MuxStats::getCustomerPlayerData, null);
     }
 
+    @Nullable
     @SuppressWarnings("unused")
     public CustomerViewData getCustomerViewData() {
-        return muxStats.getCustomerViewData();
+        return withMuxStats(MuxStats::getCustomerViewData, null);
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
-        muxStats.allowLogcatOutput(enable, verbose);
+        withMuxStats(stats -> stats.allowLogcatOutput(enable, verbose));
     }
 
     // Exposed methods to change stats
     @SuppressWarnings("unused")
     public void videoChange(CustomerVideoData customerVideoData) {
-        muxStats.videoChange(customerVideoData);
+        withMuxStats(stats -> stats.videoChange(customerVideoData));
     }
 
     @SuppressWarnings("unused")
     public void programChange(CustomerVideoData customerVideoData) {
-        muxStats.programChange(customerVideoData);
+        withMuxStats(stats -> stats.programChange(customerVideoData));
     }
 
+    @Override
     public void orientationChange(MuxSDKViewOrientation orientation) {
-        muxStats.orientationChange(orientation);
+        super.orientationChange(orientation);
     }
 
     public void setPlayerView(THEOplayerView playerView) {
@@ -79,19 +86,19 @@ public class MuxStatsSDKTHEOPlayer extends MuxBaseSDKTheoPlayer {
     }
 
     public void setPlayerSize(int width, int height) {
-        muxStats.setPlayerSize(width, height);
+        withMuxStats(stats -> stats.setPlayerSize(width, height));
     }
 
     public void setScreenSize(int width, int height) {
-        muxStats.setScreenSize(width, height);
+        withMuxStats(stats -> stats.setScreenSize(width, height));
     }
 
     public void error(MuxErrorException e) {
-        muxStats.error(e);
+        withMuxStats(stats -> stats.error(e));
     }
 
     public void setAutomaticErrorTracking(boolean enabled) {
-        muxStats.setAutomaticErrorTracking(enabled);
+        withMuxStats(stats -> stats.setAutomaticErrorTracking(enabled));
     }
 
     public void setStreamType(int type) {

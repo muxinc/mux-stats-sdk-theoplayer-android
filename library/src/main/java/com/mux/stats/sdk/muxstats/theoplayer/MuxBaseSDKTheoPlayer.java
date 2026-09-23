@@ -74,16 +74,19 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     public static final String TAG = "MuxBaseSDKTheoPlayer";
 
-    protected PlayerState state;
+    protected volatile PlayerState state;
     protected MuxStats muxStats;
     protected WeakReference<THEOplayerView> player;
     protected WeakReference<Context> contextRef;
 
     private final Lock releaseMutex = new ReentrantLock();
+    private volatile boolean released = false;
 
     protected static final int ERROR_UNKNOWN = -1;
 
@@ -91,7 +94,8 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     protected int sourceHeight;
     protected Integer sourceAdvertisedBitrate;
     protected Double sourceAdvertisedFramerate;
-    protected double sourceDuration = -1D;
+    protected volatile double sourceDuration = -1D;
+    private volatile String sourceMimeType;
     protected boolean isPlaying;
     protected boolean sourceChanged;
     protected boolean inAdBreak;
@@ -126,12 +130,13 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         MuxStats.setHostDevice(new MuxStatsSDKTHEOPlayer.MuxDevice(ctx, playerView.getVersion()));
         resetInternalStats();
+        sourceMimeType = readMimeType();
         if (networkRequest == null) {
             MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         } else {
             MuxStats.setHostNetworkApi(networkRequest);
         }
-        muxStats = new MuxStats(this, playerName, data, options);
+        muxStats = createMuxStats(this, playerName, data, options, () -> released = true);
         addListener(muxStats);
 
         Player player = playerView.getPlayer();
@@ -191,6 +196,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////// Setup listeners //////////////////////////////////////////////////////////////////
         player.addEventListener(PlayerEventTypes.SOURCECHANGE, (sourceChangeEvent -> {
+            sourceMimeType = readMimeType();
             this.sourceChanged = true;
         }));
 
@@ -384,10 +390,57 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         numberOfEventsSent = 0;
     }
 
+    static MuxStats createMuxStats(IPlayerListener listener, String playerName,
+                                  CustomerData data, CustomOptions options, Runnable onRelease) {
+        return new MuxStats(listener, playerName, data, options) {
+            private boolean coreReleased;
+
+            @Override
+            public synchronized void release() {
+                if (coreReleased) {
+                    return;
+                }
+                coreReleased = true;
+                onRelease.run();
+                super.release();
+            }
+
+            @Override
+            public synchronized void handle(IEvent event) {
+                if (!coreReleased) {
+                    super.handle(event);
+                }
+            }
+        };
+    }
+
+    protected final void withMuxStats(Consumer<MuxStats> action) {
+        withMuxStats(stats -> {
+            action.accept(stats);
+            return null;
+        }, null);
+    }
+
+    protected final <T> T withMuxStats(Function<MuxStats, T> action, T fallback) {
+        releaseMutex.lock();
+        try {
+            MuxStats stats = muxStats;
+            if (stats == null) {
+                return fallback;
+            }
+            synchronized (stats) {
+                return released ? fallback : action.apply(stats);
+            }
+        } finally {
+            releaseMutex.unlock();
+        }
+    }
+
     public void release() {
         try {
             releaseMutex.lock();
 
+            released = true;
             if (muxStats != null) {
                 muxStats.release();
                 muxStats = null;
@@ -421,11 +474,11 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void orientationChange(MuxSDKViewOrientation orientation) {
-        muxStats.orientationChange(orientation);
+        withMuxStats(stats -> stats.orientationChange(orientation));
     }
 
     public void presentationChange(MuxSDKViewPresentation presentation) {
-        muxStats.presentationChange(presentation);
+        withMuxStats(stats -> stats.presentationChange(presentation));
     }
 
     // IPlayerListener
@@ -459,7 +512,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public Long getSourceDuration() {
-        if (getCurrentPlayer() != null) {
+        if (getCurrentPlayerView() != null) {
             return (long) sourceDuration;
         }
         return -1L;
@@ -472,7 +525,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isBuffering() {
-        if (getCurrentPlayer() != null) {
+        if (getCurrentPlayerView() != null) {
             PlayerState state = getState();
             return state == PlayerState.BUFFERING || state == PlayerState.REBUFFERING;
         }
@@ -559,6 +612,10 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public String getMimeType() {
+        return getCurrentPlayerView() != null ? sourceMimeType : null;
+    }
+
+    private String readMimeType() {
         TypedSource firstSource = getFirstSource();
         if (firstSource != null) {
             SourceType type = firstSource.getType();
@@ -581,6 +638,9 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
         try {
             releaseMutex.lock();
 
+            if (released) {
+                return;
+            }
             if (getCurrentPlayer() != null && muxStats != null) {
                 numberOfEventsSent++;
                 if (event instanceof PlayEvent) {
@@ -655,13 +715,15 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
             return;
         }
         // Update the videoSource url
-        Player currentPlayer = getCurrentPlayer();
-        if (currentPlayer != null && muxStats != null) {
-            String videoUrl = currentPlayer.getSrc();
-            CustomerVideoData videoData = muxStats.getCustomerVideoData();
-            videoData.setVideoSourceUrl(videoUrl);
-            muxStats.updateCustomerData(null, videoData);
-        }
+        withMuxStats(stats -> {
+            Player currentPlayer = getCurrentPlayer();
+            if (currentPlayer != null) {
+                String videoUrl = currentPlayer.getSrc();
+                CustomerVideoData videoData = stats.getCustomerVideoData();
+                videoData.setVideoSourceUrl(videoUrl);
+                stats.updateCustomerData(null, videoData);
+            }
+        });
         state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
     }

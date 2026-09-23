@@ -2,6 +2,11 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+
+import com.theoplayer.android.api.source.SourceDescription;
+import com.theoplayer.android.api.source.SourceType;
+import com.theoplayer.android.api.source.TypedSource;
 
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
@@ -15,6 +20,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 public class MissusageTests extends TestBase {
@@ -38,6 +48,50 @@ public class MissusageTests extends TestBase {
         if (testActivity == null) {
             fail("Test activity not found !!!");
         }
+    }
+
+    @Test
+    public void testMimeTypeCanBeReadOffMainThread() {
+        initStatsWithSource(SourceType.HLS);
+        assertEquals(SourceType.HLS.getMimeType(), testActivity.getMuxStats().getMimeType());
+
+        getInstrumentation().runOnMainSync(() -> setSource(SourceType.DASH));
+        getInstrumentation().waitForIdleSync();
+        assertEquals(SourceType.DASH.getMimeType(), testActivity.getMuxStats().getMimeType());
+
+        getInstrumentation().runOnMainSync(() -> testActivity.getPlayerView().getPlayer().setSource(null));
+        getInstrumentation().waitForIdleSync();
+        assertNull(testActivity.getMuxStats().getMimeType());
+    }
+
+    @Test
+    public void testDurationCanBeReadOffMainThread() {
+        initStatsWithSource(SourceType.HLS);
+        long[] expectedDuration = new long[1];
+        getInstrumentation().runOnMainSync(() ->
+                expectedDuration[0] = testActivity.getMuxStats().getSourceDuration());
+        assertEquals(Long.valueOf(expectedDuration[0]), testActivity.getMuxStats().getSourceDuration());
+    }
+
+    @Test
+    public void testBufferingCanBeReadOffMainThread() {
+        initStatsWithSource(SourceType.HLS);
+        assertFalse(testActivity.getMuxStats().isBuffering());
+    }
+
+    private void initStatsWithSource(SourceType type) {
+        assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+        getInstrumentation().runOnMainSync(() -> {
+            testActivity.getPlayerView().getPlayer().setAutoplay(false);
+            setSource(type);
+            testActivity.initMuxSats();
+        });
+        getInstrumentation().waitForIdleSync();
+    }
+
+    private void setSource(SourceType type) {
+        TypedSource source = new TypedSource.Builder(urlToPlay).type(type).build();
+        testActivity.getPlayerView().getPlayer().setSource(new SourceDescription.Builder(source).build());
     }
 
     // Not working, find out how to reproduce Thread safe crash
