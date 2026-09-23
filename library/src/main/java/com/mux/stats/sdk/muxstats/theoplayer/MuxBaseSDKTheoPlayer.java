@@ -855,7 +855,7 @@ public class MuxBaseSDKTheoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginVersion() {
-            return BuildConfig.MUX_PLUGIN_VERSION;
+            return BuildConfig.LIB_VERSION;
         }
 
         @Override

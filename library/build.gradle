@@ -13,7 +13,6 @@ android {
 
     multiDexEnabled true
 
-    buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
     buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-theoplayer-mux\"")
 
     testInstrumentationRunner "androidx.support.test.runner.AndroidJUnitRunner"
